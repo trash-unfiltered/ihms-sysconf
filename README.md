@@ -8,8 +8,6 @@ gives the user a choice of interfaces. It can configure modules before they are 
 major upgrades to request all necessary information in advance, and let you do what you want while modules are installed.
 Sysconf lets you, if hurry, to skip the less important questions when installing modules.
 
-Sysconf is a full rewrite of the Debian Debconf configuration system.
-
 Installation
 ------------
 
