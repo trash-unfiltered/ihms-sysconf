@@ -17,8 +17,3 @@ Sysconf still in prototype state. Install procedure will come soon.
 
 Todo
 ----
- - Unit tests for DB layer
- - Unit tests for ConfModule (client layer)
- - Unit test for getopt
- - Unit test for frontend layer
- - ini_set('track_errors', 1)
