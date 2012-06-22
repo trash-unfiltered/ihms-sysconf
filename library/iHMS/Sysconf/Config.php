@@ -323,7 +323,7 @@ class iHMS_Sysconf_Config
     /**
      * Frontend to use
      *
-     * Looks at first the value of DEBIAN_FRONTEND, second the config file, third the database, and if all of those
+     * Looks at first the value of SYSCONF_FRONTEND, second the config file, third the database, and if all of those
      * fail, defaults to the dialog frontend.
      *
      * If a value is passed to this method, it changes it temporarily (for the lifetime of the program) to override
@@ -439,7 +439,7 @@ class iHMS_Sysconf_Config
 
 
     /**
-     * Returns sysconf's debug regex.
+     * Returns sysconf's debug regexp
      *
      * This is pulled out of the config file, and may be overridden by SYSCONF_DEBUG in the environment
      *
@@ -466,7 +466,7 @@ class iHMS_Sysconf_Config
      *
      * @return string Admin email
      */
-    public function admin_email()
+    public function adminEmail()
     {
         if ($env = getenv('SYSCONF_ADMIN_EMAIL')) {
             return $env;
