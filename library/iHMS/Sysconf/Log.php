@@ -49,11 +49,7 @@ class iHMS_Sysconf_Log
      * The first parameter specifies the type of information that is being logged. If the user has specified a debug or
      * log setting that matches the parameter, the message is output and/or logged.
      *
-     * Currently used types of information are:
-     * user:
-     * developer:
-     * debug:
-     * db: Any log about db layer
+     * Currently used types of information are: user, developer, debug and db
      *
      * @static
      * @param string $type type of information that is being logged
@@ -64,15 +60,13 @@ class iHMS_Sysconf_Log
     {
         $debug = iHMS_Sysconf_Config::getInstance()->debug;
 
-        //if ($debug && preg_match("/$debug/", $type)) {
-        if ($debug && ($debug == 'developer') || strpos($type, $debug) !== false) {
+        if ($debug && preg_match("/$debug/", $type)) {
             fwrite(STDERR, "sysconf: ({$type}): {$message}\n");
         }
 
         $log = iHMS_Sysconf_Config::getInstance()->log;
 
-        //if ($log && preg_match("/{$log}/", $type)) {
-        if ($log && ($log == 'developer' || strpos($type, $log) !== false)) {
+        if ($log && preg_match("/{$log}/", $type)) {
             if (!self::$sysLogWriter) {
                 require_once 'Zend/Log/Writer/Syslog.php';
                 self::$sysLogWriter = new Zend_Log_Writer_Syslog(array('application' => 'iHMS'));

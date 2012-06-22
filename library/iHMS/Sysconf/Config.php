@@ -36,18 +36,18 @@ require_once 'iHMS/Sysconf/Log.php';
  * This class holds configuration values for sysconf. It supplies defaults, and allows them to be overridden by values
  * from the command line, the  environment, the config file, and values pulled out of the sysconf database.
  *
- * @property $config
- * @property $templates
- * @property $frontend
- * @property $frontendForced
- * @property $priority
- * @property $adminEmail
- * @property $log
- * @property $debug
- * @property $noWarnings
- * @property $nonInteractiveSeen
- * @property $cValues
- * @property $reShow
+ * @property string $config
+ * @property string $templates
+ * @property string $frontend
+ * @property string $frontendForced Tells if frontend was forced
+ * @property string $priority Question priority
+ * @property string $adminEmail Admin Email
+ * @property string $log Value used as regexp to filter log messages
+ * @property string $debug Value used as regexp to filter log messages
+ * @property string $noWarnings (yes|no) Tells whethers or not warnings must be hidden
+ * @property string $nonInteractiveSeen
+ * @property string $cValues
+ * @property string $reShow
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -63,7 +63,7 @@ class iHMS_Sysconf_Config
     protected static $_instance = null;
 
     /**
-     * @var array
+     * @var array Holds sysconf config file paths
      */
     protected static $_configFiles = array(
         '/usr/local/etc/ihms/sysconf.conf',
@@ -118,6 +118,44 @@ class iHMS_Sysconf_Config
         }
 
         return self::$_instance;
+    }
+
+    /**
+     * Returns value of the given field
+     *
+     * @param string $field Field name
+     * @return string Field value
+     */
+    public function __get($field)
+    {
+        if (method_exists($this, $field)) {
+            $ret = $this->{$field}();
+        } elseif (isset($this->_config[$field])) {
+            $ret = $this->_config[$field];
+        } else {
+            fwrite(STDERR, "Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
+            exit(1);
+        }
+
+        return (string)$ret;
+    }
+
+    /**
+     * Sets value of the given field
+     *
+     * @param string $field Field name
+     * @param string $value Field value
+     * @return string Field value set
+     */
+    public function __set($field, $value)
+    {
+        if (method_exists($this, $field)) {
+            $ret = $this->{$field}($value);
+        } else {
+            $ret = ($this->_config[$field] = $value);
+        }
+
+        return (string)$ret;
     }
 
     /**
@@ -381,7 +419,6 @@ class iHMS_Sysconf_Config
      *
      * @param string $value
      * @return string
-     * TODO review
      */
     public function noWarnings($value = null)
     {
@@ -492,11 +529,14 @@ class iHMS_Sysconf_Config
         $text = preg_replace_callback(
             '/\$\{([^}]+)\}/', function($m)
             {
-                return ($env = getenv($m[1])) ? $env : $m[0];
+                return ($env = getenv($m[1]) !== false) ? $env : $m[0];
             }, $text
         );
 
         $i = 0;
+
+        require_once 'Zend/Filter/Word/UnderscoreToCamelCase.php';
+        $filter = new Zend_Filter_Word_UnderscoreToCamelCase();
 
         foreach (explode("\n", $text) as $line) {
             if (preg_match('/^\s*#|^\s*$/', $line)) {
@@ -514,51 +554,9 @@ class iHMS_Sysconf_Config
                 exit(1);
             }
 
-            require_once 'Zend/Filter/Word/UnderscoreToCamelCase.php';
-            $filter = new Zend_Filter_Word_UnderscoreToCamelCase();
-
             $config[lcfirst($filter->filter($key))] = $value;
         }
 
         return $i;
-    }
-
-    /**
-     * Returns value of the given field
-     *
-     * @param string $field Field name
-     * @return string Field value
-     */
-    public function __get($field)
-    {
-        if (method_exists($this, $field)) {
-            $ret = $this->{$field}();
-            //} elseif (array_key_exists($field, $this->_config)) {
-        } elseif (isset($this->_config[$field])) {
-            $ret = $this->_config[$field];
-        } else {
-            fwrite(STDERR, "Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
-            exit(1);
-        }
-
-        return (string)$ret;
-    }
-
-    /**
-     * Sets value of the given field
-     *
-     * @param string $field Field name
-     * @param string $value Field value
-     * @return string Field value set
-     */
-    public function __set($field, $value)
-    {
-        if (method_exists($this, $field)) {
-            $ret = $this->{$field}($value);
-        } else {
-            $ret = ($this->_config[$field] = $value);
-        }
-
-        return (string)$ret;
     }
 }

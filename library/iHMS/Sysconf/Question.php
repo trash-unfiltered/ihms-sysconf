@@ -30,6 +30,14 @@
 /**
  * iHMS_Sysconf_Question class
  *
+ * This is an object that represents a question. Each question has some associated data (which is stored in a backend
+ * database). To get at this data, just use $question->fieldname to read a field, and $question->fieldname = 'value' to
+ * write a field. Any field names at all can be used, the convention is to lowaer-case their names. If a field that is
+ * not defined is read, and a field by the same name exists on the Template, the question is mapped to, the value of
+ * that field will be returned instead.
+ *
+ * Note: For fields that don't match with PHP field syntax, use curly brakets around them (eg . $template->{'fieldname'}).
+ *
  * @category    iHMS
  * @package     iHMS_Sysconf
  * @subpackage  Question
@@ -54,12 +62,11 @@ class iHMS_Sysconf_Question
     protected $_priority = null;
 
     /**
-     * Create a new question object
+     * Create a new question
      *
      * New questions default to having their seen flag set to false
      *
      * @static
-     * @throws iHMS_Sysconf_Exception
      * @param string $name Question name
      * @param string $owner Question owner
      * @param string $type Question type
@@ -113,6 +120,7 @@ class iHMS_Sysconf_Question
      * time it is called
      *
      * @static
+     * @return iHMS_Sysconf_Iterator_Callback
      */
     public function getIterator()
     {
@@ -128,46 +136,6 @@ class iHMS_Sysconf_Question
     }
 
     /**
-     * This is a helper function that expands variables in a string
-     *
-     * @param string $text Text
-     * @return string
-     */
-    protected function _expandVars($text)
-    {
-        if (!$text) {
-            return '';
-        }
-
-        $rest = $text;
-        $result = '';
-
-        while (preg_match_all('/^(.*?)(\\\\)?\${([^{}]+)}(.*)$/s', $rest, $m)) {
-            $result .= $m[1][0]; // copy anything before the variable
-            $escape = $m[2][0];
-            $variable = $m[3][0];
-            $rest = $m[4][0]; // continue trying to expand rest of text
-
-            if ($escape) {
-                // escaped variable is not changed, though the escape is removed
-                $result .= "\${$variable}";
-            } else {
-                if ($varval = iHMS_Sysconf_Db::getConfig()->getVariable($this->_name, $variable)) {
-                    $result .= $varval; // expand the variable
-                }
-            }
-
-            if ($rest == '') {
-                break;
-            }
-        }
-
-        $result .= $rest; // add on anything that's left
-
-        return $result;
-    }
-
-    /**
      * Returns the description of this Question
      *
      * This value is taken from the Template to which this Question is associated, and then any substitution in the
@@ -177,7 +145,7 @@ class iHMS_Sysconf_Question
      */
     public function getDescription()
     {
-        return $this->_expandVars($this->getTemplate()->getField('description'));
+        return $this->_expandVars($this->getTemplate()->description);
     }
 
     /**
@@ -190,7 +158,7 @@ class iHMS_Sysconf_Question
      */
     public function getExtendedDescription()
     {
-        return $this->_expandVars($this->getTemplate()->getField('extended_description'));
+        return $this->_expandVars($this->getTemplate()->extended_description);
     }
 
     /**
@@ -203,7 +171,7 @@ class iHMS_Sysconf_Question
      */
     public function getChoices()
     {
-        return $this->_expandVars($this->getTemplate()->getField('choices'));
+        return $this->_expandVars($this->getTemplate()->choices);
     }
 
     /**
@@ -301,11 +269,10 @@ class iHMS_Sysconf_Question
         }
 
         if ($template = $this->getTemplate()) {
-            return $template->getField('default');
+            return $template->default;
         }
 
         return null;
-
     }
 
     /**
@@ -455,14 +422,16 @@ class iHMS_Sysconf_Question
     }
 
     /**
-     * Sets name
+     * Alias of getName()
      *
-     * @param $value
-     * @return null
+     * This method exists only to prevent change of question name. Will always return question name set by
+     * {@link iHMS_Sysconf_Question::Factory()}
+     *
+     * @return string
      */
-    public function setName($value)
+    public function setName()
     {
-        return null;
+        return $this->_name;
     }
 
     /**
@@ -502,7 +471,7 @@ class iHMS_Sysconf_Question
         if (!$ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, $field)) {
             // Fall back to template values
             if ($template = $this->getTemplate()) {
-                $ret = $template->getField($field);
+                $ret = $template->{$field};
             }
         }
 
@@ -531,5 +500,45 @@ class iHMS_Sysconf_Question
         }
 
         return iHMS_Sysconf_Db::getConfig()->setField($this->_name, $field, $value);
+    }
+
+    /**
+     * This is a helper function that expands variables in a string
+     *
+     * @param string $text Text
+     * @return string
+     */
+    protected function _expandVars($text)
+    {
+        if (!$text) {
+            return '';
+        }
+
+        $rest = $text;
+        $result = '';
+
+        while (preg_match_all('/^(.*?)(\\\\)?\${([^{}]+)}(.*)$/s', $rest, $m)) {
+            $result .= $m[1][0]; // copy anything before the variable
+            $escape = $m[2][0];
+            $variable = $m[3][0];
+            $rest = $m[4][0]; // continue trying to expand rest of text
+
+            if ($escape) {
+                // escaped variable is not changed, though the escape is removed
+                $result .= "\${$variable}";
+            } else {
+                if ($varval = iHMS_Sysconf_Db::getConfig()->getVariable($this->_name, $variable)) {
+                    $result .= $varval; // expand the variable
+                }
+            }
+
+            if ($rest == '') {
+                break;
+            }
+        }
+
+        $result .= $rest; // add on anything that's left
+
+        return $result;
     }
 }

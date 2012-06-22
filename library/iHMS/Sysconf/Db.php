@@ -35,7 +35,8 @@ require_once 'iHMS/Sysconf/Log.php';
  *
  * This class makes available an {@link iHMS_Sysconf_Db::$_config}, which is the root db driver for
  * storing state, and an {@link iHMS_Sysconf_Db::$_templates}, which is the root db driver for storing
- * template data.
+ * template data. Both are available through their respective getters {@link iHMS_Sysconf_Db::getConfig()} and
+ * {@link iHMS_Sysconf_Db::getTemplates()}
  *
  * Requests can be sent directly to the db's by things like {@link iHMS_Sysconf_Db::getConfig()->setfield()}
  *
@@ -69,19 +70,14 @@ class iHMS_Sysconf_Db
      */
     public static function load($parameters = array())
     {
-        $config = iHMS_Sysconf_Config::getInstance()
-            ->load('', $parameters); // Load default config file
+        $config = iHMS_Sysconf_Config::getInstance()->load('', $parameters); // Load default config file
 
-        self::$_config = iHMS_Sysconf_DbDriver::getDriver($config->config);
-
-        if (!self::$_config) {
+        if (!self::$_config = iHMS_Sysconf_DbDriver::getDriver($config->config)) {
             fwrite(STDERR, "sysconf: Configuration database {$config->config} was not initialized\n");
             exit(1);
         }
 
-        self::$_templates = iHMS_Sysconf_DbDriver::getDriver($config->templates);
-
-        if (!self::$_templates) {
+        if (!self::$_templates = iHMS_Sysconf_DbDriver::getDriver($config->templates)) {
             fwrite(STDERR, "sysconf: Template database {$config->templates} was not initialized\n");
             exit(1);
         }
@@ -94,7 +90,6 @@ class iHMS_Sysconf_Db
      * to make.
      *
      * @static
-     * @throws iHMS_Sysconf_Exception When driver type is not specified
      * @param array $config Driver configuration
      * @return iHMS_Sysconf_DbDriver
      */
@@ -147,14 +142,14 @@ class iHMS_Sysconf_Db
 
     /**
      * Save the databases, and shutdown the drivers
-     * @static
      *
+     * @static
      * @return void
      */
     public static function save()
     {
-        // TODO: This method shutdown only drivers which are declared in Config and Templates fields in the configuration
-        // file while the load() method (see above) make and init ALL drivers from it
+        // TODO: This method shutdown only drivers which are declared in Config and Templates fields in the
+        // configuration file while the load() method (see above) make and init ALL drivers from it
 
         if (self::$_config) {
             self::$_config->shutdown();

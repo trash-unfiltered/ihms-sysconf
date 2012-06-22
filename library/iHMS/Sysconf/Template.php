@@ -34,15 +34,22 @@ require_once 'iHMS/Sysconf/Log.php';
  * iHMS_Sysconf_Template class
  *
  * This is an object that represents a Template. Each Template has some associated data, the fields of the template
- * structure. To get at this data, just use $template->getField(fieldname) to read a field, and
- * $template->setField('fieldname', 'value')  to write a field. Any field names at all can be used, the convention is to
- * lower-case their names.
+ * structure. To get at this data, just use $template->fieldname to read a field, and $template->fieldname = 'value' to
+ * write a field. Any field names at all can be used, the convention is to lower-case their names.
+ *
+ * Note: For fields that don't match with PHP field syntax, use curly brakets around them (eg . $template->{'fieldname'}).
  *
  * Common fields are "default", "type", and "description". The field named "extended_description" holds the extended
  * description, if any.
  *
  * Templates support internationalization. If LANG or a related environment variable is set, and you request a field
  * from a template, it will see if fieldname-$LANG" exists, and if so return that instead
+ *
+ * @property string description
+ * @property string extended_description
+ * @property string choices
+ * @property string default
+ * @property string type
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -192,22 +199,20 @@ class iHMS_Sysconf_Template
      * instantiated templates. Pass it the file to load (or an already open FileHandle) and the template owner.
      *
      * @static
-     * @param string|resource $templateFile
-     * @param string $templateOwner Template owner
+     * @param string|resource $templateFile Either a string representing a templates file or a resource of templates
+     *                                      file already opened
+     * @param string $templateOwner Templates owner (eg: The module name that the templates file belongs)
      * @return iHMS_Sysconf_Template[]
      */
     public static function load($templateFile, $templateOwner)
     {
-
         $ret = array();
 
         if (is_resource($templateFile)) {
             $fh = $templateFile;
-        } else {
-            if (!$fh = @fopen($templateFile, 'r')) {
-                fwrite(STDERR, "sysconf: Unable to read the {$templateFile} templates file.\n");
-                exit(1);
-            }
+        } elseif (!$fh = @fopen($templateFile, 'r')) {
+            fwrite(STDERR, "sysconf: Unable to read the {$templateFile} templates file.\n");
+            exit(1);
         }
 
         fseek($fh, 0, SEEK_END);
@@ -309,7 +314,8 @@ class iHMS_Sysconf_Template
                     continue;
                 }
 
-                $template->setField($key, $value);
+                //$template->setField($key, $value);
+                $template->{$key} = $value;
             }
 
             array_push($ret, $template);
@@ -318,13 +324,13 @@ class iHMS_Sysconf_Template
         } // end-while();
 
         return $ret;
-
     } // End load();
 
     /**
      * Returns template name
      *
      * @return string Template name
+     * TODO check if we must rename that method to template and make it callable via common setter
      */
     public function getName()
     {
@@ -354,11 +360,10 @@ class iHMS_Sysconf_Template
     /**
      * Provides accessors (getters) for templates fields
      *
-     * @param string $field Field name
-     * @return string
-     * @TODO i18n
+     * @param string $fieldName
+     * @return null|string
      */
-    public function getField($field)
+    public function __get($fieldName)
     {
         $ret = null;
         $wanti18n = self::$_i18n && iHMS_Sysconf_Config::getInstance()->cValues != true;
@@ -374,7 +379,7 @@ class iHMS_Sysconf_Template
 
                 // First check for a field that matches the language and the encoding. No charset conversion is needed.
                 // This also takes care of the old case where encoding is not specified
-                if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $field)) {
+                if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName)) {
                     return $ret;
                 }
 
@@ -388,21 +393,21 @@ class iHMS_Sysconf_Template
                     break;
                 }
             }
-        } elseif (!$wanti18n && !preg_match('/-c$/i', $field)) {
+        } elseif (!$wanti18n && !preg_match('/-c$/i', $fieldName)) {
             // If i18n is turned off, try *-C first
-            if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $field . '-c')) {
+            if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName . '-c')) {
                 return $ret;
             }
         }
 
-        if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $field)) {
+        if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName)) {
             return $ret;
         }
 
         // If the user asked for a language-specific field, fall back to the unadorned field. This allows *-C to be used
         // to force untranslated data, and *-* to fall back to untranslated data if no translation is available
-        if (strpos($field, '-') !== false) {
-            $plainfield = preg_replace('/-.*/', '', $field);
+        if (strpos($fieldName, '-') !== false) {
+            $plainfield = preg_replace('/-.*/', '', $fieldName);
 
             if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $plainfield)) {
                 return $ret;
@@ -417,13 +422,13 @@ class iHMS_Sysconf_Template
     /**
      * Provides setters for templates fields
      *
-     * @param string $field Fieldname
-     * @param string $value Field value
+     * @param string $fieldName
+     * @param string $value
      * @return null|string
      */
-    public function setField($field, $value)
+    public function __set($fieldName, $value)
     {
-        return iHMS_Sysconf_Db::getTemplates()->setField($this->_templateName, $field, $value);
+        return iHMS_Sysconf_Db::getTemplates()->setField($this->_templateName, $fieldName, $value);
     }
 
     /**

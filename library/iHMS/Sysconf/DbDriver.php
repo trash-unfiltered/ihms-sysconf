@@ -241,7 +241,7 @@ abstract class iHMS_Sysconf_DbDriver
                     return true;
                 } // no type to act on
 
-                if (!$template->getField('type')) {
+                if (!$template->type) {
                     $type = '';
                 }
             }
@@ -281,7 +281,7 @@ abstract class iHMS_Sysconf_DbDriver
             return false;
         }
 
-        $type = $template->type || '';
+        $type = $template->type || ''; // TODO humm
 
         return ($type == 'password') ? true : false;
     }
