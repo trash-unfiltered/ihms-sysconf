@@ -46,7 +46,9 @@ class iHMS_Sysconf_TmpFile
     protected static $_fileName = '';
 
     /**
-     * Open a temporary file for writing. Returns an open file descriptor. Optionally a file extension may be passed to it.
+     * Open a temporary file for writing
+     *
+     * Returns an open file descriptor. Optionally a file extension may be passed to it.
      *
      * @param string $extension File extension
      * @return resource
@@ -75,6 +77,9 @@ class iHMS_Sysconf_TmpFile
 
     /**
      * Unlinks the last opened tempfile
+     *
+     * @static
+     * @return void
      */
     public static function cleanup()
     {
