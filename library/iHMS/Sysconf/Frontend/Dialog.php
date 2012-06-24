@@ -379,7 +379,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         // $this->_pipes = &$pipes;
         $this->_childIn =& $childIn;
-        ;
         $this->_childOut =& $chidOut;
         $this->_dialogError =& $pipes[2];
         $this->_dialogOutput =& $pipes[3];
