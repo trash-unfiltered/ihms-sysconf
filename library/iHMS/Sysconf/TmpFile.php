@@ -57,7 +57,7 @@ class iHMS_Sysconf_TmpFile
     {
         do {
             self::$_fileName = tempnam('/tmp', $extension);
-        } while (!($fh = fopen(self::$_fileName, 'w')) || !flock($fh, LOCK_EX));
+        } while (!$fh = fopen(self::$_fileName, 'w') or !flock($fh, LOCK_EX));
 
         return $fh;
     }
@@ -81,6 +81,6 @@ class iHMS_Sysconf_TmpFile
      */
     public static function cleanup()
     {
-       return @unlink(self::$_fileName);
+        return @unlink(self::$_fileName);
     }
 }
