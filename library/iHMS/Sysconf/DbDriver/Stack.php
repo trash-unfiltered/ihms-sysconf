@@ -101,16 +101,17 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     {
         $iterator = new AppendIterator();
 
-        /** @var $driver iHMS_Sysconf_DbDriver  */
+        /** @var $_ iHMS_Sysconf_DbDriver  */
         array_map(
-            function($driver) use($iterator)
+            function($_) use($iterator)
             {
                 /** @var $iterator AppendIterator */
-                $iterator->append($driver->getIterator());
+                $iterator->append($_->getIterator());
             },
             array_reverse($this->_stack)
         );
 
+        /** @see iHMS_Sysconf_Iterator_CallbackFilter */
         require_once 'iHMS/Sysconf/Iterator/CallbackFilter.php';
 
         return new iHMS_Sysconf_Iterator_CallbackFilter(

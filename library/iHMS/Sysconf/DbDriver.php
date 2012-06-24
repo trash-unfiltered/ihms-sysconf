@@ -287,8 +287,9 @@ abstract class iHMS_Sysconf_DbDriver
     }
 
     /**
-     * Create an object of type iHMS_Sysconf_Iterator that can be used to iterate over each item in the
-     * database, and return it.
+     * Create an iterator object that can be used to iterate over each item in the database, and return it.
+     *
+     * Each subclass must implement this method
      *
      * @abstract
      * @return Iterator

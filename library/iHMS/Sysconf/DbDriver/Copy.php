@@ -72,7 +72,7 @@ abstract class iHMS_Sysconf_DbDriver_Copy extends iHMS_Sysconf_DbDriver
             $type = '';
 
             if ($template) {
-                $type = $template->getField('type');
+                $type = $template->type;
             }
 
             $dest->addOwner($itemName, $owner, $type);

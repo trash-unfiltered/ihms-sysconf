@@ -38,6 +38,8 @@
  *
  * Note: For fields that don't match with PHP field syntax, use curly brakets around them (eg . $template->{'fieldname'}).
  *
+ * @property string type Question type
+ *
  * @category    iHMS
  * @package     iHMS_Sysconf
  * @subpackage  Question

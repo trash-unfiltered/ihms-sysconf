@@ -127,10 +127,9 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
     }
 
     /**
-     * Create an object of type iHMS_Sysconf_Iterator that can be used to iterate over each item in the
-     * db, and return it.
+     * Create an iterator that can be used to iterate over each item in the db, and return it.
      *
-     * Derived classes should override this method and construct their own iterator. Then at the end return an
+     * Derived classes *should* override this method and construct their own iterator. Then at the end return an
      * {@link AppendIterator} that holds both iterators (this one first)
      *
      * @return \Iterator|\Traversable
@@ -143,9 +142,9 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
 
         $iterator = new iHMS_Sysconf_Iterator_CallbackFilter(
             new ArrayIterator(array_keys($cache)),
-            function($item) use($cache)
+            function($_) use($cache)
             {
-                if (is_null($cache[$item])) {
+                if (is_null($cache[$_])) {
                     return false;
                 }
 
