@@ -84,7 +84,3 @@ class iHMS_Sysconf_TmpFile
         @unlink(self::$_fileName);
     }
 }
-
-$fh = iHMS_Sysconf_TmpFile::open();
-print gettype($fh);
-exit;
