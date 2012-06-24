@@ -77,10 +77,10 @@ class iHMS_Sysconf_TmpFile
      * Unlinks the last opened tempfile
      *
      * @static
-     * @return void
+     * @return bool true on success or false on failure
      */
     public static function cleanup()
     {
-        @unlink(self::$_fileName);
+       return @unlink(self::$_fileName);
     }
 }
