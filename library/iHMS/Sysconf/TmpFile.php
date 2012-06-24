@@ -57,9 +57,7 @@ class iHMS_Sysconf_TmpFile
     {
         do {
             self::$_fileName = tempnam('/tmp', $extension);
-        } while (!$fh = fopen(self::$_fileName, 'w'));
-
-        flock($fh, LOCK_EX);
+        } while (!($fh = fopen(self::$_fileName, 'w')) || !flock($fh, LOCK_EX));
 
         return $fh;
     }
@@ -86,3 +84,7 @@ class iHMS_Sysconf_TmpFile
         @unlink(self::$_fileName);
     }
 }
+
+$fh = iHMS_Sysconf_TmpFile::open();
+print gettype($fh);
+exit;
