@@ -281,7 +281,7 @@ abstract class iHMS_Sysconf_DbDriver
             return false;
         }
 
-        $type = $template->type || ''; // TODO humm
+        $type = $template->type ?: '';
 
         return ($type == 'password') ? true : false;
     }
