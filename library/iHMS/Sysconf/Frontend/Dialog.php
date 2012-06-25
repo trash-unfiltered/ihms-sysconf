@@ -187,9 +187,16 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         // Try to guess how many lines the text will take up in the dialog. This is difficult because long lines are
         // wrapped. So what I'll do is pre-wrap the text and then just look at the number of lines it takes up
         $columns = $this->_screenWidth - $this->_borderWidth - $this->_columnSpacer;
+
+        // Dialog do not add litteral newline at text begin like whiptail do, so we must add it manually
+        if ($this->_program == 'dialog') {
+            $text = "\n$text";
+        }
+
         $text = wordwrap($text, $columns);
 
-        $lines = preg_split("/\n/", $text, null, PREG_SPLIT_NO_EMPTY);
+        //$lines = preg_split("/\n/", $text, null, PREG_SPLIT_NO_EMPTY);
+        $lines = explode("\n", $text);
 
         // Now figure out what's the longest line. Look at the title size too. Note use of strlen() function to count
         // columns, not just characters
@@ -237,7 +244,8 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         list($text, , $width) = $this->sizeText($inText);
 
-        $linesArray = preg_split("/\n/", $text, null, PREG_SPLIT_NO_EMPTY);
+        //$linesArray = preg_split("/\n/", $text, null, PREG_SPLIT_NO_EMPTY);
+        $linesArray = explode("\n", $text);
 
         $args = array('--msgbox', join("\n", $linesArray));
 
@@ -334,7 +342,12 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             array_unshift($args, "--backtitle Module configuration");
         }
 
+        if ($this->_program == 'whiptail') { // Add ponctuation space before backtitle
+            $args[0] = str_replace('--backtitle ', "--backtitle \xe2\x80\x88", $args[0]);
+        }
+
         $pipes = array(null, null, null);
+
         if (!$childIn = @fopen('php://stdin', 'r')) {
             fwrite(STDERR, "Unable to make dup of stdin\n");
             exit(1);
@@ -346,7 +359,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         }
 
         // Escape args
-        $args = array_map(
+        $escapeshellarg =
             function($_)
             {
                 if (preg_match('/^(--[^\s]*\s+)(.*)/', $_, $m)) {
@@ -356,12 +369,10 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
                 } else {
                     return $_;
                 }
-            },
-            $args
-        );
+            };
 
         $this->_dialogProcess = @proc_open(
-            "{$this->_programPath} " . join(' ', $args),
+            "{$this->_programPath} " . join(' ', array_map($escapeshellarg, $args)),
             array(
                 0 => $childIn,
                 1 => $chidOut,
@@ -371,13 +382,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $pipes
         );
 
-
         if (!is_resource($this->_dialogProcess)) {
             fwrite(STDERR, sprintf('Unable to spawn %s: %s', $this->_program, $php_errormsg));
             exit(1);
         }
 
-        // $this->_pipes = &$pipes;
         $this->_childIn =& $childIn;
         $this->_childOut =& $chidOut;
         $this->_dialogError =& $pipes[2];
