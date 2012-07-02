@@ -120,7 +120,6 @@ abstract class iHMS_Sysconf_DbDriver
     /**
      * Constructor
      *
-     * @throws iHMS_Sysconf_Exception When a regexp is invalid in configuration file
      * @param array $params Parameters
      */
     public function __construct($params)
@@ -173,11 +172,12 @@ abstract class iHMS_Sysconf_DbDriver
     }
 
     /**
+     * Raise tbe given error message
+     *
      * Rather than ever dying on errors, drivers should instead call this method to state than an error was encountered.
      * If the driver is required, it will be a fatal error. If not, the error message will merely be displayed to the
      * user, the driver will be marked as failed, and sysconf will continue on, "dazed and confuzed".
      *
-     * @throws iHMS_Sysconf_Exception
      * @param string $errorMessage Error message
      * @return void
      */
@@ -325,7 +325,7 @@ abstract class iHMS_Sysconf_DbDriver
      * @param string $type Item type
      * @return string|null
      */
-    abstract public function  addOwner($itemName, $ownerName, $type);
+    abstract public function addOwner($itemName, $ownerName, $type);
 
     /**
      * Remove an owner from an item.

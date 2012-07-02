@@ -33,10 +33,9 @@ require_once 'iHMS/Sysconf/Log.php';
 /**
  * iHMS_Sysconf_Db class
  *
- * This class makes available an {@link iHMS_Sysconf_Db::$_config}, which is the root db driver for
- * storing state, and an {@link iHMS_Sysconf_Db::$_templates}, which is the root db driver for storing
- * template data. Both are available through their respective getters {@link iHMS_Sysconf_Db::getConfig()} and
- * {@link iHMS_Sysconf_Db::getTemplates()}
+ * This class makes available an {@link iHMS_Sysconf_Db::$_config}, which is the root db driver for storing state, and
+ * an {@link iHMS_Sysconf_Db::$_templates}, which is the root db driver for storing template data. Both are available
+ * through their respective getters {@link iHMS_Sysconf_Db::getConfig()} and {@link iHMS_Sysconf_Db::getTemplates()}
  *
  * Requests can be sent directly to the db's by things like {@link iHMS_Sysconf_Db::getConfig()->setfield()}
  *
@@ -65,10 +64,10 @@ class iHMS_Sysconf_Db
      * that is loaded up. Practically, setting (readonly => "true") is the only use of this.
      *
      * @static
-     * @param array $parameters
+     * @param array $parameters OPTIONAL Array of named parameters
      * @return void
      */
-    public static function load($parameters = array())
+    public static function load(array $parameters = array())
     {
         $config = iHMS_Sysconf_Config::getInstance()->load('', $parameters); // Load default config file
 
@@ -90,7 +89,7 @@ class iHMS_Sysconf_Db
      * to make.
      *
      * @static
-     * @param array $config Driver configuration
+     * @param array $config Array that holds driver configuration
      * @return iHMS_Sysconf_DbDriver
      */
     public static function makeDriver($config)

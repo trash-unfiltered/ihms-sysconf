@@ -27,6 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see Zend_Text_MultiByte */
+require_once 'Zend/Text/MultiByte.php';
+
 /**
  * iHMS_Sysconf_Frontend_Dialog class
  *
@@ -156,7 +159,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $this->_borderWidth = 7;
             $this->_borderHeight = 6;
             $this->_spacer = 0;
-            $this->_titleSpacer = 6;
+            $this->_titleSpacer = 4;
             $this->_columnSpacer = 2;
             $this->_selectSpacer = 0;
         } else {
@@ -193,23 +196,24 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $text = "\n$text";
         }
 
-        $text = wordwrap($text, $columns);
+        // TODO support for CJK characters
+        $text = Zend_Text_MultiByte::wordWrap($text, $columns);
 
-        //$lines = preg_split("/\n/", $text, null, PREG_SPLIT_NO_EMPTY);
         $lines = explode("\n", $text);
 
-        // Now figure out what's the longest line. Look at the title size too. Note use of strlen() function to count
-        // columns, not just characters
-        $windowColumns = strlen($this->_title) + $this->_titleSpacer;
+        // Now figure out what's the longest line.
+        $windowColumns = iconv_strlen($this->_title + $this->_titleSpacer, 'UTF-8');
 
         array_map(
             function($_) use(&$windowColumns)
             {
-                $w = strlen($_);
+                $w = iconv_strlen($_, 'UTF-8');
+
                 if ($w > $windowColumns) {
                     $windowColumns = $w;
                 }
             },
+
             $lines
         );
 
@@ -244,7 +248,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         list($text, , $width) = $this->sizeText($inText);
 
-        //$linesArray = preg_split("/\n/", $text, null, PREG_SPLIT_NO_EMPTY);
         $linesArray = explode("\n", $text);
 
         $args = array('--msgbox', join("\n", $linesArray));
@@ -263,7 +266,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
                 $args = array('--textbox', iHMS_Sysconf_TmpFile::getFilename());
             }
         } else {
-
             $num = count($linesArray) + 1;
         }
 
@@ -321,8 +323,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             'debug', "preparing to run dialog. Params are: {$this->_program}, " . join(', ', $args)
         );
 
-        //ini_set('display_errors', 0);
-
         // Do not add cancel button either if backup is not available nor
         if (!($this->_capbBackup || in_array('--defaultno', $args))) { // TODO Behavior to be checked
             array_unshift($args, '--nocancel');
@@ -330,10 +330,9 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         // Allow separation of errors from the expected output.
         // Default dialog behavior is to send any output on stderr
-        array_unshift($args, '--output-fd 3');
-
-        // Set dialog title
-        array_unshift($args, "--title {$this->_title}");
+        //
+        // Add the title
+        array_unshift($args, '--output-fd 3', "--title {$this->_title}");
 
         // Set dialog backtitle
         if ($this->_info) {
@@ -362,7 +361,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         $escapeshellarg =
             function($_)
             {
-                if (preg_match('/^(--[^\s]*\s+)(.*)/', $_, $m)) {
+                if (preg_match('/^(--[^\s]+\s+)(.*)/', $_, $m)) {
                     return $m[1] . escapeshellarg($m[2]);
                 } elseif ($_ != '--') {
                     return escapeshellarg($_);
@@ -427,8 +426,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         // proc_close make call of système waitpid(3) here
         $ret = proc_close($this->_dialogProcess);
 
-        ini_set('display_errors', 1);
-
         // Now check dialog's return code to see if escape (255 (really -1)) or Cancel (1) were hit. If so, make
         // a note that we should back up.
         //
@@ -458,7 +455,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * @param int $height Dialog height
      * @param int $width Dialog width
      * @return array|null Array that hold dialog return code and the output if any or NULL in case the user hit
-     *                    escape ir cancel
+     *                    escape or cancel
      */
     public function showDialog(iHMS_Sysconf_Question $question, array $args, $height, $width)
     {
@@ -487,7 +484,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      *
      * This is helper method to find program path in safe way.
      *
-     * @static
      * @param string $program Program to find
      * @return bool|string $program path or FALSE if $program is not found/available
      */
@@ -516,5 +512,3 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         return false;
     }
 }
-
-
