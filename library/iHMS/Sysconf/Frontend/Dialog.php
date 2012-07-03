@@ -176,6 +176,80 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     } // end-init()
 
     /**
+     * Returns dash separator
+     *
+     * @return null|string Dash separator or null if not defined for the current dialog program
+     */
+    public function getDashSeparator()
+    {
+        if ($this->_dashSeparator) {
+            return $this->_dashSeparator;
+        }
+
+        return '';
+    }
+
+    /**
+     * Returns border width
+     *
+     * @return int Border width
+     */
+    public function getBorderWidth()
+    {
+        return $this->_borderWidth;
+    }
+
+    /**
+     * Return border height
+     *
+     * @return int Border height
+     */
+    public function getBorderHeight()
+    {
+        return $this->_borderHeight;
+    }
+
+    /**
+     * Returns spacer
+     *
+     * @return int spacer
+     */
+    public function getSpacer()
+    {
+        return $this->_spacer;
+    }
+
+    /**
+     * Returns title spacer
+     *
+     * @return int Title spacer
+     */
+    public function getTitleSpacer()
+    {
+        return $this->_titleSpacer;
+    }
+
+    /**
+     * Returns column spacer
+     *
+     * @return int Column spacer
+     */
+    public function getColumnSpacer()
+    {
+        return $this->_columnSpacer;
+    }
+
+    /**
+     * Return select spacer
+     *
+     * @return int Select spacer
+     */
+    public function getSelectSpacer()
+    {
+        return $this->_selectSpacer;
+    }
+
+    /**
      * Size text
      *
      * Dialog and whiptail have an annoying field of requiring you specify their dimensions explicitly. This function
@@ -269,7 +343,10 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $num = count($linesArray) + 1;
         }
 
-        $this->showDialog($question, $args, $num + $this->_borderHeight, $width);
+        // Add height and width
+        array_push($args, $num + $this->_borderHeight, $width);
+
+        $this->showDialog($question, $args);
 
         if ($args[0] == '--textbox') {
             iHMS_Sysconf_TmpFile::cleanup();
@@ -316,6 +393,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * @return void
      * @param iHMS_Sysconf_Question $question Question
      * @param array $args Arguments
+     * @todo remove $question parameter?
      */
     public function startDialog(iHMS_Sysconf_Question $question, $args)
     {
@@ -452,14 +530,12 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      *
      * @param iHMS_Sysconf_Question $question Question
      * @param array $args Dialog arguments
-     * @param int $height Dialog height
-     * @param int $width Dialog width
      * @return array|null Array that hold dialog return code and the output if any or NULL in case the user hit
      *                    escape or cancel
      */
-    public function showDialog(iHMS_Sysconf_Question $question, array $args, $height, $width)
+    public function showDialog(iHMS_Sysconf_Question $question, array $args)
     {
-        $args = array_map(array($this, 'hideEscape'), array_merge($args, array($height, $width)));
+        $args = array_map(array($this, 'hideEscape'), $args);
 
         // It's possible to ask question in the middle of a progress bar. However, whiptail doesn't like having two
         // instances of itself trying to talk to the same terminal, so we need to shut the progress bar down temporarily

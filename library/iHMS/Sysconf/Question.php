@@ -124,7 +124,7 @@ class iHMS_Sysconf_Question
      * @static
      * @return iHMS_Sysconf_Iterator_Callback
      */
-    public function getIterator()
+    public static function getIterator()
     {
         require_once 'iHMS/Sysconf/Iterator/Callback.php';
 
@@ -179,8 +179,8 @@ class iHMS_Sysconf_Question
     /**
      * Returns list of individual choices
      *
-     * This takes the result of the choices() method and simply splits it up into individual choices and returns them as
-     * a list
+     * This takes the result of the {@link iHMS_Sysconf_Question::getChoices()} method and simply splits it up into
+     * individual choices and returns them as a list
      *
      * @return array
      */
@@ -189,11 +189,11 @@ class iHMS_Sysconf_Question
         $items = array();
         $item = '';
 
-        foreach (preg_split('/(\\[, ]|,\s+)/', $this->getChoices()) as $chunk) { // TODO check regexp
-            if (preg_match('/^\\([, ])$/', $chunk, $m)) { // TODO check regexp
+        foreach (preg_split('/(\\\\[, ]|,\s+)/', $this->getChoices(), 0, PREG_SPLIT_DELIM_CAPTURE) as $chunk) {
+            if (preg_match('/^\\\\([, ])$/', $chunk, $m)) {
                 $item .= $m[1];
             } elseif (preg_match('/^,\s+$/', $chunk)) {
-                array_push($items, $item);
+                $items[] = $item;
                 $item = '';
             } else {
                 $item .= $chunk;
@@ -201,7 +201,7 @@ class iHMS_Sysconf_Question
         }
 
         if ($item != '') {
-            array_push($items, $item);
+            $items[] = $item;
         }
 
         return $items;
@@ -291,8 +291,8 @@ class iHMS_Sysconf_Question
     /**
      * Returns list of individual values
      *
-     * This takes the result of the value method and simply splits it up into individual values and returns them as a
-     * list
+     * This takes the result of the {@link iHMS_Sysconf_Question::getValue()} method and simply splits it up into
+     * individual values and returns them as a list
      *
      * @return array
      */
@@ -302,11 +302,11 @@ class iHMS_Sysconf_Question
         $items = array();
         $item = '';
 
-        foreach (preg_split('/(\\[, ]|,\s+)/', $value) as $chunk) { // TODO check regexp
-            if (preg_match('/^\\([, ])$/', $chunk, $m)) { // TODO check regexp
+        foreach (preg_split('/(\\\\[, ]|,\s+)/', $value, 0, PREG_SPLIT_DELIM_CAPTURE) as $chunk) {
+            if (preg_match('/^\\\\([, ])$/', $chunk, $m)) {
                 $item .= $m[1];
             } elseif (preg_match('/^,\s+$/', $chunk)) {
-                array_push($items, $item);
+                $items[] = $item;
                 $item = '';
             } else {
                 $item .= $chunk;
@@ -314,7 +314,7 @@ class iHMS_Sysconf_Question
         }
 
         if ($item != '') {
-            array_push($items, $item);
+            $items[] = $item;
         }
 
         return $items;

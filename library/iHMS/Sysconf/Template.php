@@ -273,7 +273,7 @@ class iHMS_Sysconf_Template
                     // Continuation of field, with a doubly indented bit that should not be wrapped
                     $bit = preg_replace('/\s*$/', '', $match[1]);
 
-                    // If extended filed part do not hold line feed or space at end, add line feed
+                    // If extended field part do not hold line feed or space at end, add line feed
                     if (!empty($extended) && !preg_match('/[\n ]$/', $extended)) {
                         $extended .= "\n";
                     }
@@ -283,7 +283,7 @@ class iHMS_Sysconf_Template
                     // Continuation of field
                     $bit = preg_replace('/\s*$/', '', $match[1]);
 
-                    // If extended filed part do not hold line feed or space at end, add line feed
+                    // If extended field part do not hold line feed or space at end, add line feed
                     if (!empty($extended) && !preg_match('/[\n ]$/', $extended)) {
                         $extended .= ' ';
                     }
@@ -314,7 +314,6 @@ class iHMS_Sysconf_Template
                     continue;
                 }
 
-                //$template->setField($key, $value);
                 $template->{$key} = $value;
             }
 
