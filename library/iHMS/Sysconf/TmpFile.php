@@ -63,10 +63,10 @@ class iHMS_Sysconf_TmpFile
     }
 
     /**
-     * Returns the name of the last opened temp file
+     * Returns the name of the last opened temporary file
      *
      * @static
-     * @return string name of last temp file opened
+     * @return string name of last temporary file opened
      */
     public static function getFilename()
     {
@@ -74,7 +74,7 @@ class iHMS_Sysconf_TmpFile
     }
 
     /**
-     * Unlinks the last opened tempfile
+     * Unlinks the last opened temporary file
      *
      * @static
      * @return bool true on success or false on failure

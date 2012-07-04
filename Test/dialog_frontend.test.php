@@ -19,7 +19,7 @@
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
- * @subpackage  Frontend_Dialog
+ * @subpackage  Test_Frontend
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
@@ -37,26 +37,16 @@ set_include_path(
         get_include_path()
 );
 
+// Classes loader
 spl_autoload_register(
     function($className)
     {
-        require_once str_replace('_', DIRECTORY_SEPARATOR, $className) . '.php';
+        $classPath = str_replace('_', '/', $className);
+        require_once "$classPath.php";
     }
 );
 
-/** @see iHMS_Sysconf_Config */
-require_once 'iHMS/Sysconf/Config.php';
-
-/** @see iHMS_Sysconf_Frontend */
-require_once 'iHMS/Sysconf/Frontend.php';
-
-/** @see iHMS_Sysconf_Frontend_Dialog  */
-require_once 'iHMS/Sysconf/Frontend/Dialog.php';
-
-/** @see iHMS_Sysconf_Question  */
-require_once 'iHMS/Sysconf/Question.php';
-
-putenv('SYSCONF_SYSTEMRC=/home/nuxwin/Bureau/working/sysconf/library/iHMS/Sysconf/sysconf.conf');
+putenv('SYSCONF_SYSTEMRC=../library/iHMS/Sysconf/sysconf.conf');
 
 // Load config
 iHMS_Sysconf_Config::getInstance()->load('');

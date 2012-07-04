@@ -131,16 +131,6 @@ abstract class iHMS_Sysconf_Frontend
     }
 
     /**
-     * Is interactive frontend?
-     *
-     * @return bool TRUE if frontend is interactive, FALSE otherwise
-     */
-    public function isInteractive()
-    {
-        return $this->_interactive;
-    }
-
-    /**
      * What type of elements this frontend uses
      *
      * Defaults to returning the same name as the frontend, but tightly-linked frontends might want to share elements;
@@ -152,7 +142,6 @@ abstract class iHMS_Sysconf_Frontend
      */
     public static function getElementType()
     {
-        //echo get_called_class(), PHP_EOL; exit;
         preg_match('/iHMS_Sysconf_Frontend_(.*)$/s', get_called_class(), $type);
         return $type[1];
     }
@@ -208,7 +197,7 @@ abstract class iHMS_Sysconf_Frontend
     /**
      * Display accumulated element to the user
      *
-     * This will normally return true, but if the user indicates they want to  back up, it returns false
+     * This will normally return TRUE, but if the user indicates they want to back up, it returns FALSE
      *
      * @return bool
      */
@@ -230,14 +219,14 @@ abstract class iHMS_Sysconf_Frontend
     /**
      * Start progress bar
      *
-     * @param $min
-     * @param $max
+     * @param int $min
+     * @param int $max
      * @param iHMS_Sysconf_Question $question Question
      */
     public function progressStart($min, $max, $question)
     {
         $type = $this->getElementType() . '_Progress';
-        $this->_loadElementClass($type);
+        self::_loadElementClass($type);
 
         $element = "iHMS_Sysconf_Element_{$type}";
 
@@ -308,13 +297,33 @@ abstract class iHMS_Sysconf_Frontend
     }
 
     /**
-     * Clear out the accumulated Elements
+     * Clear out the accumulated elements
      *
      * @return void
      */
     public function clear()
     {
         $this->_elements = array();
+    }
+
+    /**
+     * Is interactive frontend?
+     *
+     * @return bool TRUE if frontend is interactive, FALSE otherwise
+     */
+    public function isInteractive()
+    {
+        return $this->_interactive;
+    }
+
+    /**
+     * Returns requested title
+     *
+     * @return string
+     */
+    public function getRequestedTitle()
+    {
+        return $this->_requestedTitle;
     }
 
     /**
@@ -327,6 +336,27 @@ abstract class iHMS_Sysconf_Frontend
     {
         $this->_title = sprintf('Configuring %s', $title);
         $this->_requestedTitle = $this->_title;
+    }
+
+    /**
+     * Returns title
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->_title;
+    }
+
+    /**
+     * Sets title
+     *
+     * @param string $title
+     * @return void
+     */
+    public function setTitle($title)
+    {
+        $this->_title = $title;
     }
 
     /**

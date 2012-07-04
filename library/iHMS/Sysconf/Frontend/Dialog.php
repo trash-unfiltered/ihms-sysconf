@@ -250,6 +250,16 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     }
 
     /**
+     * Return childIn
+     *
+     * @return resource
+     */
+    public function getChildIn()
+    {
+        return $this->_childIn;
+    }
+
+    /**
      * Size text
      *
      * Dialog and whiptail have an annoying field of requiring you specify their dimensions explicitly. This function
@@ -271,7 +281,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         //}
 
         // TODO support for CJK characters
-        $text = Zend_Text_MultiByte::wordWrap($text, $columns);
+        $text = Zend_Text_MultiByte::wordWrap($text, $columns, "\n", true, 'UTF-8');
 
         $lines = explode("\n", $text);
 
@@ -476,7 +486,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * @param array $args Arguments that have been passed to dialog
      * @return array
      */
-    public function waitDialog(array $args)
+    public function waitDialog(array $args = array())
     {
         $output = '';
         while ($_ = fgets($this->_dialogOutput)) {

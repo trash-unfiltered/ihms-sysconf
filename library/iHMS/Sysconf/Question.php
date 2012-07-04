@@ -166,7 +166,7 @@ class iHMS_Sysconf_Question
     /**
      * Returns the choices field of this Question
      *
-     * This value is taken from the Template to which this Question is associated, and then any substitution in the
+     * This value is taken from the template to which this question is associated, and then any substitution in the
      * description are expanded.
      *
      * @return string
