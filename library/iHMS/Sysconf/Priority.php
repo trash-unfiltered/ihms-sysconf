@@ -64,18 +64,18 @@ class iHMS_Sysconf_Priority
             return true; // any unknown priority is assumed to be higher
         }
 
-        return self::$_priorities[$priority] >= self::$_priorities[iHMS_Sysconf_Config::getInstance()->priority];
+        return (self::$_priorities[$priority] >= self::$_priorities[iHMS_Sysconf_Config::getInstance()->priority]);
     }
 
     /**
      * Is valid priority?
      *
-     * @param int $priority Priority level
+     * @param string $priority Priority level
      * @return bool
      */
     public static function isValidPriority($priority)
     {
-        return isset(self::$_priorities[$priority]);
+        return array_key_exists($priority, self::$_priorities);
     }
 
     /**
@@ -87,7 +87,6 @@ class iHMS_Sysconf_Priority
     public static function getPriorityList()
     {
         asort(self::$_priorities);
-
         return array_keys(self::$_priorities);
     }
 }

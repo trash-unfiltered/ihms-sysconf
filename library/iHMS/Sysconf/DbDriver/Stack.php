@@ -539,7 +539,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
      */
     public function setVariable($itemName, $variableName, $value)
     {
-        return $this->_change(__FUNCTION__, $variableName, $value);
+        return $this->_change(__FUNCTION__, $itemName, $variableName, $value);
     }
 
     /**

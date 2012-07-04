@@ -16,7 +16,7 @@ Sysconf requires the following:
  - PHP 5.3.3 or later; we recommend using the latest PHP version whenever possible
  - PHP Iconv extension
  - Zend Framework >= 1.11.x (Acces to the ZF library directory *must* be correctly set in your PHP include path)
- - whiptail and/or dialog program (OPTIONAL but still recommended)
+ - whiptail and/or dialog program (OPTIONAL but still recommended for better visual experience)
 
 USAGE
 -----

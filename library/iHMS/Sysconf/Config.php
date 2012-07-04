@@ -401,7 +401,7 @@ class iHMS_Sysconf_Config
             }
         }
 
-        if (isset($this->_config['priority'])) {
+        if ($this->_config['priority'] != '') {
             return $this->_config['priority'];
         }
 

@@ -59,7 +59,7 @@ class iHMS_Sysconf_Question
     protected $_name = null;
 
     /**
-     * @var int Holds the priority of the question
+     * @var string Holds the priority of the question
      */
     protected $_priority = null;
 
@@ -439,7 +439,7 @@ class iHMS_Sysconf_Question
     /**
      * Returns question priority
      *
-     * @return int Question priority
+     * @return string Question priority
      */
     public function getPriority()
     {
@@ -449,7 +449,7 @@ class iHMS_Sysconf_Question
     /**
      * Sets question priority
      *
-     * @param int $priority Priority
+     * @param string $priority Priority
      */
     public function setPriority($priority)
     {

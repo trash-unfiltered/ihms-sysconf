@@ -131,41 +131,54 @@ abstract class iHMS_Sysconf_Frontend
     }
 
     /**
+     * Is interactive frontend?
+     *
+     * @return bool TRUE if frontend is interactive, FALSE otherwise
+     */
+    public function isInteractive()
+    {
+        return $this->_interactive;
+    }
+
+    /**
      * What type of elements this frontend uses
      *
      * Defaults to returning the same name as the frontend, but tightly-linked frontends might want to share elements;
      * if so, one can override this with a method that returns the name of the other.
      *
+     * Note: This method is callable in both static and object context
+     *
      * @return string Element type
-     * TODO must be callable in both static and object context
      */
-    public function getElementType()
+    public static function getElementType()
     {
-        preg_match('/iHMS_Sysconf_Frontend_(.*)$/s', get_class(), $type);
+        //echo get_called_class(), PHP_EOL; exit;
+        preg_match('/iHMS_Sysconf_Frontend_(.*)$/s', get_called_class(), $type);
         return $type[1];
     }
 
     /**
      * Creates an Element of the type used by this FrontEnd. Pass in the question that will be bound to the Element
      *
-     * It returns the generated Element, or false if it was unable to make an Element of the given type. This may be
+     * It returns the generated Element, or false if it was unable to make an element of the given type. This may be
      * called as either a class or an object method.
      *
      * Normally, it outputs debug codes if creating the Element fails. If failure is expected, a second parameter can
      * be passed with a true value to turn off those debug messages.
      *
+     * Note: This method is callable in both static and object context
+     *
      * @param iHMS_Sysconf_Question $question Question bound to the element.
      * @param bool $noDebug Whether or not debug information must be show
      * @return iHMS_Sysconf_Element
-     * TODO must be callable in both static and object context
      */
-    public function makeElement($question, $noDebug = false)
+    public static function makeElement($question, $noDebug = false)
     {
         // Figure out what type of frontend this is (eg. Dialog_Boolean)
-        $type = $this->getElementType() . '_' . ucfirst($question->type);
-        $type = str_replace('_', '', $type); // In case the question has no type..
+        $type = self::getElementType() . '_' . ucfirst($question->type);
+        $type = preg_replace('/_$/', '', $type); // In case the question has no type..
 
-        $this->_loadElementClass($type, $noDebug);
+        self::_loadElementClass($type, $noDebug);
 
         $element = "iHMS_Sysconf_Element_{$type}";
         $element = new $element(array('question' => $question));
@@ -329,12 +342,12 @@ abstract class iHMS_Sysconf_Frontend
     /**
      * Load given element class
      *
+     * @static
      * @param string $type Element type
      * @param bool $noDebug Whether or not debug information must be show
      * @return null
-     * TODO must be callable in both static and object context
      */
-    protected function _loadElementClass($type, $noDebug = false)
+    protected static function _loadElementClass($type, $noDebug = false)
     {
         static $noUse = array();
 

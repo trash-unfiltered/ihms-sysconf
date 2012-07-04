@@ -266,9 +266,9 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         $columns = $this->_screenWidth - $this->_borderWidth - $this->_columnSpacer;
 
         // Dialog do not add litteral newline at text begin like whiptail do, so we must add it manually
-        if ($this->_program == 'dialog') {
-            $text = "\n$text";
-        }
+        //if ($this->_program == 'dialog') {
+        //    $text = "\n$text";
+        //}
 
         // TODO support for CJK characters
         $text = Zend_Text_MultiByte::wordWrap($text, $columns);
@@ -291,7 +291,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $lines
         );
 
-        return array($text, count($lines) + 1 + $this->_borderHeight, $windowColumns + $this->_borderWidth);
+        return array($text, sizeof($lines) + $this->_borderHeight, $windowColumns + $this->_borderWidth);
     }
 
     /**
@@ -326,7 +326,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         $args = array('--msgbox', join("\n", $linesArray));
 
-        if ($lines - 4 - $this->_borderHeight <= count($linesArray)) {
+        if ($lines - 4 - $this->_borderHeight < sizeof($linesArray)) {
             $num = $lines - 4 - $this->_borderHeight;
 
             if ($this->_program == 'whiptail') {
@@ -340,7 +340,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
                 $args = array('--textbox', iHMS_Sysconf_TmpFile::getFilename());
             }
         } else {
-            $num = count($linesArray) + 1;
+            $num = sizeof($linesArray);
         }
 
         // Add height and width
@@ -501,7 +501,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         fclose($this->_dialogOutput);
         fclose($this->_dialogError);
 
-        // proc_close make call of système waitpid(3) here
+        // proc_close make call of system waitpid(3) here
         $ret = proc_close($this->_dialogProcess);
 
         // Now check dialog's return code to see if escape (255 (really -1)) or Cancel (1) were hit. If so, make

@@ -86,9 +86,9 @@ abstract class iHMS_Sysconf_Frontend_ScreenSize extends iHMS_Sysconf_Frontend
         $ret = shell_exec('stty -a 2>/dev/null');
 
         if ($ret && preg_match('/rows (\d+); columns (\d+)/s', $ret, $match)) {
-            $this->_screenHeight = (int)$match[1];
+            $this->_screenHeight = $match[1];
             $this->_isScreenHeightGuessed = false;
-            $this->_screenWidth = (int)$match[2];
+            $this->_screenWidth = $match[2];
         } else {
             $this->_screenHeight = 25;
             $this->_isScreenHeightGuessed = true;
