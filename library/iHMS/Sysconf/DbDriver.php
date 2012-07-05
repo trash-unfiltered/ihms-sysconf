@@ -360,7 +360,7 @@ abstract class iHMS_Sysconf_DbDriver
     abstract public function getField($itemName, $fieldName);
 
     /**
-     * Set the given field the the given value, and return the value, or NULL if setting failed
+     * Set the given field with the the given value, and return the value, or NULL if setting failed
      *
      * @abstract
      * @param string $itemName Item name

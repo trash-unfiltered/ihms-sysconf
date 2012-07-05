@@ -103,7 +103,6 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
             } elseif ($key == 'name') {
                 $name = $value;
             } elseif (!empty($key)) { // Any other entry is treated as flag
-
                 // Replace any \\n by \n
                 $value = preg_replace('/\\\\n/', "\n", $value);
                 $ret['fields'][$key] = $value;
@@ -134,8 +133,6 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
      *
      * $data is the same structure {@link iHMS_Sysconf_FormatInterface::read()} should return.
      *
-     * Returns true on success and false on error
-     *
      * @param resource $filehandle Filehandle
      * @param array $data Data to write
      * @param string $itemName Item name
@@ -151,6 +148,7 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
         // Write fields
         $fields = array_keys($data['fields']);
         sort($fields);
+
         foreach ($fields as $field) {
             // Replace any \n by \\n
             $value = preg_replace('/\n/', '\\n', $data['fields'][$field]);
@@ -190,7 +188,7 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
                 // Replace any \n by \\n
                 $value = preg_replace('/\n/', '\\n', $data['variables'][$variableKey]);
 
-                if (!fwrite($filehandle, "$variableKey = $value\n")) {
+                if (!fwrite($filehandle, " $variableKey = $value\n")) {
                     return false;
                 }
             }

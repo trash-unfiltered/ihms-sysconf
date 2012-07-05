@@ -105,6 +105,8 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
     {
         $this->progressCur = $value;
         $this->_communicate($this->_percent() . "\n");
+
+        return true;
     }
 
     /**
@@ -129,11 +131,7 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
         // The line immediately following the marker shhould be a new percentage, but whiptail (as of 0.51.6-17) looks
         // for a percentage in the wrong buffer and fails to refrech the display as result.
         // To work around this bug, we give it the current percentage again afterwards to force a refresh.
-        $this->_communicate(
-            sprintf(
-                "XXX\n%d\n%s\nXXX\n%d\n", $this->_percent(), $text, $this->_percent()
-            )
-        );
+        $this->_communicate(sprintf("XXX\n%d\n%s\nXXX\n%d\n", $this->_percent(), $text, $this->_percent()));
 
         return true;
     }
@@ -150,25 +148,23 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
     }
 
     /**
-     * Return percent
+     * Returns percent
      *
      * @return int
      */
     protected function _percent()
     {
-        return (int)(
-            ($this->progressCur - $this->progressMin) * 100 / ($this->progressMax - $this->progressMin)
-        );
+        return (($this->progressCur - $this->progressMin) * 100 / ($this->progressMax - $this->progressMin));
     }
 
     /**
      * Communicate with dialog
      *
      * @param string $data data to sent to dialog
+     * @return void
      */
     protected function _communicate($data)
     {
-        $dialogInput = $this->frontend->getChildIn();
-        fwrite($dialogInput, $data);
+        fwrite($this->frontend->getChildIn(), $data);
     }
 }

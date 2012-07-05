@@ -239,7 +239,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
                 $ret = $this->_noChange($driver, $command, $itemName, $args);
 
                 if ($ret) {
-                    iHMS_Sysconf_Log::debug("db {$this->_name}", "skippedd {$command}({$itemName}) as it would have not effect");
+                    iHMS_Sysconf_Log::debug("db {$this->_name}", "skipped {$command}({$itemName}) as it would have not effect");
                     return $ret;
                 }
 
@@ -530,7 +530,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     }
 
     /**
-     * Set the given variable of the given item to the value, and return the value, or NULL if setting failed
+     * Set the given variable of the given item to the given value, and return the value, or NULL if setting failed
      *
      * @param string $itemName Item name
      * @param string $variableName Variable name

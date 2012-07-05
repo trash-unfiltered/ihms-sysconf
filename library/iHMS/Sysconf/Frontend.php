@@ -317,6 +317,16 @@ abstract class iHMS_Sysconf_Frontend
     }
 
     /**
+     * Returns elements
+     *
+     * @return iHMS_Sysconf_Element[]
+     */
+    public function getElements()
+    {
+        return $this->_elements;
+    }
+
+    /**
      * Returns requested title
      *
      * @return string

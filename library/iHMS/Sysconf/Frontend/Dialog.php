@@ -55,7 +55,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     protected $_programPath = '';
 
     /**
-     * @var string Dash separator
+     * @var string|null Dash separator
      */
     protected $_dashSeparator = '--';
 
@@ -92,27 +92,27 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     /**
      * @var resource dialog process
      */
-    protected $_dialogProcess;
+    protected $_dialogProcess = null;
 
     /**
      * @var resource dup of stding passed to dialog
      */
-    protected $_childIn;
+    protected $_childIn = null;
 
     /**
      * @var resource dup of stdout passed to dialog
      */
-    protected $_childOut;
+    protected $_childOut = null;
 
     /**
      * @var resource dialog output
      */
-    protected $_dialogOutput;
+    protected $_dialogOutput = null;
 
     /**
      * @var resource dialog error
      */
-    protected $_dialogError;
+    protected $_dialogError = null;
 
     /**
      * Init Dialog Frontend
@@ -155,7 +155,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         } elseif (($programPath = $this->_findProgramPath('dialog'))) {
             $this->_program = 'dialog';
             $this->_programPath = $programPath;
-            $this->_dashSeparator = ''; // Dialog do not need (or support) double-dash separation
+            $this->_dashSeparator = null; // Dialog do not need (or support) double-dash separation
             $this->_borderWidth = 7;
             $this->_borderHeight = 6;
             $this->_spacer = 0;
@@ -178,15 +178,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     /**
      * Returns dash separator
      *
-     * @return null|string Dash separator or null if not defined for the current dialog program
+     * @return string|null Dash separator or NULL if not defined for the current dialog program
      */
     public function getDashSeparator()
     {
-        if ($this->_dashSeparator) {
-            return $this->_dashSeparator;
-        }
-
-        return '';
+        return $this->_dashSeparator;
     }
 
     /**
@@ -400,10 +396,10 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     /**
      * Start dialog
      *
-     * @return void
      * @param iHMS_Sysconf_Question $question Question
      * @param bool $wantInputFd
      * @param array $args Arguments
+     * @return void
      * @todo remove $question parameter?
      */
     public function startDialog(iHMS_Sysconf_Question $question, $wantInputFd, $args)
@@ -434,8 +430,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $args[0] = str_replace('--backtitle ', "--backtitle \xe2\x80\x88", $args[0]);
         }
 
-        $pipes = array(null, null, null);
-
         if(!$wantInputFd) {
             if (!$childIn = @fopen('php://stdin', 'r')) {
                 fwrite(STDERR, "Unable to make dup of stdin\n");
@@ -449,17 +443,18 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         }
 
         // Escape args
-        $escapeshellarg =
-            function($_)
-            {
-                if (preg_match('/^(--[^\s]+\s+)(.*)/', $_, $m)) {
-                    return $m[1] . escapeshellarg($m[2]);
-                } elseif ($_ != '--') {
-                    return escapeshellarg($_);
-                } else {
-                    return $_;
-                }
-            };
+        $escapeshellarg = function($_)
+        {
+            if (preg_match('/^(--[^\s]+\s+)(.*)/', $_, $m)) {
+                return $m[1] . escapeshellarg($m[2]);
+            } elseif ($_ != '--') {
+                return escapeshellarg($_);
+            } else {
+                return $_;
+            }
+        };
+
+        $pipes = array(null, null, null);
 
         $this->_dialogProcess = @proc_open(
             "{$this->_programPath} " . join(' ', array_map($escapeshellarg, $args)),
