@@ -402,10 +402,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      *
      * @return void
      * @param iHMS_Sysconf_Question $question Question
+     * @param bool $wantInputFd
      * @param array $args Arguments
      * @todo remove $question parameter?
      */
-    public function startDialog(iHMS_Sysconf_Question $question, $args)
+    public function startDialog(iHMS_Sysconf_Question $question, $wantInputFd, $args)
     {
         iHMS_Sysconf_Log::debug(
             'debug', "preparing to run dialog. Params are: {$this->_program}, " . join(', ', $args)
@@ -435,9 +436,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         $pipes = array(null, null, null);
 
-        if (!$childIn = @fopen('php://stdin', 'r')) {
-            fwrite(STDERR, "Unable to make dup of stdin\n");
-            exit(1);
+        if(!$wantInputFd) {
+            if (!$childIn = @fopen('php://stdin', 'r')) {
+                fwrite(STDERR, "Unable to make dup of stdin\n");
+                exit(1);
+            }
         }
 
         if (!$chidOut = @fopen('php://stdout', 'w')) {
@@ -461,7 +464,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         $this->_dialogProcess = @proc_open(
             "{$this->_programPath} " . join(' ', array_map($escapeshellarg, $args)),
             array(
-                0 => $childIn,
+                0 => isset($childIn) ? $childIn : array('pipe', 'r'),
                 1 => $chidOut,
                 2 => array('pipe', 'w'), // dialog errors
                 3 => array('pipe', 'w') // dialog output (see option --output-fd set above)
@@ -474,10 +477,10 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             exit(1);
         }
 
-        $this->_childIn =& $childIn;
-        $this->_childOut =& $chidOut;
-        $this->_dialogError =& $pipes[2];
-        $this->_dialogOutput =& $pipes[3];
+        $this->_childIn = isset($childIn) ? $childIn : $pipes[0];
+        $this->_childOut = $chidOut;
+        $this->_dialogError = $pipes[2];
+        $this->_dialogOutput = $pipes[3];
     }
 
     /**
@@ -488,6 +491,8 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      */
     public function waitDialog(array $args = array())
     {
+        fclose($this->_childIn);
+
         $output = '';
         while ($_ = fgets($this->_dialogOutput)) {
             $output .= $_;
@@ -506,7 +511,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         chop($output);
 
-        fclose($this->_childIn);
         fclose($this->_childOut);
         fclose($this->_dialogOutput);
         fclose($this->_dialogError);
@@ -553,7 +557,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $this->_progressBar->stop();
         }
 
-        $this->startDialog($question, $args);
+        $this->startDialog($question, false, $args);
 
         $ret = $this->waitDialog($args);
 

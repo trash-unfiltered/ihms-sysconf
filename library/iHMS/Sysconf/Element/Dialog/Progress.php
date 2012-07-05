@@ -87,9 +87,9 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
             $params[] = $dashSeparator;
         }
 
-        array_push($text, $lines + $this->frontend->getSpacer(), $columns, $this->_percent());
+        array_push($params, $text, $lines + $this->frontend->getSpacer(), $columns, $this->_percent());
 
-        $this->frontend->startDialog($this->question, $params);
+        $this->frontend->startDialog($this->question, true, $params);
 
         $this->_lines = $lines;
         $this->_columns = $columns;

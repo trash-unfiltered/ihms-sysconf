@@ -327,6 +327,17 @@ abstract class iHMS_Sysconf_Frontend
     }
 
     /**
+     * Sets requested title
+     *
+     * @param string $requestedTitle RequestedTitle
+     * @return void
+     */
+    public function setRequestedTitle($requestedTitle)
+    {
+        $this->_requestedTitle = $requestedTitle;
+    }
+
+    /**
      * Sets the title field to a default
      *
      * @param string $title Name of the module that is being configured
@@ -357,6 +368,16 @@ abstract class iHMS_Sysconf_Frontend
     public function setTitle($title)
     {
         $this->_title = $title;
+    }
+
+    /**
+     * Sets info
+     *
+     * @param iHMS_Sysconf_Question $info
+     */
+    public function setInfo(iHMS_Sysconf_Question $info = null)
+    {
+        $this->_info = $info;
     }
 
     /**
