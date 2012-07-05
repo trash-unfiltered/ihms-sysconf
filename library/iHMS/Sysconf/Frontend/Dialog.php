@@ -27,6 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_Frontend_ScreenSize */
+require_once 'iHMS/Sysconf/Frontend/ScreenSize.php';
+
 /** @see Zend_Text_MultiByte */
 require_once 'Zend/Text/MultiByte.php';
 

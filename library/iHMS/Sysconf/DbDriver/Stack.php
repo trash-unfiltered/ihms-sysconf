@@ -175,12 +175,11 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     /**
      * Query the stack
      *
-     * @param string $command Command name
-     * @param string $param Command parameter
-     * @internal param string $params... command parameter
+     * @internal string $command Command name
+     * @internal string $params... Command parameters
      * @return mixed Command result
      */
-    protected function _query($command, $param)
+    protected function _query()
     {
         $args = func_get_args();
         $command = array_shift($args);
@@ -190,7 +189,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         foreach ($this->_stack as $driver) {
             $ret = call_user_func_array(array($driver, $command), $args);
 
-            if ($ret) {
+            if (!is_null($ret)) {
                 iHMS_Sysconf_Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
                 return $ret;
             }
@@ -202,12 +201,11 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     /**
      * Make a change to a writable item, copying an item from lower in the stack first as is necessary
      *
-     * @param string $command Command name
-     * @param string $param Command parameter
-     * @internal param string $params... command parameter
+     * @internal string $command Command name
+     * @internal string $params... Command parameters
      * @return mixed|null
      */
-    protected function _change($command, $param)
+    protected function _change()
     {
         $args = func_get_args();
         $command = array_shift($args);
@@ -230,7 +228,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         }
 
         // Set if we need to copy from something
-        $src = 0;
+        $src = false;
 
         // Find out what (readonly) driver on the stack first contains the item
         foreach ($this->_stack as $driver) {
@@ -238,7 +236,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
                 // Check if this modification would really have any effect.
                 $ret = $this->_noChange($driver, $command, $itemName, $args);
 
-                if ($ret) {
+                if (!is_null($ret)) {
                     iHMS_Sysconf_Log::debug("db {$this->_name}", "skipped {$command}({$itemName}) as it would have not effect");
                     return $ret;
                 }
@@ -250,18 +248,15 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         }
 
         // Work out what driver on the stack will be written to. We'll take the first that accepts the item
-        $writer = null;
+        $writer = false;
 
         foreach ($this->_stack as $driver) {
             if ($driver === $src) {
-                array_push($this->_stackChangeErrors, $itemName);
+                $this->_stackChangeErrors[] = $itemName;
                 return null;
             }
 
             if (!$driver->_readonly) {
-
-                // public function  addOwner($itemName, $ownerName, $type)
-
                 // Adding an owner is a special case because the item may not exist yet, and so accept() should be told
                 // the type, if possible. Luckily the type is the second parameter of the addOwner() command, or $args[1]..
                 if ($command == 'addOwner') {
@@ -300,12 +295,11 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
      * bothered to add a shitload of extra intelligence, to detect such null writes, and do nothing but return whatever
      * the current value is. Gar gar gar!
      *
-     *
      * @param iHMS_Sysconf_DbDriver $driver
      * @param string $command Command name
      * @param string $itemName Item name
      * @param array $args Arguments
-     * @return mixed
+     * @return string|null
      */
     protected function _noChange($driver, $command, $itemName, $args)
     {
@@ -323,7 +317,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         } elseif ($command == 'removeOwner') {
             $value = array_shift($args);
 
-            //  If the owner is already there, no change
+            //  If the owner is already in the list, there is a change
             foreach ($driver->getOwners($itemName) as $owner) {
                 if ($owner == $value) {
                     return null;
@@ -334,7 +328,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         } elseif ($command == 'removeField') {
             $value = array_shift($args);
 
-            //  If the field is already there, no change
+            //  If the field is no present, no change
             foreach ($driver->getFields($itemName) as $field) {
                 if ($field == $value) {
                     return null;

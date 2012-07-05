@@ -161,7 +161,7 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
      * Saving a item involves feeding the item from the cache into the underlying database, and then telling the
      * underlying db to save it.
      *
-     * However, if the item is undefined in the cache, we instead tell the underlying database to remove it.
+     * However, if the item is NULL in the cache, we instead tell the underlying database to remove it.
      *
      * Returns TRUE unless any of the operations fail.
      *
@@ -213,7 +213,7 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
     public function exists($itemName)
     {
         if (array_key_exists($itemName, $this->_cache)) {
-            return (is_null($this->_cache[$itemName])) ? null : true;
+            return is_null($this->_cache[$itemName]) ? null : true;
         }
 
         return false;
@@ -286,7 +286,7 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
             $this->_dirty[$itemName] = true;
         }
 
-        // If number of owners goes to zero, item should be removed  - Marke the item as removed in the cache
+        // If number of owners goes to zero, item should be removed  - Mark the item as removed in the cache
         if (empty($this->_cache[$itemName]['owners'])) {
             $this->_cache[$itemName] = null;
             $this->_dirty[$itemName] = true;

@@ -189,8 +189,7 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
         sort($cacheKeys);
 
         foreach ($cacheKeys as $item) {
-            // TODO is_null not better here?
-            if (!isset($this->_cache[$item])) { // Skip items marked as deleted in the cache
+            if (is_null($this->_cache[$item])) { // Skip items marked as deleted in the cache
                 continue;
             }
 

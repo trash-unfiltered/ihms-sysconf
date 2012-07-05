@@ -529,7 +529,7 @@ class iHMS_Sysconf_Question
                 // escaped variable is not changed, though the escape is removed
                 $result .= "\${$variable}";
             } else {
-                if ($varval = iHMS_Sysconf_Db::getConfig()->getVariable($this->_name, $variable)) {
+                if (($varval = iHMS_Sysconf_Db::getConfig()->getVariable($this->_name, $variable)) !== null) {
                     $result .= $varval; // expand the variable
                 }
             }

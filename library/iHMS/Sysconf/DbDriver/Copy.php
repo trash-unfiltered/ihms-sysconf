@@ -62,7 +62,7 @@ abstract class iHMS_Sysconf_DbDriver_Copy extends iHMS_Sysconf_DbDriver
 
         $owners = $src->getOwners($itemName);
 
-        if (!$owners) {
+        if (is_null($owners)) {
             $owners[] = 'unknown';
         }
 
@@ -71,7 +71,7 @@ abstract class iHMS_Sysconf_DbDriver_Copy extends iHMS_Sysconf_DbDriver
             $template = iHMS_Sysconf_Template::get($src->getField($itemName, 'template'));
             $type = '';
 
-            if ($template) {
+            if (!is_null($template)) {
                 $type = $template->type;
             }
 
