@@ -100,6 +100,14 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
 
             $this->_backup = false; // No need to backup for new file
 
+            $dirname = pathinfo($this->_filename, PATHINFO_DIRNAME);
+
+            if (!is_dir($dirname)) {
+                if (!mkdir($dirname, 0755, true)) {
+                    $this->error("could not create {$dirname}: $php_errormsg");
+                }
+            }
+
             if (@touch($this->_filename)) {
                 if (!@chmod($this->_filename, $this->_mode)) {
                     $this->error("could not set mode for {$this->_filename}: $php_errormsg");

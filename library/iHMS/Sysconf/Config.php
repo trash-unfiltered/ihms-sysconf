@@ -529,7 +529,7 @@ class iHMS_Sysconf_Config
         $text = preg_replace_callback(
             '/\$\{([^}]+)\}/', function($m)
             {
-                return ($env = getenv($m[1]) !== false) ? $env : $m[0];
+                return (($env = getenv($m[1])) !== false) ? $env : $m[0];
             }, $text
         );
 
