@@ -103,7 +103,7 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
             $dirname = pathinfo($this->_filename, PATHINFO_DIRNAME);
 
             if (!is_dir($dirname)) {
-                if (!mkdir($dirname, 0755, true)) {
+                if (!@mkdir($dirname, 0755, true)) {
                     $this->error("could not create {$dirname}: $php_errormsg");
                 }
             }
