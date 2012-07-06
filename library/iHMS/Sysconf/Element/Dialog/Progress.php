@@ -128,7 +128,7 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
 
         // TODO: escape the "XXX" marker required by dialog somehow?
 
-        // The line immediately following the marker shhould be a new percentage, but whiptail (as of 0.51.6-17) looks
+        // The line immediately following the marker should be a new percentage, but whiptail (as of 0.51.6-17) looks
         // for a percentage in the wrong buffer and fails to refrech the display as result.
         // To work around this bug, we give it the current percentage again afterwards to force a refresh.
         $this->_communicate(sprintf("XXX\n%d\n%s\nXXX\n%d\n", $this->_percent(), $text, $this->_percent()));
@@ -165,6 +165,6 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
      */
     protected function _communicate($data)
     {
-        fwrite($this->frontend->getChildIn(), $data);
+        fwrite($this->frontend->getDialogInputWtr(), $data);
     }
 }

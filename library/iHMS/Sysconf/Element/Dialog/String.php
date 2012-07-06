@@ -80,6 +80,5 @@ class iHMS_Sysconf_Element_Dialog_String extends iHMS_Sysconf_Element
 
             $this->_value = $default;
         }
-
     }
 }

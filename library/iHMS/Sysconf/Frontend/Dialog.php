@@ -93,29 +93,24 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     protected $_selectSpacer = 13;
 
     /**
-     * @var resource dialog process
+     * @var resource Dialog process
      */
     protected $_dialogProcess = null;
 
     /**
-     * @var resource dup of stding passed to dialog
+     * @var resource Pipe from which dialog program read
      */
-    protected $_childIn = null;
+    protected $_dialogInputWtr = null;
 
     /**
-     * @var resource dup of stdout passed to dialog
+     * @var resource Pipe to which dialog program write errors
      */
-    protected $_childOut = null;
+    protected $_dialogErrorRdr = null;
 
     /**
-     * @var resource dialog output
+     * @var resource Pipe to which dialog program write output
      */
-    protected $_dialogOutput = null;
-
-    /**
-     * @var resource dialog error
-     */
-    protected $_dialogError = null;
+    protected $_dialogOutputRdr = null;
 
     /**
      * Init Dialog Frontend
@@ -249,13 +244,13 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     }
 
     /**
-     * Return childIn
+     * Returns resource from which dialog program read
      *
      * @return resource
      */
-    public function getChildIn()
+    public function getDialogInputWtr()
     {
-        return $this->_childIn;
+        return $this->_dialogInputWtr;
     }
 
     /**
@@ -433,18 +428,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $args[0] = str_replace('--backtitle ', "--backtitle \xe2\x80\x88", $args[0]);
         }
 
-        if(!$wantInputFd) {
-            if (!$childIn = @fopen('php://stdin', 'r')) {
-                fwrite(STDERR, "Unable to make dup of stdin\n");
-                exit(1);
-            }
-        }
-
-        if (!$chidOut = @fopen('php://stdout', 'w')) {
-            fwrite(STDERR, "Unable to make dup of stdout\n");
-            exit(1);
-        }
-
         // Escape args
         $escapeshellarg = function($_)
         {
@@ -457,13 +440,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             }
         };
 
-        $pipes = array(null, null, null);
-
         $this->_dialogProcess = @proc_open(
             "{$this->_programPath} " . join(' ', array_map($escapeshellarg, $args)),
             array(
-                0 => isset($childIn) ? $childIn : array('pipe', 'r'),
-                1 => $chidOut,
+                0 => ($wantInputFd) ? array('pipe', 'r') : STDIN,
+                1 => STDOUT,
                 2 => array('pipe', 'w'), // dialog errors
                 3 => array('pipe', 'w') // dialog output (see option --output-fd set above)
             ),
@@ -475,10 +456,12 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             exit(1);
         }
 
-        $this->_childIn = isset($childIn) ? $childIn : $pipes[0];
-        $this->_childOut = $chidOut;
-        $this->_dialogError = $pipes[2];
-        $this->_dialogOutput = $pipes[3];
+        if ($wantInputFd) {
+            $this->_dialogInputWtr = $pipes[0];
+        }
+
+        $this->_dialogErrorRdr = $pipes[2];
+        $this->_dialogOutputRdr = $pipes[3];
     }
 
     /**
@@ -489,39 +472,49 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      */
     public function waitDialog(array $args = array())
     {
-        fclose($this->_childIn);
+        if ($this->_dialogInputWtr) {
+            fclose($this->_dialogInputWtr);
+            $this->_dialogInputWtr = null;
+            usleep(2000);
+        }
 
         $output = '';
-        while ($_ = fgets($this->_dialogOutput)) {
+        while ($_ = fgets($this->_dialogOutputRdr)) {
             $output .= $_;
         }
 
         $errors = 0;
-        while ($_ = fgets($this->_dialogError)) {
+        while ($_ = fgets($this->_dialogErrorRdr)) {
             fwrite(STDERR, $_);
             $errors++;
         }
 
         if ($errors) {
-            fwrite(STDERR, sprintf('sysconf: %s output the above erors, giving up!', $this->_program) . "\n");
+            fwrite(STDERR, sprintf('sysconf: %s output the above errors, giving up!', $this->_program) . "\n");
             exit(1);
         }
 
         chop($output);
 
-        fclose($this->_childOut);
-        fclose($this->_dialogOutput);
-        fclose($this->_dialogError);
+        fclose($this->_dialogOutputRdr);
+        fclose($this->_dialogErrorRdr);
+
+        do {
+            usleep(2000);
+            $status = proc_get_status($this->_dialogProcess);
+        } while ($status['running']);
 
         // proc_close make call of system waitpid(3) here
-        $ret = proc_close($this->_dialogProcess);
+        proc_close($this->_dialogProcess);
+        $this->_dialogProcess = null;
+        $ret = $status['exitcode'];
 
         // Now check dialog's return code to see if escape (255 (really -1)) or Cancel (1) were hit. If so, make
         // a note that we should back up.
         //
         // To complicate things, a return code of 1 also mean that yes was selected from a yes/no dialog, so we must
         // parse the parameters to see if such a dialog was displayed.
-        if ($ret == 255 || ($ret == 1 && preg_match('/--yesno\s/', join(' ', $args)))) {
+        if ($ret == 255 || ($ret == 1 && !preg_match('/--yesno\s/', join(' ', $args)))) {
             $this->_backup = true;
             return null;
         } else {

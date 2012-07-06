@@ -69,7 +69,7 @@ class iHMS_Sysconf_Element_Dialog_Boolean extends iHMS_Sysconf_Element
 
         list($ret) = $this->frontend->showDialog($this->question, $params);
 
-        if ($ret) {
+        if (isset($ret)) {
             $this->_value = ($ret == 0) ? 'true' : 'false';
         } else {
             $default = '';
