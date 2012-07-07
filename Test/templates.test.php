@@ -486,7 +486,6 @@ $frontend->clear();
 //db_version('2.0');
 $ret = capb('backup');
 fwrite(STDERR, "Frontend capabilities are: " . join(', ', $ret[1]) . "\n");
-exit;
 
 // capb('escape'); No relevant for now
 

@@ -54,7 +54,7 @@ abstract class iHMS_Sysconf_Frontend
     protected $_interactive = false;
 
     /**
-     * @var string Holds any special capabilities the frontend supports (for now, only backup capabilitie)
+     * @var string Holds any special capabilities the frontend supports (for now, only backup capability)
      */
     protected $_capb = '';
 

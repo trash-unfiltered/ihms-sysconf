@@ -83,7 +83,7 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
             require_once 'Zend/Loader.php';
             @Zend_Loader::loadClass($formatClass = 'iHMS_Sysconf_Format_' . $this->_format);
         } catch (Zend_Exception $e) {
-            $this->error("error setting up format object {$this->_format}: " . $e->getMessage() . " : $php_errormsg");
+            $this->error("error setting up format object {$this->_format}: " . $e->getMessage());
         }
 
         $this->_format = new $formatClass();
