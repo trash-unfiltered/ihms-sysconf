@@ -2,13 +2,13 @@
 
 ### INTRODUCTION
 
-Sysconf is a configuration system written in PHP that is developed for configuring softwares modules. Sysconf provides a
-consistent approach for configuring modules and gives the user a choice of interfaces. It can configure modules before
-they are installed, allowing installations and major upgrades to request all necessary information in advance, and let
-you do what you want while modules are installed. Sysconf lets you, if hurry, to skip the less important questions when
-installing modules.
+Sysconf is an interactive configuration system written in PHP that allows to configure PHP application modules. Its
+provides a consistent approach for configuring modules and gives the user a choice of interfaces. It can configure
+modules before they are installed, allowing installations and major upgrades to request all necessary information in
+advance, and let you do what you want while modules are installed. Sysconf lets you, if hurry, to skip the less
+important questions when installing modules.
 
-Sysconf is firstly developed for the i-HMS project but can be reused for integration in any project that requires
+Sysconf was firstly developed for the i-HMS project but can be reused for integration in any project that requires
 installation process.
 
 Sysconf is only GNU/Linux OS compatible.
