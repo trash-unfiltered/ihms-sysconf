@@ -16,6 +16,7 @@ spl_autoload_register(
     }
 );
 
+// An array that hold the capabilities the confmodule reports
 $clientCapb = array();
 
 $codes = array(
@@ -56,7 +57,7 @@ function escape($text)
  * @param string $questionName
  * @return array
  */
-function db_input($priority, $questionName)
+function input($priority, $questionName)
 {
     global $frontend, $codes;
 
@@ -93,7 +94,7 @@ function db_input($priority, $questionName)
     if ($visible && !$frontend->isInteractive()) {
         $visible = false;
 
-        if (!iHMS_Sysconf_Config::getInstance()->nonInteractiveSeen == 'true') {
+        if (iHMS_Sysconf_Config::getInstance()->nonInteractiveSeen != 'true') {
             $markseen = '';
         }
     }
@@ -119,7 +120,6 @@ function db_input($priority, $questionName)
     if (!$visible) {
         // Create a noninteractive element. Supress debug messages because they generate FAQ's and are harmless.
         $element = iHMS_Sysconf_Frontend_Noninteractive::makeElement($question, true);
-        //$element=Debconf::FrontEnd::Noninteractive->makeelement($question, 1);
 
         // If that failed, the question is just not visible
         if (!$element) {
@@ -128,7 +128,7 @@ function db_input($priority, $questionName)
     }
 
     $element->markseen = $markseen;
-    $busy[] = $question->getName();
+    $busy[] = $questionName;
     $frontend->add($element);
 
     if ($element->isVisible()) {
@@ -144,7 +144,7 @@ function db_input($priority, $questionName)
  * @param string $questionName Question name
  * @return array
  */
-function db_settitle($questionName)
+function settitle($questionName)
 {
     global $frontend, $codes;
 
@@ -168,7 +168,7 @@ function db_settitle($questionName)
  * @param string|null $questionName
  * @return array
  */
-function db_info($questionName = null)
+function info($questionName = null)
 {
     global $frontend, $codes;
 
@@ -191,7 +191,7 @@ function db_info($questionName = null)
  * This must be passed a question name, a key, and a value. It sets up variable substitutions on the questions
  * description so all instances of the key (wrapped in "${}") are replaced with the value
  */
-function db_subst($questionName, $key, $value)
+function subst($questionName, $key, $value)
 {
     global $codes;
 
@@ -219,7 +219,7 @@ function db_subst($questionName, $key, $value)
  * @internal param mixed $_ ... Subcommand arguments(s)
  * @return array
  */
-function db_progress($subcommand)
+function progress($subcommand)
 {
     global $frontend, $codes;
     $subcommand = strtolower($subcommand);
@@ -295,7 +295,7 @@ function db_progress($subcommand)
  * @param string $fieldName Field name
  * @return array
  */
-function db_metaget($questionName, $fieldName)
+function metaget($questionName, $fieldName)
 {
     global $codes, $clientCapb;
 
@@ -326,7 +326,7 @@ function db_metaget($questionName, $fieldName)
  * @param $questionName
  * @return array
  */
-function db_get($questionName)
+function get($questionName)
 {
     global $codes, $clientCapb;
 
@@ -352,7 +352,7 @@ function db_get($questionName)
  *
  * @return int
  */
-function db_beginblock()
+function beginblock()
 {
     global $codes;
     return $codes['success'];
@@ -363,13 +363,42 @@ function db_beginblock()
  *
  * @return int
  */
-function db_endblock()
+function endblock()
 {
     global $codes;
     return $codes['success'];
 }
 
-$backedUp = '';
+/**
+ * Sets the client_capb field to the confmodules's capabilities, and also sets the capb_backup field of the
+ * ConfModules associated FrontEnd if the confmodule can backup. Sends the capb field of the associated FrontEnd
+ * to the confmodule.
+ *
+ * @param string|array capabilitie(s)
+ * @return array
+ */
+function capb($capabilities)
+{
+    global $clientCapb, $frontend, $codes;
+
+    $capabilities = (array)$capabilities;
+    $clientCapb = $capabilities;
+
+    // Set capb_backup on the frontend if the client can backup.
+    if (in_array('backup', $capabilities)) {
+        $frontend->setCapbBackup(true);
+    }
+
+    $capb = array('escape');
+
+    if($frontend->getCapb()) {
+        $capb[] = $frontend->getCapb();
+    }
+
+    return array($codes['success'], $capb);
+}
+
+$backedUp = false;
 
 /**
  * Tells the associated FrontEnd to display items to the user, by calling its go method. That method should return FALSE
@@ -378,7 +407,7 @@ $backedUp = '';
  *
  * @return bool
  */
-function db_go()
+function go()
 {
     global $frontend, $backedUp, $busy, $seen, $codes;
 
@@ -404,7 +433,7 @@ function db_go()
 
         $frontend->clear();
         $busy = array();
-        $backedUp = '';
+        $backedUp = false;
 
         return array($codes['success'], 'ok');
     } else {
@@ -420,7 +449,7 @@ function db_go()
  *
  * @return string
  */
-function db_stop()
+function stop()
 {
     global $seen;
 
@@ -454,88 +483,88 @@ $frontend = new iHMS_Sysconf_Frontend_Dialog();
 $frontend->defaultTitle('Test');
 $frontend->clear();
 
-//db_version('1.0');
-//db_capb('backup');
-//db_capb('escape');
+//db_version('2.0');
+$ret = capb('backup');
+fwrite(STDERR, "Frontend capabilities are: " . join(', ', $ret[1]) . "\n");
+exit;
+
+// capb('escape'); No relevant for now
 
 // Set title
-db_settitle('test/title');
+settitle('test/title');
 
-// This implements a simple state machine so the back button can be handled (no yet finished)
+// This implements a simple state machine so the back button can be handled (backup capability)
 
 $state = 1;
 while ($state != 0 && $state != 10) {
     switch ($state) {
         case 1:
-            db_input('high', 'test/boolean');
+            input('high', 'test/boolean');
             break;
         case 2:
-            db_input('high', 'test/multiselect');
+            input('high', 'test/multiselect');
             break;
         case 3:
-            db_info('test/info');
-            db_input('critical', 'test/string');
-            db_input('low', 'test/password');
-            db_input('low', 'test/text');
-            db_subst('test/select', 'colors', 'red, Yellow, green');
-            db_input('high', 'test/select');
+            info('test/info');
+            input('critical', 'test/string');
+            input('low', 'test/password');
+            input('low', 'test/text');
+            subst('test/select', 'colors', 'red, Yellow, green');
+            input('high', 'test/select');
             break;
         case 4:
-            db_beginblock();
-            db_input('low', 'test/boolean');
-            db_input('low', 'test/boolean');
-            db_endblock();
-            db_input('low', 'test/note');
+            beginblock();
+            input('low', 'test/boolean');
+            input('low', 'test/boolean');
+            endblock();
+            input('low', 'test/note');
             break;
         case 5:
             // Will be displayed again
-            db_input('high', 'test/password');
+            input('high', 'test/password');
             break;
         case 6:
-            db_progress('START', 0, 10, 'test/progress/title');
+            progress('START', 0, 10, 'test/progress/title');
             sleep(1);
-            db_progress('SET', 2);
+            progress('SET', 2);
             sleep(1);
-            db_progress('INFO', 'test/progress/info');
-            db_progress('STEP', 3);
+            progress('INFO', 'test/progress/info');
+            progress('STEP', 3);
             sleep(1);
-            db_progress('STEP', 1);
+            progress('STEP', 1);
             sleep(1);
-            db_progress('STOP');
+            progress('STOP');
             break;
         case 7:
-            db_subst('test/subst', 'user', "joeuser\nanotheruser");
-            list(, $value) = db_metaget('test/subst', 'extended_description');
+            subst('test/subst', 'user', "joeuser\nanotheruser");
+            list(, $value) = metaget('test/subst', 'extended_description');
             fwrite(STDERR, "test/subst extended_description: {$value}\n");
-            db_input('high', 'test/subst');
+            input('high', 'test/subst');
             break;
         case 8:
-            db_input('high', 'test/error');
+            input('high', 'test/error');
             break;
         case 9:
-            db_input('low', 'test/error');
+            input('low', 'test/error');
             break;
     }
 
-    if (db_go()) {
-        $state++;
-    } else {
-        $state--;
-    }
+    $ret = go();
+    ($ret[0] == 30) ? $state-- : $state++;
 }
 
-list(, $value) = db_get('test/string');
+list(, $value) = get('test/string');
 echo "$value\n";
 
-list(, $value) = db_get('test/boolean');
+list(, $value) = get('test/boolean');
 echo $value, "\n";
 
-list(, $value) = db_get('test/multiselect');
+list(, $value) = get('test/multiselect');
 echo $value, "\n";
 
-db_stop();
+stop();
 
-// Load sysconf database
+// Save sysconf database
 iHMS_Sysconf_Db::save();
 
 exit(0);

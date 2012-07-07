@@ -126,6 +126,7 @@ class iHMS_Sysconf_Question
      */
     public static function getIterator()
     {
+        /** @see iHMS_Sysconf_Iterator_Callback */
         require_once 'iHMS/Sysconf/Iterator/Callback.php';
 
         return new iHMS_Sysconf_Iterator_Callback(

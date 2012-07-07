@@ -54,7 +54,7 @@ abstract class iHMS_Sysconf_Frontend
     protected $_interactive = false;
 
     /**
-     * @var string Holds any special capabilities the FrontEnd supports
+     * @var string Holds any special capabilities the frontend supports (for now, only backup capabilitie)
      */
     protected $_capb = '';
 
@@ -81,7 +81,7 @@ abstract class iHMS_Sysconf_Frontend
     protected $_info = null;
 
     /**
-     * A flag that Elements can set when they are displayed, to tell the frontend that the user has indicated they want
+     * A flag that elements can set when they are displayed, to tell the frontend that the user has indicated they want
      * to back up
      *
      * @var bool
@@ -89,9 +89,9 @@ abstract class iHMS_Sysconf_Frontend
     protected $_backup = false;
 
     /**
-     * @var null This will be set if the confmodule states it has the backup capability
+     * @var bool This will be set to TRUE if the confmodule states it has the backup capability
      */
-    protected $_capbBackup = null;
+    protected $_capbBackup = false;
 
     /**
      * The element used for the currently running progress bar, if any
@@ -388,6 +388,26 @@ abstract class iHMS_Sysconf_Frontend
     public function setInfo(iHMS_Sysconf_Question $info = null)
     {
         $this->_info = $info;
+    }
+
+    /**
+     * Returns capabilitie supported by frontend
+     *
+     * @return string that hold frontend capabilities
+     */
+    public function getCapb()
+    {
+        return $this->_capb;
+    }
+
+    /**
+     * Set backup capability
+     *
+     * @param bool $backup Whether confmodule has the backup capability
+     */
+    public function setCapbBackup($backup)
+    {
+        $this->_capbBackup = $backup;
     }
 
     /**

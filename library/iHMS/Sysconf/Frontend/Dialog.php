@@ -406,8 +406,8 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             'debug', "preparing to run dialog. Params are: {$this->_program}, " . join(', ', $args)
         );
 
-        // Do not add cancel button either if backup is not available nor
-        if (!($this->_capbBackup || in_array('--defaultno', $args))) { // TODO Behavior to be checked
+        // Do not add cancel button either if backup is not available or --defaultno is set
+        if(!$this->_capbBackup or in_array('--defaultno', $args)) {
             array_unshift($args, '--nocancel');
         }
 
