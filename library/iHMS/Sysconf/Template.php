@@ -105,10 +105,13 @@ class iHMS_Sysconf_Template
         }
 
         // See if we can use an existing template
-        if (iHMS_Sysconf_Db::getTemplates()->exists($templateName) && iHMS_Sysconf_Db::getTemplates()->getOwners($templateName)) {
+        if (
+            iHMS_Sysconf_Db::getTemplates()->exists($templateName) &&
+            !is_null(iHMS_Sysconf_Db::getTemplates()->getOwners($templateName))
+        ) {
             // If a question matching this template already exists in the db, add the owner to it. This handles shared
             // owner questions
-            if ($question = iHMS_Sysconf_Question::get($templateName)) {
+            if (!is_null($question = iHMS_Sysconf_Question::get($templateName))) {
                 $question->addOwner($owner, $type);
             }
 
@@ -117,7 +120,7 @@ class iHMS_Sysconf_Template
             $owners = iHMS_Sysconf_Db::getTemplates()->getOwners($templateName);
 
             foreach ($owners as $question) {
-                if (!$q = iHMS_Sysconf_Question::get($question)) {
+                if (is_null($q = iHMS_Sysconf_Question::get($question))) {
                     iHMS_Sysconf_Log::warn(sprintf('warning: possible database corruption. Will attempt to repair by adding back missing question %s', $question));
                     $newQuestion = iHMS_Sysconf_Question::factory($question, $owner, $type);
                     $newQuestion->setTemplate($templateName);
@@ -137,7 +140,7 @@ class iHMS_Sysconf_Template
         // Create a question in the database to go with it, unless one with the same name already exists. If one with
         // the same name exists, it may be a shared question so we add the current owner to it.
         if (iHMS_Sysconf_Db::getConfig()->exists($templateName)) {
-            if ($q = iHMS_Sysconf_Question::get($templateName)) {
+            if (!is_null($q = iHMS_Sysconf_Question::get($templateName))) {
                 $q->addowner($owner, $type);
             }
         } else {
@@ -147,7 +150,7 @@ class iHMS_Sysconf_Template
 
 
         // This is what actually creates the template in the database
-        if (!iHMS_Sysconf_Db::getTemplates()->addOwner($templateName, $templateName, $type)) {
+        if (is_null(iHMS_Sysconf_Db::getTemplates()->addOwner($templateName, $templateName, $type))) {
             return null;
         }
 
@@ -317,8 +320,7 @@ class iHMS_Sysconf_Template
                 $template->{$key} = $value;
             }
 
-            array_push($ret, $template);
-
+            $ret[] = $template;
             $stanza++;
         } // end-while();
 
@@ -339,7 +341,7 @@ class iHMS_Sysconf_Template
     /**
      * Returns a list of all fields that are present in the object
      *
-     * @return array List of all fields that are present in the object
+     * @return array|null List of all fields that are present in the object or NULL if the item is not found
      */
     public function getFields()
     {
@@ -351,8 +353,10 @@ class iHMS_Sysconf_Template
      */
     public function clearAll()
     {
-        foreach ($this->getFields() as $fields) {
-            iHMS_Sysconf_Db::getTemplates()->removeField($this->_templateName, $fields);
+        if (!is_null($fields = $this->getFields())) {
+            foreach ($fields as $field) {
+                iHMS_Sysconf_Db::getTemplates()->removeField($this->_templateName, $field);
+            }
         }
     }
 
@@ -394,12 +398,12 @@ class iHMS_Sysconf_Template
             }
         } elseif (!$wanti18n && !preg_match('/-c$/i', $fieldName)) {
             // If i18n is turned off, try *-C first
-            if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName . '-c')) {
+            if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName . '-c'))) {
                 return $ret;
             }
         }
 
-        if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName)) {
+        if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName))) {
             return $ret;
         }
 
@@ -408,7 +412,7 @@ class iHMS_Sysconf_Template
         if (strpos($fieldName, '-') !== false) {
             $plainfield = preg_replace('/-.*/', '', $fieldName);
 
-            if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $plainfield)) {
+            if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $plainfield))) {
                 return $ret;
             }
 
@@ -423,7 +427,7 @@ class iHMS_Sysconf_Template
      *
      * @param string $fieldName
      * @param string $value
-     * @return null|string
+     * @return string|null Value set or NULL if setting failed
      */
     public function __set($fieldName, $value)
     {
@@ -431,6 +435,8 @@ class iHMS_Sysconf_Template
     }
 
     /**
+     * Return template name
+     *
      * @return null|string
      */
     public function __toString()

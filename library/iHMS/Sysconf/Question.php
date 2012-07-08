@@ -224,7 +224,7 @@ class iHMS_Sysconf_Question
      *
      * @param string $variable Variable name
      * @param string $value Variable value
-     * @return null|string
+     * @return string|null Value set or NULL if setting failed
      */
     public function setVariable($variable, $value)
     {
@@ -263,7 +263,7 @@ class iHMS_Sysconf_Question
      *
      * Will returns the default value from the template in case value is not set
      *
-     * @return string
+     * @return string|null
      */
     public function getValue()
     {
@@ -466,7 +466,7 @@ class iHMS_Sysconf_Question
      * Fields are first looked for in the db, and failing that, the associated Template is queried for fields
      *
      * @param string $field Field name
-     * @return mixed
+     * @return string|null
      */
     public function __get($field)
     {
