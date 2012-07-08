@@ -27,13 +27,13 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element */
+/** @see iHMS_Sysconf_Element_Noninteractive */
 require_once 'iHMS/Sysconf/Element/Noninteractive.php';
 
 /**
- * iHMS_Sysconf_Element_Noninteractive_Boolean
+ * iHMS_Sysconf_Element_Noninteractive_Boolean class
  *
- * This is a dummy boolean element
+ * This is a dummy boolean element.
  *
  * @category    iHMS
  * @package     iHMS_Sysconf

@@ -41,13 +41,14 @@ require_once 'iHMS/Sysconf/Log.php';
  * @property string $frontend
  * @property string $frontendForced Tells if frontend was forced
  * @property string $priority Question priority
+ * @property string $terse
+ * @property string $reShow
  * @property string $adminEmail Admin Email
  * @property string $log Value used as regexp to filter log messages
  * @property string $debug Value used as regexp to filter log messages
  * @property string $noWarnings (yes|no) Tells whethers or not warnings must be hidden
  * @property string $nonInteractiveSeen
  * @property string $cValues
- * @property string $reShow
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -79,13 +80,14 @@ class iHMS_Sysconf_Config
         'frontend' => '',
         'frontendForced' => '',
         'priority' => '',
+        'terse' => '',
+        'reShow' => '',
         'adminEmail' => '',
         'log' => '',
         'debug' => '',
         'noWarnings' => '',
         'nonInteractiveSeen' => '',
         'cValues' => '',
-        'reShow' => ''
     );
 
     /**
@@ -118,44 +120,6 @@ class iHMS_Sysconf_Config
         }
 
         return self::$_instance;
-    }
-
-    /**
-     * Returns value of the given field
-     *
-     * @param string $field Field name
-     * @return string Field value
-     */
-    public function __get($field)
-    {
-        if (method_exists($this, $field)) {
-            $ret = $this->{$field}();
-        } elseif (isset($this->_config[$field])) {
-            $ret = $this->_config[$field];
-        } else {
-            fwrite(STDERR, "Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
-            exit(1);
-        }
-
-        return (string)$ret;
-    }
-
-    /**
-     * Sets value of the given field
-     *
-     * @param string $field Field name
-     * @param string $value Field value
-     * @return string Field value set
-     */
-    public function __set($field, $value)
-    {
-        if (method_exists($this, $field)) {
-            $ret = $this->{$field}($value);
-        } else {
-            $ret = ($this->_config[$field] = $value);
-        }
-
-        return (string)$ret;
     }
 
     /**
@@ -332,9 +296,9 @@ class iHMS_Sysconf_Config
      * @param string $frontend Frontend to use
      * @return string Frontend to use
      */
-    public function frontend($frontend = null)
+    public function frontend($frontend = '')
     {
-        if ($env = getenv('SYSCONF_FRONTEND')) {
+        if (($env = getenv('SYSCONF_FRONTEND')) !== false) {
             return $env;
         }
 
@@ -342,7 +306,7 @@ class iHMS_Sysconf_Config
             $this->_config['frontend'] = $frontend;
         }
 
-        if (isset($this->_config['frontend'])) {
+        if ($this->_config['frontend'] != '') {
             return $this->_config['frontend'];
         }
 
@@ -363,15 +327,11 @@ class iHMS_Sysconf_Config
      */
     public function frontendForced($value = null)
     {
-        if (getenv('SYSCONF_FRONTEND')) {
-            $this->_config['frontendForced'] = true;
-        }
-
-        if (!is_null($value)) {
+        if(isset($value) || (getenv('SYSCONF_FRONTEND') !== false)) {
             $this->_config['frontendForced'] = $value;
         }
 
-        return (bool)$this->_config['frontendForced'];
+        return $this->_config['frontendForced'] ? true : false;
     }
 
     /**
@@ -388,7 +348,7 @@ class iHMS_Sysconf_Config
      */
     public function priority($priority = null)
     {
-        if ($env = getenv('SYSCONF_PRIORITY')) {
+        if (($env = getenv('SYSCONF_PRIORITY')) !== false) {
             return $env;
         }
 
@@ -408,10 +368,36 @@ class iHMS_Sysconf_Config
         $ret = 'high';
 
         if ($question = iHMS_Sysconf_Question::get('sysconf/priority')) {
-            $ret = lcfirst($question->getValue()) ? : $ret;
+            $ret = $question->getValue() ? : $ret;
         }
 
         return $ret;
+    }
+
+    /**
+     * Sets terse mode
+     *
+     * The behavior in terse mode varies by frontend. Changes to terse mode are not persistant across sysconf
+     * invocations.
+     *
+     * @param string $value
+     * @return string
+     */
+    public function terse($value = null)
+    {
+        if (($env = getenv('SYSCONF_TERSE')) !== false) {
+            return $env;
+        }
+
+        if (!is_null($value)) {
+            $this->_config['terse'] = $value;
+        }
+
+        if ($this->_config['terse'] != '') {
+            return $this->_config['terse'];
+        }
+
+        return 'false';
     }
 
     /**
@@ -422,7 +408,7 @@ class iHMS_Sysconf_Config
      */
     public function noWarnings($value = null)
     {
-        if ($env = getenv('SYSCONF_NOWARNINGS')) {
+        if (($env = getenv('SYSCONF_NOWARNINGS')) !== false) {
             return $env;
         }
 
@@ -430,11 +416,11 @@ class iHMS_Sysconf_Config
             $this->_config['noWarnings'] = $value;
         }
 
-        if (isset($this->_config['noWarnings'])) {
+        if ($this->_config['noWarnings'] != '') {
             return $this->_config['noWarnings'];
         }
 
-        return 'no';
+        return 'false';
     }
 
 
@@ -447,15 +433,11 @@ class iHMS_Sysconf_Config
      */
     public function debug()
     {
-        if ($env = getenv('SYSCONF_DEBUG')) {
+        if (($env = getenv('SYSCONF_DEBUG')) !== false) {
             return $env;
         }
 
-        if (isset($this->_config['debug'])) {
-            return $this->_config['debug'];
-        }
-
-        return '';
+        return $this->_config['debug'];
     }
 
     /**
@@ -468,11 +450,11 @@ class iHMS_Sysconf_Config
      */
     public function adminEmail()
     {
-        if ($env = getenv('SYSCONF_ADMIN_EMAIL')) {
+        if (($env = getenv('SYSCONF_ADMIN_EMAIL')) !== false) {
             return $env;
         }
 
-        if (isset($this->_config['adminEmail'])) {
+        if ($this->_config['adminEmail'] != '') {
             return $this->_config['adminEmail'];
         }
 
@@ -484,11 +466,11 @@ class iHMS_Sysconf_Config
      */
     public function nonInteractiveSeen()
     {
-        if ($env = getenv('SYSCONF_NOINTERACTIVE_SEEN')) {
+        if (($env = getenv('SYSCONF_NOINTERACTIVE_SEEN')) !== false) {
             return $env;
         }
 
-        if (isset($this->_config['nonInteractiveSeen'])) {
+        if ($this->_config['nonInteractiveSeen'] != '') {
             return $this->_config['nonInteractiveSeen'];
         }
 
@@ -503,15 +485,51 @@ class iHMS_Sysconf_Config
      */
     public function cValues()
     {
-        if ($env = getenv('SYSCONF_C_VALUES')) {
+        if (($env = getenv('SYSCONF_C_VALUES')) !== false) {
             return $env;
         }
 
-        if (isset($this->_config['cValues'])) {
+        if ($this->_config['cValues'] != '') {
             return $this->_config['cValues'];
         }
 
         return 'false';
+    }
+
+    /**
+     * Returns value of the given field
+     *
+     * @param string $field Field name
+     * @return string Field value
+     */
+    public function __get($field)
+    {
+        if (method_exists($this, $field)) {
+            $ret = $this->{$field}();
+        } elseif (isset($this->_config[$field])) {
+            $ret = $this->_config[$field];
+        } else {
+            fwrite(STDERR, "Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
+            exit(1);
+        }
+
+        return (string)$ret;
+    }
+
+    /**
+     * Sets value of the given field
+     *
+     * @param string $field Field name
+     * @param string $value Field value
+     * @return string Value set
+     */
+    public function __set($field, $value)
+    {
+        if (method_exists($this, $field)) {
+            return $this->{$field}($value);
+        } else {
+            return $this->_config[$field] = $value;
+        }
     }
 
     /**

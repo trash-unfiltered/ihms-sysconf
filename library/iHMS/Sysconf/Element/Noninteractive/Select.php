@@ -27,7 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element */
+/** @see iHMS_Sysconf_Element_Noninteractive */
 require_once 'iHMS/Sysconf/Element/Noninteractive.php';
 
 /**
@@ -47,6 +47,8 @@ class iHMS_Sysconf_Element_Noninteractive_Select extends iHMS_Sysconf_Element_No
      * The show method does not display anything. However, if the value of the Question associated with it is not set,
      * or is not one of the available choices, then it will be set to the first item in the select list. This is for
      * consistency with the behavior of other select Elements
+     *
+     * @return void
      */
     public function show()
     {

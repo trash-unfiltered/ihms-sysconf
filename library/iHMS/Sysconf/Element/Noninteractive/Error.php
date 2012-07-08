@@ -27,11 +27,14 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element */
+/** @see iHMS_Sysconf_Element_Noninteractive */
 require_once 'iHMS/Sysconf/Element/Noninteractive.php';
 
 /**
  * iHMS_Sysconf_Element_Noninteractive_Error class
+ *
+ * This is a noninteractive error message element. Since we are running non-interactively, we can't pause to show the
+ * error messages. Instead, they are mailed to someone
  *
  * @category    iHMS
  * @package     iHMS_Sysconf

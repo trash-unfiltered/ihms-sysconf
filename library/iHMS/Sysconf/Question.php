@@ -85,7 +85,7 @@ class iHMS_Sysconf_Question
         $self->_name = $name;
 
         // This is what actually creates the question in the db
-        if (!$self->addOwner($owner, $type)) {
+        if (is_null($self->addOwner($owner, $type))) {
             return null;
         }
 
@@ -267,11 +267,11 @@ class iHMS_Sysconf_Question
      */
     public function getValue()
     {
-        if ($ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'value')) {
+        if (!is_null($ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'value'))) {
             return $ret;
         }
 
-        if ($template = $this->getTemplate()) {
+        if (!is_null($template = $this->getTemplate())) {
             return $template->default;
         }
 
@@ -344,13 +344,13 @@ class iHMS_Sysconf_Question
     {
         $template = iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'template');
 
-        if (!iHMS_Sysconf_Db::getConfig()->removeOwner($this->_name, $owner)) {
+        if (is_null(iHMS_Sysconf_Db::getConfig()->removeOwner($this->_name, $owner))) {
             return null;
         }
 
         // If that made the question go away, the question no longer owns the template, and remove this object from the
         // class's cache.
-        if (!empty($template) && !iHMS_Sysconf_Db::getConfig()->exists($this->_name)) {
+        if (!is_null($template) && !iHMS_Sysconf_Db::getConfig()->exists($this->_name)) {
             iHMS_Sysconf_Db::getTemplates()->removeOwner($template, $this->_name);
             unset(self::$_questions[$this->_name]);
         }
@@ -362,20 +362,24 @@ class iHMS_Sysconf_Question
      * Returns a single string listing all owners of this Question, separated by commas followed by spaces
      *
      *
-     * @return string isting all owners of this Question
+     * @return string all owners of this Question
      */
     public function getOwners()
     {
-        $owners = iHMS_Sysconf_Db::getConfig()->getOwners($this->_name);
-        sort($owners);
+        if (!is_null($owners = iHMS_Sysconf_Db::getConfig()->getOwners($this->_name))) {
+            $owners = iHMS_Sysconf_Db::getConfig()->getOwners($this->_name);
+            sort($owners);
 
-        return join(', ', $owners);
+            return join(', ', $owners);
+        } else {
+            return '';
+        }
     }
 
     /**
-     * Returns the template associated to this object
+     * Returns the template associated to this object or NULL in case template is not found
      *
-     * @return iHMS_Sysconf_Template
+     * @return iHMS_Sysconf_Template|null
      */
     public function getTemplate()
     {
@@ -383,12 +387,11 @@ class iHMS_Sysconf_Question
     }
 
     /**
-     * Set the template associated to this object
+     * Set the template associated to this object and returns it
      *
-     * Returns a template object
      *
      * @param string $templateName Template name
-     * @return iHMS_Sysconf_Template
+     * @return iHMS_Sysconf_Template The template object
      */
     public function setTemplate($templateName)
     {
@@ -397,9 +400,9 @@ class iHMS_Sysconf_Question
         $oldTemplate = iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'template');
         $newTemplate = $templateName;
 
-        if (!$oldTemplate || $oldTemplate != $newTemplate) {
+        if (is_null($oldTemplate) || $oldTemplate != $newTemplate) {
             // This question no longer owns the template it used to, if any
-            if (!empty($oldTemplate)) {
+            if (!is_null($oldTemplate)) {
                 iHMS_Sysconf_Db::getTemplates()->removeOwner($oldTemplate, $this->_name);
             }
 
@@ -471,14 +474,14 @@ class iHMS_Sysconf_Question
             return $this->{'get' . $field}();
         }
 
-        if (!$ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, $field)) {
+        if (is_null($ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, $field))) {
             // Fall back to template values
-            if ($template = $this->getTemplate()) {
+            if (!is_null($template = $this->getTemplate())) {
                 $ret = $template->{$field};
             }
         }
 
-        if ($ret) {
+        if (!is_null($ret)) {
             if (preg_match('/^(?:description|extended_description|choices)-/i', $field)) {
                 return $this->_expandVars($ret);
             } else {
