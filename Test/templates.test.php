@@ -19,6 +19,7 @@ spl_autoload_register(
 // An array that hold the capabilities the confmodule reports
 $clientCapb = array();
 
+// all the numeric result codes that are used
 $codes = array(
     'success' => 0,
     'escaped_data' => 1,
@@ -61,7 +62,7 @@ function input($priority, $questionName)
 {
     global $frontend, $codes;
 
-    if (($question = iHMS_Sysconf_Question::get($questionName)) == null) {
+    if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
         return array($codes['badparams'], "\"{$questionName}\" doesn't exist");
     }
 
@@ -78,7 +79,7 @@ function input($priority, $questionName)
     if ($question->type != 'error') {
         // Don't show items that are unimportant.
         if (!iHMS_Sysconf_Priority::highEnough($priority)) {
-            $visible = '';
+            $visible = false;
         }
 
         // Don't re-show already seen questions, unless reconfiguring.
@@ -95,7 +96,7 @@ function input($priority, $questionName)
         $visible = false;
 
         if (iHMS_Sysconf_Config::getInstance()->nonInteractiveSeen != 'true') {
-            $markseen = '';
+            $markseen = false;
         }
     }
 
@@ -148,7 +149,7 @@ function settitle($questionName)
 {
     global $frontend, $codes;
 
-    if (($question = iHMS_Sysconf_Question::get('test/title')) === null) {
+    if (is_null($question = iHMS_Sysconf_Question::get('test/title'))) {
         return array($codes['badparams'], "\"$questionName\" doesn't exist");
     }
 
@@ -175,7 +176,7 @@ function info($questionName = null)
     if (!$questionName) {
         $frontend->setInfo();
     } else {
-        if (($question = iHMS_Sysconf_Question::get($questionName)) === null) {
+        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($codes['badparams'], "\"$questionName\" doesn't exist");
         }
 
@@ -199,13 +200,13 @@ function subst($questionName, $key, $value)
         $value = join(' ', $value);
     }
 
-    if (($question = iHMS_Sysconf_Question::get($questionName)) === null) {
+    if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
         return array($codes['badparams'], "\"{$questionName}\" doesn't exist");
     }
 
     $result = $question->setVariable($key, $value);
 
-    if (!isset($result)) {
+    if (is_null($result)) {
         return array($codes['internalerror'], "Substitution failed");
     }
 
@@ -237,7 +238,7 @@ function progress($subcommand)
             return array($codes['syntaxerror'], "min ($min) > max ($max)");
         }
 
-        if (($question = iHMS_Sysconf_Question::get($questionName)) === null) {
+        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($codes['badparams'], "\"{$questionName}\" doesn't exist");
         }
 
@@ -264,7 +265,7 @@ function progress($subcommand)
 
         $questionName = func_get_arg(1);
 
-        if (($question = iHMS_Sysconf_Question::get($questionName)) === null) {
+        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($codes['badparams'], "\"{$questionName}\" doesn't exist");
         }
 
@@ -299,14 +300,14 @@ function metaget($questionName, $fieldName)
 {
     global $codes, $clientCapb;
 
-    if (($question = iHMS_Sysconf_Question::get($questionName)) === null) {
+    if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
         return array($codes['badparams'], "\"{$questionName}\" doesn't exist");
     }
 
     $lcfield = strtolower($fieldName);
     $fieldVal = $question->{$lcfield};
 
-    if (!isset($fieldVal)) {
+    if (is_null($fieldVal)) {
         return array($codes['badparams'], "{$fieldName} does not exist");
     }
 
@@ -330,13 +331,13 @@ function get($questionName)
 {
     global $codes, $clientCapb;
 
-    if (($question = iHMS_Sysconf_Question::get($questionName)) === null) {
+    if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
         return array($codes['badparams'], "\"{$questionName}\" doesn't exist");
     }
 
     $value = $question->getValue();
 
-    if (isset($value)) {
+    if (!is_null($value)) {
         if (in_array('escape', $clientCapb)) {
             return array($codes['escaped_data'], escape($value));
         } else {
@@ -455,8 +456,8 @@ function stop()
 
     /** @var $_ iHMS_Sysconf_Question */
     foreach ($seen as $_) {
-        // Try to get the question again, because it's possinle ot was show,, and then unregistered.
-        if ($question = iHMS_Sysconf_Question::get($_->getName())) {
+        // Try to get the question again, because it's possible it was show,, and then unregistered.
+        if (!is_null($question = iHMS_Sysconf_Question::get($_->getName()))) {
             $_->setFlag('seen', 'true');
         }
     }
@@ -476,7 +477,7 @@ putenv('SYSCONF_SYSTEMRC=../library/iHMS/Sysconf/sysconf.conf');
 iHMS_Sysconf_Db::load();
 
 // Load all templates
-iHMS_Sysconf_Template::load(__DIR__ . '/test.templates', 'test');
+iHMS_Sysconf_Template::load(__DIR__ . '/test.templates', '');
 
 // Make frontend
 $frontend = new iHMS_Sysconf_Frontend_Dialog();
@@ -564,6 +565,6 @@ echo $value, "\n";
 stop();
 
 // Save sysconf database
-iHMS_Sysconf_Db::save();
+//iHMS_Sysconf_Db::save();
 
 exit(0);
