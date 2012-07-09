@@ -52,8 +52,7 @@ class iHMS_Sysconf_Element_Dialog_Error extends iHMS_Sysconf_Element
     public function show()
     {
         $this->frontend->showText(
-            $this->question, $this->question->getDescription() . "\n\n" .
-            $this->question->getExtendedDescription()
+            $this->question, $this->question->getDescription() . "\n\n" . $this->question->getExtendedDescription()
         );
 
         $this->_value = '';

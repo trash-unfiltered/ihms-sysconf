@@ -33,6 +33,8 @@ require_once 'iHMS/Sysconf/Element.php';
 /**
  * iHMS_Sysconf_Element_ProgressInterface abstract class
  *
+ * Base class for progress element.
+ *
  * @category    iHMS
  * @package     iHMS_Sysconf
  * @subpackage  Element

@@ -31,7 +31,7 @@
 require_once 'iHMS/Sysconf/Element.php';
 
 /**
- * iHMS_Sysconf_Element_Noninteractive class
+ * iHMS_Sysconf_Element_Noninteractive abstract class
  *
  * This is noninteractive dummy element. When told to display itself, it does nothing
  *
@@ -41,14 +41,14 @@ require_once 'iHMS/Sysconf/Element.php';
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Noninteractive extends iHMS_Sysconf_Element
+abstract class iHMS_Sysconf_Element_Noninteractive extends iHMS_Sysconf_Element
 {
     /**
      * Is visible element?
      *
      * This type of element is not visible.
      *
-     * @return bool True if element is visible, FALSE otherwise
+     * @return bool TRUE if element is visible, FALSE otherwise
      */
     public function isVisible()
     {
@@ -62,6 +62,12 @@ class iHMS_Sysconf_Element_Noninteractive extends iHMS_Sysconf_Element
      */
     public function show()
     {
-        $this->_value = (string)$this->question->getValue();
+        $default = '';
+
+        if (!is_null($value = $this->question->getValue())) {
+            $default = $value;
+        }
+
+        $this->_value = $default;
     }
 }

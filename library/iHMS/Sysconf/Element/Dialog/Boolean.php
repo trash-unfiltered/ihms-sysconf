@@ -55,27 +55,27 @@ class iHMS_Sysconf_Element_Dialog_Boolean extends iHMS_Sysconf_Element
     {
         $params[] = '--yesno';
 
-        if ($dashSeparator = $this->frontend->getDashSeparator()) {
+        if (($dashSeparator = $this->frontend->getDashSeparator()) != '') {
             $params[] = $dashSeparator;
         }
 
         // Note 1 is passed in, because we can squeeze on one or more line in a yesno dialog than in other types
         $params = array_merge($params, $this->frontend->makeprompt($this->question, 1));
 
-        if ($this->question->getValue() !== null && $this->question->getValue() == 'false') {
+        if ($this->question->getValue() == 'false') {
             // Put it at the start of the option list, where dialog like it
             array_unshift($params, '--defaultno');
         }
 
         list($ret) = $this->frontend->showDialog($this->question, $params);
 
-        if (isset($ret)) {
+        if (!is_null($ret)) {
             $this->_value = ($ret == 0) ? 'true' : 'false';
         } else {
             $default = '';
 
-            if ($this->question->getValue() !== null) {
-                $default = $this->question->getValue();
+            if (!is_null($value = $this->question->getValue())) {
+                $default = $value;
             }
 
             $this->_value = $default;

@@ -45,7 +45,7 @@ class iHMS_Sysconf_Element_Noninteractive_Text extends iHMS_Sysconf_Element_Noni
 {
 
     /**
-     * Show the text element
+     * Show
      *
      * @return void
      */

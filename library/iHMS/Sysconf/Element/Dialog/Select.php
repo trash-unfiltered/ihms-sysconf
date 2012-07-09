@@ -81,8 +81,8 @@ class iHMS_Sysconf_Element_Dialog_Select extends iHMS_Sysconf_Element_Select
             }
         }
 
-        if ($this->frontend->getDashSeparator()) {
-            array_unshift($params, $this->frontend->getDashSeparator());
+        if (($dashSeparator = $this->frontend->getDashSeparator()) != '') {
+            array_unshift($params, $dashSeparator);
         }
 
         $params = array_merge(
@@ -91,12 +91,12 @@ class iHMS_Sysconf_Element_Dialog_Select extends iHMS_Sysconf_Element_Select
 
         list(, $value) = $this->frontend->showDialog($this->question, $params);
 
-        if (isset($value)) {
+        if (!is_null($value)) {
             $this->_value = $this->translateToC($value);
         } else {
             $default = '';
 
-            if ($value = $this->question->getValue()) {
+            if (!is_null($value = $this->question->getValue())) {
                 $default = $value;
             }
 

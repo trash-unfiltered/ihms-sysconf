@@ -56,13 +56,13 @@ class iHMS_Sysconf_Element_Dialog_String extends iHMS_Sysconf_Element
         list($text, $lines, $columns) = $this->frontend->makePrompt($this->question);
 
         $default = '';
-        if ($this->question->getValue()) {
-            $default = $this->question->getValue();
+        if (!is_null($value = $this->question->getValue())) {
+            $default = $value;
         }
 
         $params[] = '--inputbox';
 
-        if ($dashSeparator = $this->frontend->getDashSeparator()) {
+        if (($dashSeparator = $this->frontend->getDashSeparator()) != '') {
             $params[] = $dashSeparator;
         }
 
@@ -70,12 +70,12 @@ class iHMS_Sysconf_Element_Dialog_String extends iHMS_Sysconf_Element
 
         list(, $value) = $this->frontend->showDialog($this->question, $params);
 
-        if (isset($value)) {
+        if (!is_null($value)) {
             $this->_value = $value;
         } else {
             $default = '';
-            if ($this->question->getValue()) {
-                $default = $this->question->getValue();
+            if (!is_null($value = $this->question->getValue())) {
+                $default = $value;
             }
 
             $this->_value = $default;

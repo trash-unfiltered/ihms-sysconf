@@ -44,9 +44,11 @@ require_once 'iHMS/Sysconf/Element/Noninteractive.php';
 class iHMS_Sysconf_Element_Noninteractive_Select extends iHMS_Sysconf_Element_Noninteractive
 {
     /**
-     * The show method does not display anything. However, if the value of the Question associated with it is not set,
+     * Show
+     *
+     * This show method does not display anything. However, if the value of the question associated with it is not set,
      * or is not one of the available choices, then it will be set to the first item in the select list. This is for
-     * consistency with the behavior of other select Elements
+     * consistency with the behavior of other select elements
      *
      * @return void
      */
@@ -56,19 +58,14 @@ class iHMS_Sysconf_Element_Noninteractive_Select extends iHMS_Sysconf_Element_No
         $this->question->getTemplate()->setI18n(false);
         $choices = $this->question->choicesSplit();
         $this->question->getTemplate()->setI18n(true);
-        $value = $this->question->choicesSplit();
+        $value = $this->question->getValue();
 
-        if (!$value) {
+        if (is_null($value)) {
             $value = '';
         }
 
-        $inlist = 0;
-        if (in_array($value, $choices)) {
-            $inlist = 1;
-        }
-
-        if (!$inlist) {
-            if (!empty($choices)) {
+        if (!in_array($value, $choices)) {
+            if (!empty($choices)) { // TODO check
                 $this->_value = $choices[0];
             } else {
                 $this->_value = '';

@@ -65,25 +65,24 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
      * A footer may be passed as the first parameter; it is generally used to explain why the note was sent.
      *
      * @param string $footer
-     *
      * @return bool TRUE if mail was successfuly sent, FALSE otherwise
      */
-    public function sendmail($footer)
+    public function sendmail($footer = '')
     {
         if (($adminEmail = iHMS_Sysconf_Config::getInstance()->adminEmail) && is_executable('/usr/bin/mail')) {
             iHMS_Sysconf_Log::debug('user', 'mailing a note');
 
             $title = 'Sysconf: ' . $this->frontend->getTitle() . ' -- ' . $this->question->getDescription();
 
-            if (!$mailer = popen(escapeshellcmd("/usr/bin/mail -s '$title' $adminEmail"), 'w')) {
+            if (!($mailer = @popen(escapeshellcmd("/usr/bin/mail -s '$title' $adminEmail"), 'w'))) {
                 return false;
             }
 
             if (($extendedDescription = $this->question->getExtendedDescription()) != '') {
-                fwrite($mailer, wordwrap($extendedDescription));
+                fwrite($mailer, Zend_Text_MultiByte::wordWrap($extendedDescription, 75, "\n", true, 'UTF-8'));
             } else {
                 // Evil note!
-                fwrite($mailer, wordwrap($this->question->getDescription()));
+                fwrite($mailer, Zend_Text_MultiByte::wordWrap($this->question->getDescription(), 75, "\n", true, 'UTF-8'));
             }
 
             fwrite($mailer, "\n\n");
@@ -94,13 +93,13 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
 
             fwrite($mailer, "-- \n" . sprintf("Sysconf, running at %s", $hostname));
 
-            if ($footer) {
+            if ($footer != '') {
                 fwrite($mailer, "[ " . $footer . " ]\n");
             }
 
             fwrite($mailer, "\n\n");
 
-            if (pclose($mailer)) {
+            if (pclose($mailer) != 0) {
                 return false;
             }
 

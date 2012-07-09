@@ -34,9 +34,9 @@ require_once 'iHMS/Sysconf/Element.php';
 require_once 'iHMS/Sysconf/Encoding.php';
 
 /**
- * iHMS_Sysconf_Element_Select class
+ * iHMS_Sysconf_Element_Select abstract class
  *
- * Base class for select input element.
+ * Base class for input select element.
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -44,7 +44,7 @@ require_once 'iHMS/Sysconf/Encoding.php';
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
+abstract class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
 {
     /**
      * Is visible element?
@@ -91,7 +91,7 @@ class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
         }
 
         // Translate it
-        for ($x = 0; $x < count($choices); $x++) {
+        for ($x = 0; $x < sizeof($choices); $x++) {
             if ($choicesC[$x] == $cDefault) {
                 return $choices[$x];
             }
@@ -116,7 +116,7 @@ class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
         $choicesC = $this->question->choicesSplit();
         $this->question->getTemplate()->setI18n(true);
 
-        for ($x = 0; $x < count($choices); $x++) {
+        for ($x = 0; $x < sizeof($choices); $x++) {
             if ($choices[$x] == $value) {
                 return $choicesC[$x];
             }
@@ -142,7 +142,7 @@ class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
         $choicesC = $this->question->choicesSplit();
         $this->question->getTemplate()->setI18n(true);
 
-        for ($x = 0; $x < count($choices); $x++) {
+        for ($x = 0; $x < sizeof($choices); $x++) {
             if (iHMS_Sysconf_Encoding::toUnicode($choices[$x]) == $value) {
                 return $choicesC[$x];
             }

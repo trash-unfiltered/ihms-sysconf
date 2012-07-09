@@ -31,7 +31,7 @@
 require_once 'iHMS/Sysconf/Element/Select.php';
 
 /**
- * iHMS_Sysconf_Element_Multiselect class
+ * iHMS_Sysconf_Element_Multiselect abstract class
  *
  * Base class for multiselect input element.
  *
@@ -41,7 +41,7 @@ require_once 'iHMS/Sysconf/Element/Select.php';
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Multiselect extends iHMS_Sysconf_Element_Select
+abstract class iHMS_Sysconf_Element_Multiselect extends iHMS_Sysconf_Element_Select
 {
     /**
      * Given a set of values, reorders them to be in the same order as the choices field of the question's template,

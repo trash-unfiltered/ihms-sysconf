@@ -94,17 +94,15 @@ class iHMS_Sysconf_Element_Dialog_Multiselect extends iHMS_Sysconf_Element_Multi
             }
         }
 
-        if ($dashSeparator = $this->frontend->getDashSeparator()) {
+        if (($dashSeparator = $this->frontend->getDashSeparator()) != '') {
             array_unshift($params, $dashSeparator);
         }
 
-        $params = array_merge(
-            array('--separate-output', '--checklist', $text, $lines, $columns, $menuHeight), $params
-        );
+        $params = array_merge(array('--separate-output', '--checklist', $text, $lines, $columns, $menuHeight), $params);
 
         list(, $value) = $this->frontend->showDialog($this->question, $params);
 
-        if (isset($value)) {
+        if (!is_null($value)) {
             // Dialog return the selected items, each on a line. Translate back to C, and turn into our internal format
             $this->_value = join(
                 ', ', $this->orderValues(array_map(array($this, 'translateToC'), explode("\n", $value, -1)))
@@ -112,7 +110,7 @@ class iHMS_Sysconf_Element_Dialog_Multiselect extends iHMS_Sysconf_Element_Multi
         } else {
             $default = '';
 
-            if ($value = $this->question->getValue()) {
+            if (!is_null($value = $this->question->getValue())) {
                 $default = $value;
             }
 

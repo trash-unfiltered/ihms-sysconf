@@ -83,7 +83,7 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
 
         $params[] = '--gauge';
 
-        if ($dashSeparator = $this->frontend->getDashSeparator()) {
+        if (($dashSeparator = $this->frontend->getDashSeparator()) != '') {
             $params[] = $dashSeparator;
         }
 
@@ -154,7 +154,7 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
      */
     protected function _percent()
     {
-        return (($this->progressCur - $this->progressMin) * 100 / ($this->progressMax - $this->progressMin));
+        return ($this->progressCur - $this->progressMin) * 100 / ($this->progressMax - $this->progressMin);
     }
 
     /**

@@ -55,7 +55,7 @@ class iHMS_Sysconf_Element_Dialog_Password extends iHMS_Sysconf_Element
 
         $params[] = '--passwordbox';
 
-        if ($dashSeparator = $this->frontend->getDashSeparator()) {
+        if (($dashSeparator = $this->frontend->getDashSeparator()) != '') {
             $params[] = $dashSeparator;
         }
 
@@ -64,10 +64,10 @@ class iHMS_Sysconf_Element_Dialog_Password extends iHMS_Sysconf_Element
         list(, $value) = $this->frontend->showDialog($this->question, $params);
 
         // The password isn't passed in, so if nothing is enterred, use the default
-        if (!isset($value) || $value == '') {
+        if (is_null($value) || $value == '') {
             $default = '';
-            if ($this->question->getValue()) {
-                $default = $this->question->getValue();
+            if (!is_null($value = $this->question->getValue())) {
+                $default = $value;
             }
 
             $this->_value = $default;
