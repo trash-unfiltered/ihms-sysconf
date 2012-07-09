@@ -494,7 +494,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             exit(1);
         }
 
-        chop($output);
+        $output = chop($output);
 
         fclose($this->_dialogOutputRdr);
         fclose($this->_dialogErrorRdr);
