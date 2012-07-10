@@ -1,20 +1,35 @@
 #!/usr/bin/env php
 <?php
+/**
+ * iHMS - internet Hosting Management System
+ * Copyright (C) 2012 by iHMS Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @category    iHMS
+ * @package     iHMS_Sysconf
+ * @subpackage  Test
+ * @copyright   2012 by iHMS Team
+ * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @version     0.0.1
+ * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
+ */
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-ini_set('track_errors', 1);
-
-set_include_path(dirname(__DIR__) . '/library' . PATH_SEPARATOR . get_include_path());
-
-// Classes loader
-spl_autoload_register(
-    function($className)
-    {
-        $classPath = str_replace('_', '/', $className);
-        require_once "$classPath.php";
-    }
-);
+// Include bootsrap
+require_once dirname(__DIR__) . '/library/iHMS/Sysconf/Bootstrap.php';
 
 // An array that hold the capabilities the confmodule reports
 $clientCapb = array();
@@ -72,18 +87,18 @@ function input($priority, $questionName)
 
     $question->setPriority($priority);
 
-    // Figure out if the question should be displayed to the user or not.
+    // Figure out if the question should be displayed to the user or not
     $visible = true;
 
     // Error questions are always shown even if they're asked at a low priority or have already been seen.
     if ($question->type != 'error') {
         // Don't show items that are unimportant.
-        if (!iHMS_Sysconf_Priority::highEnough($priority)) {
+        if (iHMS_Sysconf_Priority::highEnough($priority) == false) {
             $visible = false;
         }
 
-        // Don't re-show already seen questions, unless reconfiguring.
-        if (!iHMS_Sysconf_Config::getInstance()->reShow && $question->getFlag('seen') == 'true') {
+        // Don't re-show already seen questions, unless reconfiguring
+        if (iHMS_Sysconf_Config::getInstance()->reShow == '' && $question->getFlag('seen') == 'true') {
             $visible = false;
         }
     }
@@ -111,7 +126,7 @@ function input($priority, $questionName)
             return array($codes['internalerror'], "unable to make an input element");
         }
 
-        // Ask the Element if it thinks it is visible. If not, fall back below to making a noninteractive element.
+        // Ask the element if it thinks it is visible. If not, fall back below to making a noninteractive element.
         //
         // This last check is useful, because for example, select Elements are not really visible if they have less than
         // two choices.
@@ -392,7 +407,7 @@ function capb($capabilities)
 
     $capb = array('escape');
 
-    if($frontend->getCapb()) {
+    if ($frontend->getCapb()) {
         $capb[] = $frontend->getCapb();
     }
 
@@ -406,7 +421,7 @@ $backedUp = false;
  * if the user asked to back up, and TRUE otherwise. If it returns true, then all of the questions that were displayed
  * are added to the seen array
  *
- * @return bool
+ * @return array
  */
 function go()
 {
@@ -416,7 +431,7 @@ function go()
 
     // If no elements were shown, and we backed up last time, back up again even if the user didn't indicate they want
     // to back up. This causes invisible elements to be skipped over in multi-stage backups.
-    if ($ret && (!$backedUp || array_filter($frontend->getElements(), function($_)
+    if ($ret && (!$backedUp or array_filter($frontend->getElements(), function($_) // TODO check behavior
         {
             /** @var $_ iHMS_Sysconf_Element */
             return $_->isVisible();

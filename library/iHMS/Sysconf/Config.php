@@ -173,14 +173,14 @@ class iHMS_Sysconf_Config
         }
 
         # Verify that all options are sane
-        if (!isset($this->_config['config'])) {
+        if ($this->_config['config'] == '') {
             throw new DomainException("sysconf: Config database not specified in config file.\n");
             //fwrite(STDERR, "sysconf: Config database not specified in config file.\n");
             //exit(1);
         }
-        if (!isset($this->_config['templates'])) {
-            throw new DomainException("sysconf: Template database not specified in config file.\n");
-            //fwrite(STDERR, "sysconf: Template database not specified in config file.\n");
+        if ($this->_config['templates'] == '') {
+            throw new DomainException("sysconf: Templates database not specified in config file.\n");
+            //fwrite(STDERR, "sysconf: Templates database not specified in config file.\n");
             //exit(1);
         }
 
