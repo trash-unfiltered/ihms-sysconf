@@ -27,6 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_Template */
+require_once 'iHMS/Sysconf/Template.php';
+
 /** @see iHMS_Sysconf_Log */
 require_once 'iHMS/Sysconf/Log.php';
 
@@ -281,7 +284,7 @@ abstract class iHMS_Sysconf_DbDriver
             return false;
         }
 
-        $type = $template->type ?: '';
+        $type = $template->type ? : '';
 
         return ($type == 'password') ? true : false;
     }

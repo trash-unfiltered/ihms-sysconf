@@ -27,6 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_Log */
+require_once 'iHMS/Sysconf/Log.php';
+
 /**
  * iHMS_Sysconf_Frontend_Abstract class
  *
@@ -436,6 +439,8 @@ abstract class iHMS_Sysconf_Frontend
             if (isset($noUse[$type])) return;
 
             try {
+                /** @see Zend_Loader */
+                require_once 'Zend/Loader.php';
                 @Zend_Loader::loadClass("iHMS_Sysconf_Element_{$type}");
             } catch (Exception $e) {
                 if (!$noDebug) {

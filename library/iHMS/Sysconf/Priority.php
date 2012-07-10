@@ -27,6 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_Config */
+require_once 'iHMS/Sysconf/Config.php';
+
 /**
  * iHMS_Sysconf_Priority class
  *

@@ -131,6 +131,9 @@ class iHMS_Sysconf_Config
      * the defaults for *every* database driver that is loaded up. Practically, setting  (readonly => "true") is the
      * only use of this.
      *
+     * @throws InvalidArgumentException in case no configuration is found or setting database failed
+     * @throws RuntimeException in case configuration file cannot be opened
+     * @throws DomainException in case config or template database is not specified in configuration file
      * @param string $configFile Configuration file path
      * @param array $defaults Default parameter
      * @return iHMS_Sysconf_Config Provides fluent interface, return self
@@ -147,13 +150,15 @@ class iHMS_Sysconf_Config
         }
 
         if (!$configFile) {
-            fwrite(STDERR, "No configuration file found.\n");
-            exit(1);
+            throw new InvalidArgumentException("No configuration file found.\n");
+            //fwrite(STDERR, "No configuration file found.\n");
+            //exit(1);
         }
 
         if (!$fhSysconfConfig = @fopen($configFile, 'r')) {
-            fwrite(STDERR, "Unable to open {$configFile}: $php_errormsg\n");
-            exit(1);
+            throw new RuntimeException("$php_errormsg\n");
+            //fwrite(STDERR, "$php_errormsg\n");
+            //exit(1);
         }
 
         // Read global options stanza
@@ -169,12 +174,14 @@ class iHMS_Sysconf_Config
 
         # Verify that all options are sane
         if (!isset($this->_config['config'])) {
-            fwrite(STDERR, "sysconf: Config database not specified in config file.\n");
-            exit(1);
+            throw new DomainException("sysconf: Config database not specified in config file.\n");
+            //fwrite(STDERR, "sysconf: Config database not specified in config file.\n");
+            //exit(1);
         }
         if (!isset($this->_config['templates'])) {
-            fwrite(STDERR, "sysconf: Template database not specified in config file.\n");
-            exit(1);
+            throw new DomainException("sysconf: Template database not specified in config file.\n");
+            //fwrite(STDERR, "sysconf: Template database not specified in config file.\n");
+            //exit(1);
         }
 
         // Now read in each database driver, and set it up
@@ -187,15 +194,16 @@ class iHMS_Sysconf_Config
 
             try {
                 iHMS_Sysconf_Db::makeDriver($config);
-            } catch (Exception $e) {
+            } catch (InvalidArgumentException $e) {
                 fwrite(
                     STDERR,
                     sprintf(
-                        'sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s' . "\n",
-                        $stanza, $configFile, $e->getMessage()
-                    )
+                        'sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s.',
+                        $stanza, $configFile
+                    ) . "\n"
                 );
-                exit(1);
+
+                throw new $e;
             }
 
             $stanza++;
@@ -327,7 +335,7 @@ class iHMS_Sysconf_Config
      */
     public function frontendForced($value = null)
     {
-        if(isset($value) || (getenv('SYSCONF_FRONTEND') !== false)) {
+        if (isset($value) || getenv('SYSCONF_FRONTEND') !== false) {
             $this->_config['frontendForced'] = $value;
         }
 
@@ -499,6 +507,7 @@ class iHMS_Sysconf_Config
     /**
      * Returns value of the given field
      *
+     * @throws InvalidArgumentException in case property is unknown
      * @param string $field Field name
      * @return string Field value
      */
@@ -509,11 +518,12 @@ class iHMS_Sysconf_Config
         } elseif (isset($this->_config[$field])) {
             $ret = $this->_config[$field];
         } else {
-            fwrite(STDERR, "Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
-            exit(1);
+            throw new InvalidArgumentException("Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
+            //fwrite(STDERR, "Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
+            //exit(1);
         }
 
-        return (string)$ret;
+        return $ret;
     }
 
     /**
@@ -537,6 +547,7 @@ class iHMS_Sysconf_Config
      *
      * Returns number of fields that were processed. Also handles environment variable expansion.
      *
+     * @throws DomainException in case error is encountered during parsing
      * @param string $text Chunk of text
      * @param array &$config Reference to config array
      * @return int Number of fields that were processed
@@ -568,8 +579,9 @@ class iHMS_Sysconf_Config
             $key = str_replace('-', '_', $key);
 
             if (!$key) {
-                fwrite(STDERR, "sysconf: Error while parsing configuration file.\n");
-                exit(1);
+                throw new DomainException("Error while parsing configuration file.\n");
+                //fwrite(STDERR, "Error while parsing configuration file.\n");
+                //exit(1);
             }
 
             $config[lcfirst($filter->filter($key))] = $value;

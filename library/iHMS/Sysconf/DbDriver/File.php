@@ -27,11 +27,11 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
-
 /** @see iHMS_Sysconf_DbDriver_Cache */
 require_once 'iHMS/Sysconf/DbDriver/Cache.php';
+
+/** @see iHMS_Sysconf_Log */
+require_once 'iHMS/Sysconf/Log.php';
 
 /**
  * iHMS_Sysconf_DbDriver_File class
@@ -80,6 +80,7 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
         }
 
         try {
+            /** @see Zend_Loader */
             require_once 'Zend/Loader.php';
             @Zend_Loader::loadClass($formatClass = 'iHMS_Sysconf_Format_' . $this->_format);
         } catch (Zend_Exception $e) {

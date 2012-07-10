@@ -27,11 +27,11 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
-
 /** @see iHMS_Sysconf_DbDriver */
 require_once 'iHMS/Sysconf/DbDriver.php';
+
+/** @see iHMS_Sysconf_Log */
+require_once 'iHMS/Sysconf/Log.php';
 
 /**
  * iHMS_Sysconf_DbDriver_Cache class
@@ -138,6 +138,7 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
     {
         $cache = $this->_cache;
 
+        /** @see iHMS_Sysconf_Iterator_CallbackFilter */
         require_once 'iHMS/Sysconf/Iterator/CallbackFilter.php';
 
         $iterator = new iHMS_Sysconf_Iterator_CallbackFilter(
@@ -338,7 +339,7 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
      * @param string $itemName Item name
      * @param string $fieldName Field name
      * @param string $value Field value
-     * @return string|null Field value on sucess, NULL on faillure
+     * @return string|null Field value on sucess, NULL if setting failed
      */
     public function setField($itemName, $fieldName, $value)
     {

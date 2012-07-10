@@ -27,6 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_Config */
+require_once 'iHMS/Sysconf/Config.php';
+
 /**
  * iHMS_Sysconf_Log class
  *
@@ -68,6 +71,7 @@ class iHMS_Sysconf_Log
 
         if ($log && preg_match("/{$log}/", $type)) {
             if (!self::$sysLogWriter) {
+                /** @see Zend_Log_Writer_Syslog */
                 require_once 'Zend/Log/Writer/Syslog.php';
                 self::$sysLogWriter = new Zend_Log_Writer_Syslog(array('application' => 'iHMS'));
             }

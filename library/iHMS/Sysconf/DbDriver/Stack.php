@@ -27,11 +27,11 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
-
 /** @see iHMS_Sysconf_DbDriver_Copy */
 require_once 'iHMS/Sysconf/DbDriver/Copy.php';
+
+/** @see iHMS_Sysconf_Log */
+require_once 'iHMS/Sysconf/Log.php';
 
 /**
  * iHMS_Sysconf_DbDriver_Stack class

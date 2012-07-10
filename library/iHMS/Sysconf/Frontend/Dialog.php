@@ -118,6 +118,8 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * Checks to see if whiptail, or dialog are available, in that order. To make it use dialog, set
      * SYSCONF_FORCE_DIALOG in the environment.
      *
+     * @throws DomainException In case running terminal is not supported
+     * @throws Exception in case no dialog program is found or screen properties do not fit with minimum requirement
      * @return void
      */
     protected function _init()
@@ -131,14 +133,17 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         // Detect all the ways people have managed to screw up their terminals (so far...)
         if (!isset($_SERVER['TERM']) || $_SERVER['TERM'] == '') {
-            fwrite(STDERR, "TERM is not set, so dialog frontend is not usable.\n");
-            exit(1);
+            throw new DomainException("TERM is not set, so dialog frontend is not usable.\n");
+            //fwrite(STDERR, "TERM is not set, so dialog frontend is not usable.\n");
+            //exit(1);
         } elseif (preg_match('/emacs/i', $_SERVER['TERM'])) {
-            fwrite(STDERR, "Dialog frontend is incompatible with emacs shell buffers.\n");
-            exit(1);
+            throw new DomainException("Dialog frontend is incompatible with emacs shell buffers.\n");
+            //fwrite(STDERR, "Dialog frontend is incompatible with emacs shell buffers.\n");
+            //exit(1);
         } elseif ($_SERVER['TERM'] == 'dumb' || $_SERVER['TERM'] == 'unknown') {
-            fwrite(STDERR, "Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal.\n");
-            exit(1);
+            throw new DomainException("Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal.\n");
+            //fwrite(STDERR, "Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal.\n");
+            //exit(1);
         }
 
         $this->_interactive = true;
@@ -161,15 +166,17 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $this->_columnSpacer = 2;
             $this->_selectSpacer = 0;
         } else {
-            fwrite(STDERR, "Not usable dialog-like program is installed, so the dialog based frontend cannot be used.\n");
-            exit(1);
+            throw new Exception("Not usable dialog-like program is installed, so the dialog based frontend cannot be used.\n");
+            //fwrite(STDERR, "Not usable dialog-like program is installed, so the dialog based frontend cannot be used.\n");
+            //exit(1);
         }
 
         // Whiptail and dialog can't deal with very small screens. Detect this and fail, forcing use of some other
         // frontend. The numbers were arrived at by experimentation.
         if ($this->_screenHeight < 13 || $this->_screenWidth < 31) {
-            fwrite(STDERR, "Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.\n");
-            exit(1);
+            throw new Exception("Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.\n");
+            //fwrite(STDERR, "Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.\n");
+            //exit(1);
         }
     } // end-init()
 
@@ -338,6 +345,8 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
                 array_push($args, '--scrolltext');
             } else {
                 // Dialog has to use temporary file
+                /** @see iHMS_Sysconf_TmpFile */
+                require_once 'iHMS/Sysconf/TmpFile.php';
                 $fh = iHMS_Sysconf_TmpFile::open();
                 fwrite($fh, join("\n", array_map(array($this, 'hideEscape'), $linesArray)));
                 fclose($fh);
@@ -394,6 +403,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     /**
      * Start dialog
      *
+     * @throws RuntimeException in case dialog process cannot be opened
      * @param iHMS_Sysconf_Question $question Question
      * @param bool $wantInputFd
      * @param array $args Arguments
@@ -402,12 +412,10 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      */
     public function startDialog(iHMS_Sysconf_Question $question, $wantInputFd, $args)
     {
-        iHMS_Sysconf_Log::debug(
-            'debug', "preparing to run dialog. Params are: {$this->_program}, " . join(', ', $args)
-        );
+        iHMS_Sysconf_Log::debug('debug', "preparing to run dialog. Params are: {$this->_program}, " . join(', ', $args));
 
         // Do not add cancel button either if backup is not available or --defaultno is set
-        if(!$this->_capbBackup or in_array('--defaultno', $args)) {
+        if (!$this->_capbBackup or in_array('--defaultno', $args)) {
             array_unshift($args, '--nocancel');
         }
 
@@ -452,8 +460,9 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         );
 
         if (!is_resource($this->_dialogProcess)) {
-            fwrite(STDERR, sprintf('Unable to spawn %s: %s', $this->_program, $php_errormsg));
-            exit(1);
+            throw new RuntimeException($php_errormsg);
+            //fwrite(STDERR, sprintf('Unable to spawn %s: %s', $this->_program, $php_errormsg));
+            //exit(1);
         }
 
         if ($wantInputFd) {
@@ -467,6 +476,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     /**
      * Wait dialog
      *
+     * @throws RuntimeException in case Dialog program give an error
      * @param array $args Arguments that have been passed to dialog
      * @return array
      */
@@ -490,8 +500,9 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         }
 
         if ($errors) {
-            fwrite(STDERR, sprintf('sysconf: %s output the above errors, giving up!', $this->_program) . "\n");
-            exit(1);
+            throw new RuntimeException(sprintf('sysconf: %s output the above errors, giving up!', $this->_program) . "\n");
+            //fwrite(STDERR, sprintf('sysconf: %s output the above errors, giving up!', $this->_program) . "\n");
+            //exit(1);
         }
 
         $output = chop($output);

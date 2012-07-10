@@ -27,6 +27,12 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_Db */
+require_once 'iHMS/Sysconf/Db.php';
+
+/** @see iHMS_Sysconf_Template */
+require_once 'iHMS/Sysconf/Template.php';
+
 /**
  * iHMS_Sysconf_Question class
  *
@@ -39,6 +45,7 @@
  * Note: For fields that don't match with PHP field syntax, use curly brakets around them (eg . $template->{'fieldname'}).
  *
  * @property string type Question type
+ * @property string default Default value
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -69,6 +76,7 @@ class iHMS_Sysconf_Question
      * New questions default to having their seen flag set to false
      *
      * @static
+     * @throws InvalidArgumentException in case Question already exits
      * @param string $name Question name
      * @param string $owner Question owner
      * @param string $type Question type
@@ -77,8 +85,9 @@ class iHMS_Sysconf_Question
     public static function factory($name, $owner, $type)
     {
         if (in_array($name, self::$_questions)) {
-            fwrite(STDERR, "sysconf: A question named \"$name\" already exists.\n");
-            exit(1);
+            throw new InvalidArgumentException("sysconf: A question named \"$name\" already exists.\n");
+            //fwrite(STDERR, "sysconf: A question named \"$name\" already exists.\n");
+            //exit(1);
         }
 
         $self = new self();
@@ -251,7 +260,7 @@ class iHMS_Sysconf_Question
      *
      * @param string $flag Flag name
      * @param string $value Flag value
-     * @return bool|null
+     * @return string|null
      */
     public function setFlag($flag, $value)
     {
@@ -259,7 +268,7 @@ class iHMS_Sysconf_Question
     }
 
     /**
-     * Return current value of the this question.
+     * Return current value of this question
      *
      * Will returns the default value from the template in case value is not set
      *

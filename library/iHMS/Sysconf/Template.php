@@ -27,6 +27,12 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_Db */
+require_once 'iHMS/Sysconf/Db.php';
+
+/** @see iHMS_Sysconf_Question */
+require_once 'iHMS/Sysconf/Question.php';
+
 /** @see iHMS_Sysconf_Log */
 require_once 'iHMS/Sysconf/Log.php';
 
@@ -202,20 +208,23 @@ class iHMS_Sysconf_Template
      * instantiated templates. Pass it the file to load (or an already open FileHandle) and the template owner.
      *
      * @static
-     * @param string|resource $templateFile Either a string representing a templates file or a resource of templates
+     * @throws InvalidArgumentException in case templates file cannot be opened
+     * @throws DomainException in case templates file doesn't not fit with expected syntax
+     * @param string|resource $templatesFile Either a string representing a templates file or a resource of templates
      *                                      file already opened
      * @param string $templateOwner Templates owner (eg: The module name that the templates file belongs)
      * @return iHMS_Sysconf_Template[]
      */
-    public static function load($templateFile, $templateOwner)
+    public static function load($templatesFile, $templateOwner)
     {
         $ret = array();
 
-        if (is_resource($templateFile)) {
-            $fh = $templateFile;
-        } elseif (!$fh = @fopen($templateFile, 'r')) {
-            fwrite(STDERR, "sysconf: Unable to read the {$templateFile} templates file.\n");
-            exit(1);
+        if (is_resource($templatesFile)) {
+            $fh = $templatesFile;
+        } elseif (!$fh = @fopen($templatesFile, 'r')) {
+            throw new InvalidArgumentException("{$templatesFile}: {$php_errormsg}");
+            //fwrite(STDERR, "{$templateFile}: {$php_errormsg}");
+            //exit(1);
         }
 
         fseek($fh, 0, SEEK_END);
@@ -237,8 +246,11 @@ class iHMS_Sysconf_Template
 
                 if ($field != '') {
                     if (isset($data[$field])) {
-                        fwrite(STDERR, sprintf("sysconf: Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n", $stanza, $templateFile, $field, $value));
-                        exit(1);
+                        throw new DomainException(
+                            sprintf("Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n", $stanza, $templateFile, $field, $value)
+                        );
+                        //fwrite(STDERR, sprintf("Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n", $stanza, $templateFile, $field, $value));
+                        //exit(1);
                     }
 
                     $data[$field] = $value;
@@ -259,7 +271,7 @@ class iHMS_Sysconf_Template
 
                 if (preg_match('/^([-_@.A-Za-z0-9]*):\s?(.*)/', $line, $match)) {
                     // Beginning of new field. First, save the old one
-                    $save($field, $value, $extended, $templateFile);
+                    $save($field, $value, $extended, $templatesFile);
 
                     $field = strtolower($match[1]);
                     $value = preg_replace('/\s*$/', '', $match[2]);
@@ -267,7 +279,7 @@ class iHMS_Sysconf_Template
                     $basefield = preg_replace('/-.+$/', '', $field);
 
                     if (!in_array($basefield, self::$kwnowTemplateFields)) {
-                        iHMS_Sysconf_Log::warn(sprintf("warning: Unknown template field %s in stanza %d of %s\n", $stanza, $field, $templateFile));
+                        iHMS_Sysconf_Log::warn(sprintf("warning: Unknown template field %s in stanza %d of %s\n", $stanza, $field, $templatesFile));
                     }
                 } elseif (preg_match('/^\s\.$/', $line)) {
                     // Continuation of field that contains only a blank line
@@ -293,17 +305,19 @@ class iHMS_Sysconf_Template
 
                     $extended .= $bit;
                 } else {
-                    fwrite(STDERR, sprintf("sysconf: Template parse error near `%s', in stanza %d of %s\n", $stanza, $line, $templateFile));
-                    exit(1);
+                    throw new DomainException(sprintf("Template parse error near `%s', in stanza %d of %s\n", $stanza, $line, $templatesFile));
+                    //fwrite(STDERR, sprintf("Template parse error near `%s', in stanza %d of %s\n", $stanza, $line, $templatesFile));
+                    //exit(1);
                 }
             } // end-foreach();
 
-            $save($field, $value, $extended, $templateFile);
+            $save($field, $value, $extended, $templatesFile);
 
             // Sanity checks
             if (!isset($data['template'])) {
-                fwrite(STDERR, sprintf("sysconf: Template %d in %s does not contain a 'Template:' line\n", $stanza, $templateFile));
-                exit(1);
+                throw new DomainException(sprintf("Template %d in %s does not contain a 'Template:' line\n", $stanza, $templatesFile));
+                //fwrite(STDERR, sprintf("Template %d in %s does not contain a 'Template:' line\n", $stanza, $templatesFile));
+                //exit(1);
             }
 
             // Create and populate template from the array
@@ -364,7 +378,7 @@ class iHMS_Sysconf_Template
      * Provides accessors (getters) for templates fields
      *
      * @param string $fieldName
-     * @return null|string
+     * @return string
      */
     public function __get($fieldName)
     {
@@ -382,7 +396,7 @@ class iHMS_Sysconf_Template
 
                 // First check for a field that matches the language and the encoding. No charset conversion is needed.
                 // This also takes care of the old case where encoding is not specified
-                if ($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName)) {
+                if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName))) {
                     return $ret;
                 }
 

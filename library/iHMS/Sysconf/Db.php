@@ -27,6 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+/** @see iHMS_Sysconf_DbDriver */
+require_once 'iHMS/Sysconf/DbDriver.php';
+
 /** @see iHMS_Sysconf_Log */
 require_once 'iHMS/Sysconf/Log.php';
 
@@ -64,6 +67,7 @@ class iHMS_Sysconf_Db
      * that is loaded up. Practically, setting (readonly => "true") is the only use of this.
      *
      * @static
+     * @throws LogicException in case a database was not initialized
      * @param array $parameters OPTIONAL Array of named parameters
      * @return void
      */
@@ -72,13 +76,15 @@ class iHMS_Sysconf_Db
         $config = iHMS_Sysconf_Config::getInstance()->load('', $parameters); // Load default config file
 
         if (!self::$_config = iHMS_Sysconf_DbDriver::getDriver($config->config)) {
-            fwrite(STDERR, "sysconf: Configuration database {$config->config} was not initialized\n");
-            exit(1);
+            throw new LogicException("Configuration database {$config->config} was not initialized\n");
+            //fwrite(STDERR, "Configuration database {$config->config} was not initialized\n");
+            //exit(1);
         }
 
         if (!self::$_templates = iHMS_Sysconf_DbDriver::getDriver($config->templates)) {
-            fwrite(STDERR, "sysconf: Template database {$config->templates} was not initialized\n");
-            exit(1);
+            throw new LogicException("Template database {$config->templates} was not initialized\n");
+            //fwrite(STDERR, "Template database {$config->templates} was not initialized\n");
+            //exit(1);
         }
     }
 
@@ -89,14 +95,17 @@ class iHMS_Sysconf_Db
      * to make.
      *
      * @static
+     * @throws DomainException in case Driver type is not specified
+     * @throws InvalidArgumentException in case Driver of type is not found
      * @param array $config Array that holds driver configuration
      * @return iHMS_Sysconf_DbDriver
      */
     public static function makeDriver($config)
     {
         if (!isset($config['driver'])) {
-            fwrite(STDERR, "sysconf: Driver type not specified\n");
-            exit(1);
+            throw new DomainException("Driver type not specified\n");
+            //fwrite(STDERR, "sysconf: Driver type not specified\n");
+            //exit(1);
         } else {
             $type = $config['driver'];
         }
@@ -105,9 +114,10 @@ class iHMS_Sysconf_Db
         try {
             require_once 'Zend/Loader.php';
             @Zend_Loader::loadClass($className = "iHMS_Sysconf_DbDriver_{$type}");
-        } catch (Exception $e) {
-            fwrite(STDERR, "sysconf: Driver '{$type}' not found: " . $e->getMessage() . "\n");
-            exit(1);
+        } catch (Zend_Exception $e) {
+            throw new InvalidArgumentException("Driver '{$type}' not found: " . $e->getMessage() . "\n");
+            //fwrite(STDERR, "Driver '{$type}' not found: " . $e->getMessage() . "\n");
+            //exit(1);
         }
 
         unset($config['driver']); // not a field for the object
