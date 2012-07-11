@@ -31,7 +31,7 @@
 /***********************************************************************************************************************
  * Short description
  *
- * This is a helper program for confmodules. It expects to be passed the name of the confmodule method to run, and any
+ * This is a helper program for confmodules. It expects to be passed the name of the confmodule script to run, and any
  * parameters for it.
  */
 
@@ -71,7 +71,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
     $module = $env;
 } elseif (preg_match('!^.*/(.*?)\.(?:postinst|postrm|prerm)!', $argv[0], $m)) {
     $module = $m[1];
-} elseif (file_exists('/usr/local/var/lib/ihms/tmp.ci/control')) {
+} elseif (file_exists('/usr/local/var/lib/ihms/tmp.ci/control')) { // TODO review for better reusability
     // The preinst is running, presumably. Now, it gets really ugly, because we have to parse the control file
     $fh = @fopen('/usr/local/var/lib/ihms/tmp.ci/control', 'r');
 
@@ -88,7 +88,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
 
     fclose($fh);
 } else {
-    // Being run some other way, not via a dpkg script.
+    // Being run some other way, not via an iHMS script
     $module = '';
 
     iHMS_Sysconf_Log::debug('developer', 'Trying to find a templates file..');
@@ -107,7 +107,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
     };
 
     //  See if there is a templates file in the same directory as the script, with the same name except .templates is
-    // appended.
+    // appended
     if (!$tryTemplate("{$argv[0]}.templates")) {
         // Next try removing "config" from the end of method name and putting in "templates".
         if (!preg_match('/(.*)config$/', $argv[0], $m) || !$tryTemplate("{$m[1]}.templates")) {
@@ -147,6 +147,7 @@ if (preg_match('/^(.*[.\/])(?:postinst|preinst)$/', $argv[0], $m)) {
 
     // Run config method, if any
     $config = $base . 'config';
+
     if (file_exists($config)) {
         // We assume that the third argument passed to this program (which should be the second argument passed to the
         // preinst or postinst that ran it), is the module version.
@@ -159,7 +160,7 @@ if (preg_match('/^(.*[.\/])(?:postinst|preinst)$/', $argv[0], $m)) {
         // Talk to it until it s done
         while ($confmodule->communicate()) ;
 
-        if ($exitCode = ($confmodule->getExitCode() > 0)) {
+        if (($exitCode = $confmodule->getExitCode()) > 0) {
             exit($exitCode);
         }
     }
@@ -172,7 +173,7 @@ $confmodule = iHMS_Sysconf_AutoSelect::confModuleFactory($argv);
 $confmodule->setOwner($module);
 
 // Talk to it until it s done
-while ($confmodule->communicate());
+while ($confmodule->communicate()) ;
 
 // Shutdown the frontend
 $frontend->shutdown();

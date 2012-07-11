@@ -31,7 +31,7 @@
  * SYNOPSIS
  *
  * require_once 'iHMS/Sysconf/Client/ConfModule.php';
- * version('2.0');
+ * version('1.0');
  * $capb = capb('backup');
  * input('medium', 'foo/bar');
  * my $ret=go();
