@@ -19,7 +19,7 @@
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
- * @subpackage  Init
+ * @subpackage  Bootstrap
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
@@ -31,16 +31,41 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ini_set('track_errors', 1);
 
+// Check for PHP version
+if (version_compare(phpversion(), '5.3.3') == -1) {
+    fwrite(STDERR, 'Your PHP version is ' . phpversion() . ". Sysconf requires PHP 5.3.3 or newer.\n");
+    exit(1);
+}
+
+// Check for PHP SAPI
+if(PHP_SAPI != 'cli') {
+    fwrite(STDERR, "Sysconf is a CLI program.\n");
+    exit(1);
+}
+
+// Check for Iconv PHP extension availability
+if (!extension_loaded('iconv')) {
+    fwrite(STDERR, "Sysconf require Iconv PHP extension.\n");
+    exit(1);
+}
+
 // Set exception handler
 set_exception_handler(
-    function($Exception)
+    function($exception)
     {
-        /** @var $Exception Exception */
-        fwrite(STDERR, $Exception->getMessage());
+        /** @var $exception Exception */
+        fwrite(STDERR, $exception->getMessage());
     }
 );
 
-// Add sysconf library directory in include_path
+// Check for Zend Framework library version
+require_once 'Zend/Version.php';
+if (version_compare(Zend_Version::VERSION, '1.11.11') == -1) {
+    fwrite(STDERR, 'Your Zend Framework version is ' . phpversion() . ". Sysconf requires Zend Framework 1.11.11 or newer.\n");
+    exit(1);
+}
+
+// Add sysconf library directory to the PHP include_path
 set_include_path(dirname(dirname(__DIR__)) . PATH_SEPARATOR . get_include_path());
 
 // Register classes loader

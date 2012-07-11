@@ -179,7 +179,7 @@ class iHMS_Sysconf_ConfModule
      *
      * @return string Owner
      */
-    public function getOwnerr()
+    public function getOwner()
     {
         return $this->_owner;
     }
@@ -459,7 +459,7 @@ class iHMS_Sysconf_ConfModule
 
             // If that failed, quit now. This should never happen.
             if (!$element) {
-                return array($this->_codes['internalerror'], "unable to make an input element");
+                return array($this->_codes['internalerror'], 'unable to make an input element');
             }
 
             // Ask the element if it thinks it is visible. If not, fall back below to making a noninteractive element.
@@ -475,12 +475,12 @@ class iHMS_Sysconf_ConfModule
 
             // If that failed, the question is just not visible
             if (!$element) {
-                return array($this->_codes['input_invisible'], "question skipped");
+                return array($this->_codes['input_invisible'], 'question skipped');
             }
         }
 
         $element->markseen = $markseen;
-        $busy[] = $questionName;
+        $this->_busy[] = $questionName;
         $this->_frontend->add($element);
 
         if ($element->isVisible()) {
@@ -572,7 +572,7 @@ class iHMS_Sysconf_ConfModule
      */
     public function commandSetTitle($questionName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get('test/title'))) {
+        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"$questionName\" doesn't exist");
         }
 
@@ -625,11 +625,10 @@ class iHMS_Sysconf_ConfModule
         ))
         ) {
             foreach ($this->_frontend->getElements() as $_) {
-
                 $_->question->setValue($_->getValue());
 
                 if ($_->markseen && $_->question) {
-                    $seen[] = $_->question;
+                    $this->_seen[] = $_->question;
                 }
             }
 
@@ -736,7 +735,7 @@ class iHMS_Sysconf_ConfModule
             return array($this->_codes['internalerror'], 'Substitution failed');
         }
 
-        return array($this->_codes['success'], null);
+        return array($this->_codes['success']);
     }
 
     /**

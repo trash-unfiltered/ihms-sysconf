@@ -92,9 +92,11 @@ while ($state != 0 && $state != 10) {
             input('high', 'test/subst');
             break;
         case 8:
+            // This question should be show regardless of priority
             input('high', 'test/error');
             break;
         case 9:
+            // This question should be show regardless of priority
             input('low', 'test/error');
             break;
     }
