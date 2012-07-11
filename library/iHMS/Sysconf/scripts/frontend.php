@@ -130,7 +130,6 @@ if ($module != '') {
 
 $frontend->setInfo();
 
-
 // See if the preinst or postinst of the module is being run, and if there is a config script associated with this
 // module. If so, run it first as a confmodule (also loading the templates). This is a bit of a nasty hack, that lets
 // you ihms install module somemodule and have its config script be run first.
