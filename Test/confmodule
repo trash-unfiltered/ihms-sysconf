@@ -37,10 +37,10 @@
 // Include ConfModule client
 require_once dirname(__DIR__) . '/library/iHMS/Sysconf/Client/ConfModule.php';
 
-version('2.0');
-
+version('1.0');
 capb('backup');
 capb('escape');
+
 settitle('test/title');
 
 // This implements a simple state machine so the back (cancel) button can be handled (backup capability)
@@ -116,5 +116,5 @@ $ret = get('test/multiselect');
 fwrite(STDERR, "Value for test/multiselect is: '{$ret[1]}'\n");
 
 // Tell sysconf we're done talking to it.
-// Note! Just for testing purpose since sysconf can detect termination of this program automatically
+// Note: Just for testing purpose since sysconf can detect termination of this program automatically
 stop();
