@@ -1,6 +1,6 @@
 <?php
 /**
- * iHMS - internet Hosting Management System
+ * Sysconf - Interactive configuration system for PHP applications
  * Copyright (C) 2012 by iHMS Team
  *
  * This program is free software; you can redistribute it and/or
@@ -26,7 +26,6 @@
  * @link        http://www.i-mscp.net i-MSCP Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
-
 
 /**
  * iHMS_Sysconf_Format class

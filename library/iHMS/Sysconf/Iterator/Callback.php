@@ -1,6 +1,6 @@
 <?php
 /**
- * iHMS - internet Hosting Management System
+ * Sysconf - Interactive configuration system for PHP applications
  * Copyright (C) 2012 by iHMS Team
  *
  * This program is free software; you can redistribute it and/or

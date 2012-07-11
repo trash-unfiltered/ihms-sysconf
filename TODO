@@ -1,1 +1,5 @@
 - i18n support
+- FrontEnd (Teletype)
+- FrontEnd (Readline)
+- FrontEnd (Web)
+- Remove ZF dependency

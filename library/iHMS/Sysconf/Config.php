@@ -1,6 +1,6 @@
 <?php
 /**
- * iHMS - internet Hosting Management System
+ * Sysconf - Interactive configuration system for PHP applications
  * Copyright (C) 2012 by iHMS Team
  *
  * This program is free software; you can redistribute it and/or
@@ -320,7 +320,7 @@ class iHMS_Sysconf_Config
 
         $ret = 'dialog';
 
-        if ($question = iHMS_Sysconf_Question::get('sysconf/question')) {
+        if (!is_null($question = iHMS_Sysconf_Question::get('sysconf/question'))) {
             $ret = lcfirst($question->getValue()) ? : $ret;
         }
 

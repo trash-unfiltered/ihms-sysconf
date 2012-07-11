@@ -1,6 +1,6 @@
 <?php
 /**
- * iHMS - internet Hosting Management System
+ * Sysconf - Interactive configuration system for PHP applications
  * Copyright (C) 2012 by iHMS Team
  *
  * This program is free software; you can redistribute it and/or
@@ -105,7 +105,10 @@ class iHMS_Sysconf_Element_Dialog_Multiselect extends iHMS_Sysconf_Element_Multi
         if (!is_null($value)) {
             // Dialog return the selected items, each on a line. Translate back to C, and turn into our internal format
             $this->_value = join(
-                ', ', $this->orderValues(array_map(array($this, 'translateToC'), explode("\n", $value, -1)))
+                ', ',
+                $this->orderValues(
+                    array_map(array($this, 'translateToC'), preg_split('/\n/', $value, -1, PREG_SPLIT_NO_EMPTY))
+                )
             );
         } else {
             $default = '';

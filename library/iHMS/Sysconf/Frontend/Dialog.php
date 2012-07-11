@@ -1,6 +1,6 @@
 <?php
 /**
- * iHMS - internet Hosting Management System
+ * Sysconf - Interactive configuration system for PHP applications
  * Copyright (C) 2012 by iHMS Team
  *
  * This program is free software; you can redistribute it and/or
@@ -505,7 +505,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             //exit(1);
         }
 
-        $output = chop($output);
+        $output = chop($output, "\n");
 
         fclose($this->_dialogOutputRdr);
         fclose($this->_dialogErrorRdr);

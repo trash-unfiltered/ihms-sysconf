@@ -28,7 +28,7 @@ Sysconf still in prototype state. Sample usage will come soon.
 
 ### LICENSE
 
-The files in this archive are released under the http://www.gnu.org/licenses/gpl-2.0.html GPL v2.
+The files in this archive are released under the [GPL v2](http://www.gnu.org/licenses/gpl-2.0.html "GPL v2")
 You can find a copy of this license in LICENSE.txt.
 
 ### ACKNOWLEDGEMENTS
@@ -39,5 +39,5 @@ and you, the i-HMS user.
 The i-HMS team would like  particulary thank to **Joey Hess**, a Debian developer that is the author of the Debconf program
 on which our work is based.
 
-### AUTHORS
-Laurent Declercq (nuxwin)
+### AUTHORS AND CONTRIBUTORS
+Laurent Declercq <l.declercq@nuxwin.com> (Author)
