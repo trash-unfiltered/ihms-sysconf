@@ -122,5 +122,5 @@ Description: This is just a text test with no long description.
 
 Template: test/title
 Type: title
-Description: This is a title
-Description-fr: Ceci est un titre en Français
+Description: This is a test for dialog box titles
+Description-fr: Ceci est un test en Français pour les titres des boîtes de dialogues

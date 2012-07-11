@@ -1,0 +1,120 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Sysconf - Interactive configuration system for PHP applications
+ * Copyright (C) 2012 by iHMS Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @category    iHMS
+ * @package     iHMS_Sysconf
+ * @subpackage  Test
+ * @copyright   2012 by iHMS Team
+ * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @version     0.0.1
+ * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
+ */
+
+/***********************************************************************************************************************
+ * DESCRIPTION
+ *
+ *  Test config module. This is a regression/stress test.
+ */
+
+// Include ConfModule client
+require_once dirname(__DIR__) . '/library/iHMS/Sysconf/Client/ConfModule.php';
+
+version('2.0');
+
+capb('backup');
+capb('escape');
+settitle('test/title');
+
+// This implements a simple state machine so the back (cancel) button can be handled (backup capability)
+
+$state = 1;
+while ($state != 0 && $state != 10) {
+    switch ($state) {
+        case 1:
+            input('high', 'test/boolean');
+            break;
+        case 2:
+            input('high', 'test/multiselect');
+            break;
+        case 3:
+            info('test/info');
+            input('critical', 'test/string');
+            input('low', 'test/password');
+            input('low', 'test/text');
+            subst('test/select', 'colors', 'red, Yellow, green');
+            input('high', 'test/select');
+            break;
+        case 4:
+            beginBlock();
+            input('low', 'test/boolean');
+            input('low', 'test/boolean');
+            endBlock();
+            input('low', 'test/note');
+            break;
+        case 5:
+            // Will be displayed again
+            input('high', 'test/password');
+            break;
+        case 6:
+            progress('START', 0, 10, 'test/progress/title');
+            sleep(1);
+            progress('SET', 2);
+            sleep(1);
+            progress('INFO', 'test/progress/info');
+            progress('STEP', 3);
+            sleep(1);
+            progress('STEP', 1);
+            sleep(1);
+            progress('STOP');
+            break;
+        case 7:
+            subst('test/subst', 'user', 'joeuser\nanotheruser');
+            $ret = metaget('test/subst', 'extended_description');
+            fwrite(STDERR, "test/subst extended_description: {$ret[1]}\n");
+            input('high', 'test/subst');
+            break;
+        case 8:
+            input('high', 'test/error');
+            break;
+        case 9:
+            input('low', 'test/error');
+            break;
+    }
+
+    $ret = go();
+    ($ret[0] == 30) ? $state-- : $state++;
+}
+
+$ret = get('test/select');
+fwrite(STDERR, "Value for test/select is: '{$ret[1]}'\n");
+
+$ret = get('test/string');
+fwrite(STDERR, "Value for test/string is: '{$ret[1]}'\n");
+
+$ret = get('test/boolean');
+fwrite(STDERR, "Value for test/boolean is: '{$ret[1]}'\n");
+
+$ret = get('test/multiselect');
+fwrite(STDERR, "Value for test/multiselect is: '{$ret[1]}'\n");
+
+// Tell sysconf we're done talking to it.
+// Note! Just for testing purpose since sysconf can detect termination of this program automatically
+stop();

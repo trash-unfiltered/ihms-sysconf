@@ -8,9 +8,6 @@ they are installed, allowing installations and major upgrades to request all nec
 you do what you want while modules are installed. Sysconf lets you, if hurry, to skip the less important questions when
 installing modules.
 
-Sysconf was firstly developed for the i-HMS project but can be reused for integration in any project that requires
-installation process.
-
 Sysconf is only GNU/Linux OS compatible.
 
 ### REQUIREMENT
@@ -33,11 +30,11 @@ You can find a copy of this license in LICENSE.txt.
 
 ### ACKNOWLEDGEMENTS
 
-The i-HMS team would like to thank all the contributors to the i-HMS project, our corporate sponsor,
-and you, the i-HMS user.
+The i-HMS team would like to thank all the contributors to the i-HMS project, our corporate sponsor, and you, the i-HMS
+software users.
 
-The i-HMS team would like  particulary thank to **Joey Hess**, a Debian developer that is the author of the Debconf program
-on which our work is based.
+The i-HMS team would like particularly thank **Joey Hess**, a Debian developer that is the author of the Debconf program on
+which our work is based.
 
 ### AUTHORS AND CONTRIBUTORS
 Laurent Declercq <l.declercq@nuxwin.com> (Author)
