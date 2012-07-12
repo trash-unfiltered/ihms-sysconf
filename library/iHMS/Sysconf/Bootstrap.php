@@ -38,7 +38,7 @@ if (version_compare(phpversion(), '5.3.3') == -1) {
 }
 
 // Check for PHP SAPI
-if(PHP_SAPI != 'cli') {
+if (PHP_SAPI != 'cli') {
     fwrite(STDERR, "Sysconf is a CLI program.\n");
     exit(1);
 }

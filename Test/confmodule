@@ -86,7 +86,7 @@ while ($state != 0 && $state != 10) {
             progress('STOP');
             break;
         case 7:
-            subst('test/subst', 'user', 'joeuser\nanotheruser');
+            subst('test/subst', 'user', 'joe user\nanother user');
             $ret = metaget('test/subst', 'extended_description');
             fwrite(STDERR, "test/subst extended_description: {$ret[1]}\n");
             input('high', 'test/subst');

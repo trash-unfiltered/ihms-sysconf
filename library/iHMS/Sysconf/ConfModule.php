@@ -217,7 +217,7 @@ class iHMS_Sysconf_ConfModule
 
         iHMS_Sysconf_Log::debug('developer', 'starting ' . join(' ', $args));
 
-        $this->_process = @proc_open('/usr/bin/env php ' .join(' ', $args), array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')), $pipes);
+        $this->_process = @proc_open('/usr/bin/env php ' . join(' ', $args), array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')), $pipes);
 
         if (!is_resource($this->_process)) {
             throw new Exception($php_errormsg);
@@ -227,7 +227,7 @@ class iHMS_Sysconf_ConfModule
         $this->_readHandle = $pipes[1];
 
         // Catch sigpipes so they don't kill us, and return 128 for them
-        declare(ticks = 1);
+        declare(ticks = 1) ;
         $thisRef = $this;
         pcntl_signal(SIGPIPE, function() use($thisRef)
         {
@@ -281,7 +281,7 @@ class iHMS_Sysconf_ConfModule
         $words = array();
         $word = '';
 
-        foreach (preg_split('/(\\.|\s+)/', $text, null, PREG_SPLIT_DELIM_CAPTURE) as $chunk) {
+        foreach (preg_split('/(\\\\.|\s+)/', $text, null, PREG_SPLIT_DELIM_CAPTURE) as $chunk) {
             if ($chunk == '\n') {
                 $word .= "\n";
             } elseif (preg_match('/^\\\\(.)$/', $chunk, $m)) {

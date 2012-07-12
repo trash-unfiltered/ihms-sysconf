@@ -479,8 +479,8 @@ class iHMS_Sysconf_Question
      */
     public function __get($field)
     {
-        if (method_exists($this, 'get' . $field)) {
-            return $this->{'get' . $field}();
+        if (method_exists($this, $method = 'get' . str_replace('_', '', $field))) {
+            return $this->{$method}();
         }
 
         if (is_null($ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, $field))) {
@@ -530,21 +530,21 @@ class iHMS_Sysconf_Question
             return '';
         }
 
-        // @TODO review
-        $vars = iHMS_Sysconf_Db::getConfig()->getVariables($this->_name);
+        // @TODO review (in Debconf but is surely a garbage since the result is unused)
+        //$vars = iHMS_Sysconf_Db::getConfig()->getVariables($this->_name);
 
         $rest = $text;
         $result = '';
 
-        while (preg_match_all('/^(.*?)(\\\\)?\${([^{}]+)}(.*)$/s', $rest, $m)) {
-            $result .= $m[1][0]; // copy anything before the variable
-            $escape = $m[2][0];
-            $variable = $m[3][0];
-            $rest = $m[4][0]; // continue trying to expand rest of text
+        while (preg_match('/^(.*?)(\\\\)?\${([^{}]+)}(.*)$/s', $rest, $m)) {
+            $result .= $m[1]; // copy anything before the variable
+            $escape = $m[2];
+            $variable = $m[3];
+            $rest = $m[4]; // continue trying to expand rest of text
 
             if ($escape) {
                 // escaped variable is not changed, though the escape is removed
-                $result .= "\${$variable}";
+                $result .= "\${{$variable}}";
             } else {
                 if (($varval = iHMS_Sysconf_Db::getConfig()->getVariable($this->_name, $variable)) !== null) {
                     $result .= $varval; // expand the variable

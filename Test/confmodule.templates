@@ -2,7 +2,7 @@ Template: test/boolean
 Type: boolean
 Default: true
 Description: Do you like Linux?
- This is a test for boolean item.
+ This a test for boolean item.
  .
  Just select yes or no. Yes should be default.
  .
@@ -13,28 +13,28 @@ Description: Do you like Linux?
   * Linux has a cuddley mascot.
   * Linux prints out really fun stuff when it crashes, like "fucking sun blows me". Isn't a sense of humour great? Aren't you glad you have one?
 
-Template: test/error
-Type: error
-Description: This is an error message test.
- This question should be displayed regardless of priority or the seen flag.
+Template: test/string
+Type: string
+Default: all
+Description: What is your favorite nursery rhyme?
+ This is a test text item.
+ .
+ Just enter your text here. You should see a default.
 
-Template: test/info
-Type: title
-Description: This is an info test
-Description-fr: Ceci est un test d'information en Français
+Template: test/password
+Type: password
+Default: ook
+Description: enter a password
+ Enter a password here.
 
-Template: test/multiselect
-Type: multiselect
-Choices: slashdot, freshmeat, linux.com, linuxtoday, linux.org, lwn
-Choices-fr: slushdot, spoiledmeat, leenoox dawt cawm, leenox tuday, leenox dwat org, lewn
-Default: slashdot, lwn
-Description: Which web sites do you visit frequently?
- There should be some selected as defaults.
+Template: test/text
+Type: text
+Description: This is just a test text with no long description.
 
 Template: test/note
 Type: note
 Description: This is a much longer test note.
- I want to see the dialog box get very very big.
+ I made it this long because I want to see the dialog box get very very big.
  12345678901234567898012345678901234567890123456789012345678901234567890111111111111111111111111111111111111111111a
  12345678901234567898012345678901234567890123456789012345678901234567890
  12345678901234567898012345678901234567890123456789012345678901234567890
@@ -68,21 +68,10 @@ Description: This is a much longer test note.
  12345678901234567898012345678901234567890123456789012345678901234567890
  end
 
-Template: test/password
-Type: password
-Default: default_password
-Description: enter a password
- Enter a password here.
-
-Template: test/progress/title
-Type: text
-Description: This is a title of progress bar
-Description-fr: Ceci est le titre d'une barre de progresssion en Français
-
-Template: test/progress/info
-Type: text
-Description: We like progress
-Description-fr: Nous aimons les barres de progression en Français
+Template: test/error
+Type: error
+Description: This is a test for error message.
+ This question should be displayed regardless of priority or the seen flag.
 
 Template: test/select
 Type: select
@@ -90,22 +79,22 @@ Choices: ${colors}, gray, grey, tan, orange, maroon, black, white, navy blue, ch
 Default: chartruse
 Description: What is your favorite color?
  This is a test for select list item. The list is generated on the fly,
- and the available choices are: ${colors} again, that's: ${colors}
- .
- This template showing template variable substitution!
+ and the available choices are: ${colors} again, that's: ${colors}.
 
-Template: test/string
-Type: string
-Default: all
-Description: What is your favorite nursery rhyme?
- This is a test for string item.
- .
- Just enter your text here. You should see a default.
+Template: test/multiselect
+Type: multiselect
+Choices: slashdot, freshmeat, linux.com, linuxtoday, linux.org, lwn
+Choices-fr: slushdot, spoiledmeat, leenoox dawt cawm, leenox tuday, leenox dwat org, lewn
+Default: slashdot, lwn
+Description: Which web sites do you visit frequently?
+ This is a test for multiselect list item. There should be some selected as defaults.
 
 Template: test/subst
 Type: boolean
 Default: false
 Description: A description
+ This is a test for variables substitution.
+ .
  Blah blah blah ${user}?  ${user} Blah blah blah blah
  blah.  Blah blah blah ${user}
  blah blah blah.
@@ -116,11 +105,22 @@ Description: A description
  .
  This is a \ followed by n , not a newline: \n
 
-Template: test/text
+Template: test/progress/title
 Type: text
-Description: This is just a text test with no long description.
+Description: This is a test for progress bar title.
+Description-fr: This is a test progress bar title in French (yeah, right)
+
+Template: test/progress/info
+Type: text
+Description: We like progress
+Description-fr: We like progress in French
 
 Template: test/title
 Type: title
-Description: This is a test for dialog box titles
-Description-fr: Ceci est un test en Français pour les titres des boîtes de dialogues
+Description: This is a test for title.
+Description-fr: This is a test title in French (yeah, right)
+
+Template: test/info
+Type: title
+Description: This is a test for info.
+Description-fr: This is a test info in French (yeah, right)

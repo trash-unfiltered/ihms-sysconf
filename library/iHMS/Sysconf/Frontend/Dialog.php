@@ -287,7 +287,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         $lines = explode("\n", $text);
 
         // Now figure out what's the longest line.
-        $windowColumns = iconv_strlen($this->_title + $this->_titleSpacer, 'UTF-8');
+        $windowColumns = iconv_strlen($this->_title, 'UTF-8') + $this->_titleSpacer;
 
         array_map(
             function($_) use(&$windowColumns)
@@ -381,18 +381,18 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * The return value is identical to the return value of sizetext() run on the generated prompt
      *
      * @param iHMS_Sysconf_Question $question Question
-     * @param int $freelines Free lines
+     * @param int $freeLines Free lines
      * @return array An array that holds the formated text, the height and width for the dialog
      */
-    public function makePrompt(iHMS_Sysconf_Question $question, $freelines = 0)
+    public function makePrompt(iHMS_Sysconf_Question $question, $freeLines = 0)
     {
-        $freelines = $this->_screenHeight - $this->_borderHeight + 1 + $freelines;
+        $freeLines = $this->_screenHeight - $this->_borderHeight + 1 + $freeLines;
 
         list($text, $lines, $columns) = $this->sizeText(
             $question->getExtendedDescription() . "\n\n" . $question->getDescription()
         );
 
-        if ($lines > $freelines) {
+        if ($lines > $freeLines) {
             $this->showText($question, $question->getExtendedDescription());
             list($text, $lines, $columns) = $this->sizeText($question->getDescription());
         }
