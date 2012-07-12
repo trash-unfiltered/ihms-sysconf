@@ -301,10 +301,10 @@ class iHMS_Sysconf_Config
      * If a value is passed to this method, it changes it temporarily (for the lifetime of the program) to override
      * what's in the database or config file.
      *
-     * @param string $frontend Frontend to use
+     * @param string $frontend OPTIONAL Frontend to use
      * @return string Frontend to use
      */
-    public function frontend($frontend = '')
+    public function frontend($frontend = null)
     {
         if (($env = getenv('SYSCONF_FRONTEND')) !== false) {
             return $env;
@@ -335,7 +335,7 @@ class iHMS_Sysconf_Config
      */
     public function frontendForced($value = null)
     {
-        if (isset($value) || getenv('SYSCONF_FRONTEND') !== false) {
+        if (!is_null($value) || getenv('SYSCONF_FRONTEND') !== false) {
             $this->_config['frontendForced'] = $value;
         }
 
@@ -471,6 +471,8 @@ class iHMS_Sysconf_Config
 
     /**
      * Set to cause the seen flag to be set for questions asked in the noninteractive frontend
+     *
+     * @return stringclear
      */
     public function nonInteractiveSeen()
     {

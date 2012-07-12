@@ -49,19 +49,11 @@ if (!extension_loaded('iconv')) {
     exit(1);
 }
 
-// Set exception handler
-set_exception_handler(
-    function($exception)
-    {
-        /** @var $exception Exception */
-        fwrite(STDERR, $exception->getMessage());
-    }
-);
-
 // Check for Zend Framework library version
+/** @see Zend_Version */
 require_once 'Zend/Version.php';
-if (version_compare(Zend_Version::VERSION, '1.11.11') == -1) {
-    fwrite(STDERR, 'Your Zend Framework version is ' . phpversion() . ". Sysconf requires Zend Framework 1.11.11 or newer.\n");
+if (version_compare(Zend_Version::VERSION, '1.11') == -1) {
+    fwrite(STDERR, 'Your Zend Framework version is ' . phpversion() . ". Sysconf requires Zend Framework 1.11.x or newer.\n");
     exit(1);
 }
 
@@ -74,5 +66,14 @@ spl_autoload_register(
     {
         $classPath = str_replace('_', '/', $className);
         require_once "$classPath.php";
+    }
+);
+
+// Sets handler for uncaught exceptions
+set_exception_handler(
+    function($exception)
+    {
+        /** @var $exception Exception */
+        fwrite(STDERR, $exception->getMessage());
     }
 );

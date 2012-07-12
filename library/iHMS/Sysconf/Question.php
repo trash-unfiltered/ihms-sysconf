@@ -522,12 +522,16 @@ class iHMS_Sysconf_Question
      *
      * @param string $text Text
      * @return string
+     * @todo review
      */
     protected function _expandVars($text)
     {
         if (!$text) {
             return '';
         }
+
+        // @TODO review
+        $vars = iHMS_Sysconf_Db::getConfig()->getVariables($this->_name);
 
         $rest = $text;
         $result = '';

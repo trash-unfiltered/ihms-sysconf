@@ -175,23 +175,29 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     /**
      * Query the stack
      *
-     * @internal string $command Command name
-     * @internal string $params... Command parameters
+     * @param string $command Command name
+     * @internal string $params,... Command parameters
      * @return mixed Command result
      */
-    protected function _query()
+    protected function _query($command)
     {
-        $args = func_get_args();
-        $command = array_shift($args);
+        $params = array_slice(func_get_args(), 1);
 
-        iHMS_Sysconf_Log::debug("db {$this->_name}", "trying to {$command}(" . join(', ', $args) . ') ..');
+        iHMS_Sysconf_Log::debug("db {$this->_name}", "trying to {$command}(" . join(', ', $params) . ') ..');
 
         foreach ($this->_stack as $driver) {
-            $ret = call_user_func_array(array($driver, $command), $args);
+            $ret = call_user_func_array(array($driver, $command), $params);
 
-            if (!is_null($ret)) {
-                iHMS_Sysconf_Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
-                return $ret;
+            if (is_array($ret)) {
+                if (!empty($ret)) {
+                    iHMS_Sysconf_Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
+                    return $ret;
+                }
+            } else {
+                if (!is_null($ret)) {
+                    iHMS_Sysconf_Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
+                    return $ret;
+                }
             }
         }
 
@@ -202,12 +208,13 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
      * Make a change to a writable item, copying an item from lower in the stack first as is necessary
      *
      * @internal string $command Command name
-     * @internal string $params... Command parameters
+     * @internal string $params,... Command parameters
      * @return mixed|null
+     * @TODO review (argv)
      */
     protected function _change()
     {
-        $args = func_get_args();
+        $args = func_get_args(array_slice(func_get_args(), 2));
         $command = array_shift($args);
         $itemName = array_shift($args);
 
