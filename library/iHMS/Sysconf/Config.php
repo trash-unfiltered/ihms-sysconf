@@ -574,10 +574,13 @@ class iHMS_Sysconf_Config
                 continue; // comment or blank
             }
 
+            // TODO (PO) trim() should be sufficient here
             $line = preg_replace(array('/^\s+/', '/\s+$/'), '', $line);
             $i++;
 
             list($key, $value) = preg_split('/\s*:\s*/', $line, 2);
+
+            // TODO (PO) try to replace replacement value by '' to remove ZF filter
             $key = str_replace('-', '_', $key);
 
             if (!$key) {

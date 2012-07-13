@@ -145,6 +145,7 @@ abstract class iHMS_Sysconf_Frontend
      */
     public static function getElementType()
     {
+        // TODO (PO) return substr(get_called_class(), 22) should be sufficient here
         preg_match('/iHMS_Sysconf_Frontend_(.*)$/s', get_called_class(), $type);
         return $type[1];
     }

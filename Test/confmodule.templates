@@ -2,7 +2,7 @@ Template: test/boolean
 Type: boolean
 Default: true
 Description: Do you like Linux?
- This a test for boolean item.
+ This is a test for boolean item.
  .
  Just select yes or no. Yes should be default.
  .
@@ -107,8 +107,8 @@ Description: A description
 
 Template: test/progress/title
 Type: text
-Description: This is a test for progress bar title.
-Description-fr: This is a test progress bar title in French (yeah, right)
+Description: This is a test for progress bar title
+Description-fr: This is a test for progress bar title in French (yeah, right)
 
 Template: test/progress/info
 Type: text
@@ -117,10 +117,10 @@ Description-fr: We like progress in French
 
 Template: test/title
 Type: title
-Description: This is a test for title.
+Description: This is a test for title
 Description-fr: This is a test title in French (yeah, right)
 
 Template: test/info
 Type: title
-Description: This is a test for info.
+Description: This is a test for info
 Description-fr: This is a test info in French (yeah, right)

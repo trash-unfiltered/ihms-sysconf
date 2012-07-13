@@ -85,7 +85,7 @@ class iHMS_Sysconf_Template
     /**
      * @var array An array of known template fields. Others are warned about
      */
-    protected static $kwnowTemplateFields = array(
+    protected static $_kwnowTemplateFields = array(
         'template', 'description', 'choices', 'default', 'type'
     );
 
@@ -274,14 +274,14 @@ class iHMS_Sysconf_Template
                     $save($field, $value, $extended, $templatesFile);
 
                     $field = strtolower($match[1]);
-                    $value = preg_replace('/\s*$/', '', $match[2]);
+                    $value = preg_replace('/\s*$/', '', $match[2]); // TODO (PO) rtrim() should be sufficient here
                     $extended = '';
                     $basefield = preg_replace('/-.+$/', '', $field);
 
-                    if (!in_array($basefield, self::$kwnowTemplateFields)) {
+                    if (!in_array($basefield, self::$_kwnowTemplateFields)) {
                         iHMS_Sysconf_Log::warn(sprintf("warning: Unknown template field %s in stanza %d of %s\n", $stanza, $field, $templatesFile));
                     }
-                } elseif (preg_match('/^\s\.$/', $line)) {
+                } elseif (preg_match('/^\s\.$/', $line)) { // TODO (PO) ltrim($line) == '.'
                     // Continuation of field that contains only a blank line
                     $extended .= "\n\n";
                 } elseif (preg_match('/^\s(\s+.*)/', $line, $match)) {

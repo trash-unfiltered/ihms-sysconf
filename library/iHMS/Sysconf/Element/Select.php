@@ -129,30 +129,4 @@ abstract class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
 
         return '';
     }
-
-    /**
-     * @param string $value
-     * @return string
-     */
-    public function translateToCUnicode($value)
-    {
-        // Need both the translated and the non-translated choices
-        $choices = $this->question->choicesSplit();
-        $this->question->getTemplate()->setI18n(false);
-        $choicesC = $this->question->choicesSplit();
-        $this->question->getTemplate()->setI18n(true);
-
-        for ($x = 0; $x < sizeof($choices); $x++) {
-            if (iHMS_Sysconf_Encoding::toUnicode($choices[$x]) == $value) {
-                return $choicesC[$x];
-            }
-        }
-
-        iHMS_Sysconf_Log::debug(
-            'developer',
-            sprintf("Input value \"%s\" not found in C choices! This should never happend. Perhap the template were incorrectly localized.", $value)
-        );
-
-        return '';
-    }
 }

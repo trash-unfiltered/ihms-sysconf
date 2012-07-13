@@ -143,6 +143,7 @@ abstract class iHMS_Sysconf_DbDriver
                     continue;
                 }
             } elseif (preg_match('/^(accept|reject)/', $field, $match)) {
+                // Tests user's regular expression and raises an error if compile failed
                 if (false === @preg_match("/{$value}/", '')) {
                     $this->error("Wrong configuration value '$value' for {$field} field: $php_errormsg");
                 }
@@ -228,7 +229,7 @@ abstract class iHMS_Sysconf_DbDriver
             return false;
         }
 
-        if (
+        if ( // TODO test behavior
             !is_null($this->_acceptName) && !preg_match("/{$this->_acceptName}/i", $itemName) ||
             !is_null($this->_rejectName) && preg_match("/{$this->_rejectName}/i", $itemName)
         ) {
