@@ -73,9 +73,8 @@ class iHMS_Sysconf_Template
 
     /**
      * @var bool Whether internationalization is enabled for all templates
-     * TODO No implemented yet (FALSE for now as default)
      */
-    protected static $_i18n = false;
+    protected static $_i18n = true;
 
     /**
      * @var string Template name
@@ -377,31 +376,50 @@ class iHMS_Sysconf_Template
     /**
      * Provides accessors (getters) for templates fields
      *
-     * @param string $fieldName
-     * @return string
+     * @param string $fieldName Field name
+     * @return string Field value (translated if needed)
      */
     public function __get($fieldName)
     {
-        $ret = null;
-        $wanti18n = self::$_i18n && iHMS_Sysconf_Config::getInstance()->cValues != true;
-        $langs = array(); // Todo get languages list;
+        $wanti18n = self::$_i18n && iHMS_Sysconf_Config::getInstance()->cValues != 'true';
 
         # Check to see if i18n and/or charset encoding should be used.
-        if ($wanti18n && !empty($lang)) {
+        if ($wanti18n) {
+
+            static $langs = null;
+
+            // Get langs if needed and only once
+            if (is_null($langs)) {
+                $langs = $this->_getLang();
+            }
+
             foreach ($langs as $lang) {
+
                 # Avoid displaying Choices-C values
                 if ($lang == 'c') {
                     $lang = 'en';
                 }
 
                 // First check for a field that matches the language and the encoding. No charset conversion is needed.
-                // This also takes care of the old case where encoding is not specified
-                if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName))) {
+                // This also takes care of the case where encoding is not specified
+                if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName . '-' . $lang))) {
                     return $ret;
                 }
 
                 // Failing that, look for a field that matches the language, and do charset conversion
-                // TODO
+                if (iHMS_Sysconf_Encoding::getCharmap()) {
+                    foreach (iHMS_Sysconf_Db::getTemplates()->getFields($this->_templateName) as $field) {
+                        if (preg_match('/' . preg_quote("{$fieldName}-{$lang}") . '\.(.+)/', $field, $m)) {
+                            $ret = iHMS_Sysconf_Encoding::convert(
+                                $m[1], iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, strtolower($field))
+                            );
+
+                            if (!is_null($ret)) {
+                                return $ret;
+                            }
+                        }
+                    }
+                }
 
                 // For en, force the default template if no language-specific template was found, since English text is
                 // usually found in a plain field rather than something like Choices-en.UTF-8. This allows you to
@@ -456,5 +474,104 @@ class iHMS_Sysconf_Template
     public function __toString()
     {
         return $this->_templateName;
+    }
+
+    /**
+     * Add territory to the given locale
+     *
+     * @param string $locale Locale
+     * @param string $territory Territory
+     * @return string
+     */
+    protected function _addTerritory($locale, $territory)
+    {
+        return preg_replace('/^([^_@.]+)/', "$1{$territory}", $locale);
+    }
+
+    /**
+     * Add charset to the given locale
+     *
+     * @param string $locale Locale
+     * @param string $charset Charset
+     * @return string
+     */
+    protected function _addCharset($locale, $charset)
+    {
+        return preg_replace('/^([^@.]+)/', "$1{$charset}", $locale);
+    }
+
+    /**
+     * Returns the list of locale names as searched (with slight changes) by GNU libc
+     *
+     * @param string $locale Locale
+     * @return array Locale list
+     */
+    protected function _getLocaleList($locale)
+    {
+        $modifier = null;
+        $locale = preg_replace_callback(
+            '/(@[^.]+)/',
+            function($_) use(&$modifier)
+            {
+                $modifier = $_[1];
+                return '';
+            },
+            $locale
+        );
+
+        if (preg_match('/^([^_@.]+)(_[^_@.]+)?(\..+)?/', $locale, $m)) {
+            $ret[] = $m[1];
+
+            if (isset($modifier)) { // Add modifier
+                $ret = array($ret[0] . $modifier, $ret[0]);
+            }
+
+            if (isset($m[2]) && $m[2] != '') { // Add territory
+                $tmp = array();
+                foreach ($ret as $_) {
+                    $tmp[] = $this->_addTerritory($_, $m[2]);
+                    $tmp[] = $_;
+                }
+            } else {
+                $tmp = $ret;
+            }
+
+            if (isset($m[3]) && $m[3] != '') { // Add charset
+                $ret = array();
+                foreach ($tmp as $_) {
+                    $ret[] = $this->_addCharset($_, $m[3]);
+                    $ret[] = $_;
+                }
+            }
+
+            return $ret;
+        }
+
+        return array();
+    }
+
+    /**
+     * calculate the current locale, with aliases expanded, and normalized. May also generate a fallback. Returns both.
+     *
+     * @return array
+     */
+    protected function _getLang()
+    {
+        $language = setlocale(LC_MESSAGES, null);
+        $langs = array();
+
+        // LANGUAGE has a higher precedence than LC_MESSAGES
+        if (isset($_SERVER['LANGUAGE']) && $_SERVER['LANGUAGE'] != '') {
+            foreach (explode(':', $_SERVER['LANGUAGE']) as $_) {
+                $langs[] = $this->_getLocaleList($_);
+            }
+        }
+
+        $tmpLangs = array();
+        foreach ($langs as $lang) {
+            $tmpLangs = array_merge($tmpLangs, $lang);
+        }
+
+        return array_map('strtolower', array_merge($tmpLangs, $this->_getLocaleList($language)));
     }
 }

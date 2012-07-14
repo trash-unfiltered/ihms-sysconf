@@ -472,7 +472,7 @@ class iHMS_Sysconf_Config
     /**
      * Set to cause the seen flag to be set for questions asked in the noninteractive frontend
      *
-     * @return stringclear
+     * @return string
      */
     public function nonInteractiveSeen()
     {

@@ -412,7 +412,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      */
     public function startDialog(iHMS_Sysconf_Question $question, $wantInputFd, $args)
     {
-        iHMS_Sysconf_Log::debug('debug', "preparing to run dialog. Params are: {$this->_program}, " . join(', ', $args));
+        iHMS_Sysconf_Log::debug('debug', "preparing to run dialog. Params are: {$this->_program}, " . join(' ', $args));
 
         // Do not add cancel button either if backup is not available or --defaultno is set
         if (!$this->_capbBackup or in_array('--defaultno', $args)) {

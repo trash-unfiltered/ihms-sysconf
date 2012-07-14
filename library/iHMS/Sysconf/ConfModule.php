@@ -286,7 +286,7 @@ class iHMS_Sysconf_ConfModule
                 $word .= "\n";
             } elseif (preg_match('/^\\\\(.)$/', $chunk, $m)) {
                 $word .= $m[1];
-            } elseif (preg_match('/^\s+$/', $chunk)) {
+            } elseif (preg_match('/^\s+$/', $chunk)) { // TODO (PO) ctype_space()
                 $words[] = $word;
                 $word = '';
             } else {
@@ -345,7 +345,7 @@ class iHMS_Sysconf_ConfModule
 
         iHMS_Sysconf_Log::debug('developer', "--> {$ret}");
 
-        if (preg_match("/\n/", $ret)) {
+        if (preg_match("/\n/", $ret)) { // TODO (PO) strpos()
             iHMS_Sysconf_Log::debug(
                 'developer',
                 "Warning: return value is multiline, and would break the sysconf protocol. Truncating to first line."
@@ -1000,11 +1000,40 @@ class iHMS_Sysconf_ConfModule
     /**
      * Accept template data from the client, for use on the UI agent side of the passthrough frontend.
      *
+     *
+     * @param string $templateName Template name
+     * @param string $item Item
+     * @param string $value Value
      * @return array
+     * @TODO passthrough frontend
      */
-    public function commandData()
+    public function commandData($templateName, $item, $value)
     {
-        return array($this->_codes['internalerror'], 'not implemented yet');
+       $value = join(' ', array_slice(func_get_args(), 2));
+       $value = ''; // TODO
+
+       $tempObj = iHMS_Sysconf_Template::get($templateName);
+
+        if(!$tempObj) {
+            if($item != 'type') {
+                return array($this->_codes['badparams'], "Template data field '{$item}' received before type field");
+            }
+            $tempObj = iHMS_Sysconf_Template::factory($templateName, $this->_owner, $value);
+
+            if(!$tempObj) {
+                return array($this->_codes['internalerror'], 'Internal error making template');
+            }
+        } else {
+            if($item == 'type') {
+                return array($this->_codes['badparams'], 'Template type already set');
+            }
+            /** @see iHMS_Sysconf_Encoding */
+            require_once 'iHMS/Sysconf/Encoding.php';
+            $tempObj->{$item} = iHMS_Sysconf_Encoding::convert('UTF-8', $value);
+        }
+
+        return array($this->_codes['success']);
+
     }
 
     /**

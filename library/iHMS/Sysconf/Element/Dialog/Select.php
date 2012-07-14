@@ -65,7 +65,7 @@ class iHMS_Sysconf_Element_Dialog_Select extends iHMS_Sysconf_Element_Select
         // Figure out how many lines of the screen should be used to scroll the list. Look at how much free screen real
         // estate we have after putting the description at the top. If there's too little, the list will need to scroll
         $menuHeight = sizeof($choices);
-        if ($lines + sizeof($choices) + 1 >= $screenLines) {
+        if ($lines + $menuHeight + 1 >= $screenLines) {
             $menuHeight = $screenLines - $lines - 4;
         }
 
@@ -76,8 +76,8 @@ class iHMS_Sysconf_Element_Dialog_Select extends iHMS_Sysconf_Element_Select
             array_push($params, $choice, '');
 
             // Choices wider than the description text? (Only needed for whiptail BTW)
-            if ($columns < iconv_strlen($choice, 'UTF-8') + $selectSpacer) {
-                $columns = iconv_strlen($choice, 'UTF-8') + $selectSpacer;
+            if ($columns < ($choiceSize = iconv_strlen($choice, 'UTF-8') + $selectSpacer)) {
+                $columns = $choiceSize;
             }
         }
 
