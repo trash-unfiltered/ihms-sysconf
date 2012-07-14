@@ -134,16 +134,10 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         // Detect all the ways people have managed to screw up their terminals (so far...)
         if (!isset($_SERVER['TERM']) || $_SERVER['TERM'] == '') {
             throw new DomainException("TERM is not set, so dialog frontend is not usable.\n");
-            //fwrite(STDERR, "TERM is not set, so dialog frontend is not usable.\n");
-            //exit(1);
         } elseif (preg_match('/emacs/i', $_SERVER['TERM'])) {
             throw new DomainException("Dialog frontend is incompatible with emacs shell buffers.\n");
-            //fwrite(STDERR, "Dialog frontend is incompatible with emacs shell buffers.\n");
-            //exit(1);
         } elseif ($_SERVER['TERM'] == 'dumb' || $_SERVER['TERM'] == 'unknown') {
             throw new DomainException("Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal.\n");
-            //fwrite(STDERR, "Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal.\n");
-            //exit(1);
         }
 
         $this->_interactive = true;
@@ -167,16 +161,12 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $this->_selectSpacer = 0;
         } else {
             throw new Exception("Not usable dialog-like program is installed, so the dialog based frontend cannot be used.\n");
-            //fwrite(STDERR, "Not usable dialog-like program is installed, so the dialog based frontend cannot be used.\n");
-            //exit(1);
         }
 
         // Whiptail and dialog can't deal with very small screens. Detect this and fail, forcing use of some other
         // frontend. The numbers were arrived at by experimentation.
         if ($this->_screenHeight < 13 || $this->_screenWidth < 31) {
             throw new Exception("Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.\n");
-            //fwrite(STDERR, "Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.\n");
-            //exit(1);
         }
     } // end-init()
 
@@ -461,8 +451,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         if (!is_resource($this->_dialogProcess)) {
             throw new RuntimeException($php_errormsg);
-            //fwrite(STDERR, sprintf('Unable to spawn %s: %s', $this->_program, $php_errormsg));
-            //exit(1);
         }
 
         if ($wantInputFd) {
@@ -501,8 +489,6 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         if ($errors) {
             throw new RuntimeException(sprintf('sysconf: %s output the above errors, giving up!', $this->_program) . "\n");
-            //fwrite(STDERR, sprintf('sysconf: %s output the above errors, giving up!', $this->_program) . "\n");
-            //exit(1);
         }
 
         $output = chop($output, "\n");

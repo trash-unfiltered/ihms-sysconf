@@ -77,14 +77,10 @@ class iHMS_Sysconf_Db
 
         if (!self::$_config = iHMS_Sysconf_DbDriver::getDriver($config->config)) {
             throw new LogicException("Configuration database {$config->config} was not initialized\n");
-            //fwrite(STDERR, "Configuration database {$config->config} was not initialized\n");
-            //exit(1);
         }
 
         if (!self::$_templates = iHMS_Sysconf_DbDriver::getDriver($config->templates)) {
             throw new LogicException("Template database {$config->templates} was not initialized\n");
-            //fwrite(STDERR, "Template database {$config->templates} was not initialized\n");
-            //exit(1);
         }
     }
 
@@ -104,8 +100,6 @@ class iHMS_Sysconf_Db
     {
         if (!isset($config['driver'])) {
             throw new DomainException("Driver type not specified\n");
-            //fwrite(STDERR, "sysconf: Driver type not specified\n");
-            //exit(1);
         } else {
             $type = $config['driver'];
         }
@@ -116,8 +110,6 @@ class iHMS_Sysconf_Db
             @Zend_Loader::loadClass($className = "iHMS_Sysconf_DbDriver_{$type}");
         } catch (Zend_Exception $e) {
             throw new InvalidArgumentException("Driver '{$type}' not found: " . $e->getMessage() . "\n");
-            //fwrite(STDERR, "Driver '{$type}' not found: " . $e->getMessage() . "\n");
-            //exit(1);
         }
 
         unset($config['driver']); // not a field for the object

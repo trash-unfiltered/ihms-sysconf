@@ -151,14 +151,10 @@ class iHMS_Sysconf_Config
 
         if (!$configFile) {
             throw new InvalidArgumentException("No configuration file found.\n");
-            //fwrite(STDERR, "No configuration file found.\n");
-            //exit(1);
         }
 
         if (!$fhSysconfConfig = @fopen($configFile, 'r')) {
             throw new RuntimeException("$php_errormsg\n");
-            //fwrite(STDERR, "$php_errormsg\n");
-            //exit(1);
         }
 
         // Read global options stanza
@@ -175,13 +171,9 @@ class iHMS_Sysconf_Config
         # Verify that all options are sane
         if ($this->_config['config'] == '') {
             throw new DomainException("sysconf: Config database not specified in config file.\n");
-            //fwrite(STDERR, "sysconf: Config database not specified in config file.\n");
-            //exit(1);
         }
         if ($this->_config['templates'] == '') {
             throw new DomainException("sysconf: Templates database not specified in config file.\n");
-            //fwrite(STDERR, "sysconf: Templates database not specified in config file.\n");
-            //exit(1);
         }
 
         // Now read in each database driver, and set it up
@@ -521,8 +513,6 @@ class iHMS_Sysconf_Config
             $ret = $this->_config[$field];
         } else {
             throw new InvalidArgumentException("Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
-            //fwrite(STDERR, "Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
-            //exit(1);
         }
 
         return $ret;
@@ -585,8 +575,6 @@ class iHMS_Sysconf_Config
 
             if (!$key) {
                 throw new DomainException("Error while parsing configuration file.\n");
-                //fwrite(STDERR, "Error while parsing configuration file.\n");
-                //exit(1);
             }
 
             $config[lcfirst($filter->filter($key))] = $value;

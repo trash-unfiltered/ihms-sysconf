@@ -225,8 +225,6 @@ class iHMS_Sysconf_Template
             $fh = $templatesFile;
         } elseif (!$fh = @fopen($templatesFile, 'r')) {
             throw new InvalidArgumentException("{$templatesFile}: {$php_errormsg}");
-            //fwrite(STDERR, "{$templateFile}: {$php_errormsg}");
-            //exit(1);
         }
 
         fseek($fh, 0, SEEK_END);
@@ -251,8 +249,6 @@ class iHMS_Sysconf_Template
                         throw new DomainException(
                             sprintf("Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n", $stanza, $templateFile, $field, $value)
                         );
-                        //fwrite(STDERR, sprintf("Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n", $stanza, $templateFile, $field, $value));
-                        //exit(1);
                     }
 
                     $data[$field] = $value;
@@ -308,8 +304,6 @@ class iHMS_Sysconf_Template
                     $extended .= $bit;
                 } else {
                     throw new DomainException(sprintf("Template parse error near `%s', in stanza %d of %s\n", $stanza, $line, $templatesFile));
-                    //fwrite(STDERR, sprintf("Template parse error near `%s', in stanza %d of %s\n", $stanza, $line, $templatesFile));
-                    //exit(1);
                 }
             } // end-foreach();
 
@@ -318,8 +312,6 @@ class iHMS_Sysconf_Template
             // Sanity checks
             if (!isset($data['template'])) {
                 throw new DomainException(sprintf("Template %d in %s does not contain a 'Template:' line\n", $stanza, $templatesFile));
-                //fwrite(STDERR, sprintf("Template %d in %s does not contain a 'Template:' line\n", $stanza, $templatesFile));
-                //exit(1);
             }
 
             // Create and populate template from the array

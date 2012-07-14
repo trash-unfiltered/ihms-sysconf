@@ -86,8 +86,6 @@ class iHMS_Sysconf_Question
     {
         if (in_array($name, self::$_questions)) {
             throw new InvalidArgumentException("sysconf: A question named \"$name\" already exists.\n");
-            //fwrite(STDERR, "sysconf: A question named \"$name\" already exists.\n");
-            //exit(1);
         }
 
         $self = new self();

@@ -124,8 +124,6 @@ final class iHMS_Sysconf_Client_ConfModule
 
         if (!in_array($command, self::$_validCommands)) {
             throw new InvalidArgumentException("Unsupported command `{$command}.\n"); // TODO ` ???
-            //fwrite(STDERR, "Unsupported command `$command.\n");
-            //exit(1);
         }
 
         $command = $command . ' ' . join(' ', $args);
