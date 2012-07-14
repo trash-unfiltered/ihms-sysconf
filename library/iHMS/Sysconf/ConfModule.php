@@ -1009,22 +1009,22 @@ class iHMS_Sysconf_ConfModule
      */
     public function commandData($templateName, $item, $value)
     {
-       $value = join(' ', array_slice(func_get_args(), 2));
-       $value = ''; // TODO
+        $value = join(' ', array_slice(func_get_args(), 2));
+        $value = preg_replace('/\\\\([n"\\\\])/e', '"$1" == "n" ? "\n" : "$1"', $value);
 
-       $tempObj = iHMS_Sysconf_Template::get($templateName);
+        $tempObj = iHMS_Sysconf_Template::get($templateName);
 
-        if(!$tempObj) {
-            if($item != 'type') {
+        if (!$tempObj) {
+            if ($item != 'type') {
                 return array($this->_codes['badparams'], "Template data field '{$item}' received before type field");
             }
             $tempObj = iHMS_Sysconf_Template::factory($templateName, $this->_owner, $value);
 
-            if(!$tempObj) {
+            if (!$tempObj) {
                 return array($this->_codes['internalerror'], 'Internal error making template');
             }
         } else {
-            if($item == 'type') {
+            if ($item == 'type') {
                 return array($this->_codes['badparams'], 'Template type already set');
             }
             /** @see iHMS_Sysconf_Encoding */
