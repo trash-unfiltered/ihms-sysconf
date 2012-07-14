@@ -34,9 +34,8 @@ ini_set('track_errors', 1);
 // Initialize localization
 // Set locale from environment variable
 setlocale(LC_MESSAGES, '');
-//bindtextdomain('debconf', '/usr/share/locale/fr/LC_MESSAGES');
-textdomain('debconf');
-
+//bindtextdomain('sysconf', 'todo');
+textdomain('sysconf');
 
 // Check for PHP version
 if (version_compare(phpversion(), '5.3.3') == -1) {
