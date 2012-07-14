@@ -150,7 +150,7 @@ class iHMS_Sysconf_Config
         }
 
         if (!$configFile) {
-            throw new InvalidArgumentException("No configuration file found.\n");
+            throw new InvalidArgumentException(_('No configuration file found.') . "\n");
         }
 
         if (!$fhSysconfConfig = @fopen($configFile, 'r')) {
@@ -170,10 +170,10 @@ class iHMS_Sysconf_Config
 
         # Verify that all options are sane
         if ($this->_config['config'] == '') {
-            throw new DomainException("sysconf: Config database not specified in config file.\n");
+            throw new DomainException(_('sysconf: Config database not specified in config file.') . "\n");
         }
         if ($this->_config['templates'] == '') {
-            throw new DomainException("sysconf: Templates database not specified in config file.\n");
+            throw new DomainException(_('sysconf: Templates database not specified in config file.') . "\n");
         }
 
         // Now read in each database driver, and set it up
@@ -186,16 +186,16 @@ class iHMS_Sysconf_Config
 
             try {
                 iHMS_Sysconf_Db::makeDriver($config);
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $exception) {
                 fwrite(
                     STDERR,
                     sprintf(
-                        'sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s.',
+                        _('sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s.'),
                         $stanza, $configFile
                     ) . "\n"
                 );
 
-                throw new $e;
+                throw $exception;
             }
 
             $stanza++;
@@ -229,21 +229,30 @@ class iHMS_Sysconf_Config
         $getOpt = new iHMS_Sysconf_Getopt(array(), null, array('parseAll' => false));
 
         $options = array(
-            'frontend|f=s' => array(function($p)
-            {
-                iHMS_Sysconf_Config::getInstance()->frontend($p);
-                iHMS_Sysconf_Config::getInstance()->frontendForced(true);
-            }, 'Specify sysconf frontend to use.'),
-            'priority|p=s' => array(function($p)
-            {
-                iHMS_Sysconf_Config::getInstance()->priority($p);
-            }, 'Specify minimum priority question to show.'),
-            'help|h' => array(function() use($getOpt, $usage)
-            {
-                /** @var $getOpt iHMS_Sysconf_Getopt */
-                fwrite(STDERR, "$usage\n" . $getOpt->getUsageMessage());
-                exit(0);
-            }, 'Show this help.'),
+            'frontend|f=s' => array(
+                function($p)
+                {
+                    iHMS_Sysconf_Config::getInstance()->frontend($p);
+                    iHMS_Sysconf_Config::getInstance()->frontendForced(true);
+                },
+                _('Specify sysconf frontend to use.')
+            ),
+            'priority|p=s' => array(
+                function($p)
+                {
+                    iHMS_Sysconf_Config::getInstance()->priority($p);
+                },
+                _('Specify minimum priority question to show.')
+            ),
+            'help|h' => array(
+                function() use($getOpt, $usage)
+                {
+                    /** @var $getOpt iHMS_Sysconf_Getopt */
+                    fwrite(STDERR, "$usage\n" . $getOpt->getUsageMessage());
+                    exit(0);
+                },
+                _('Show this help.')
+            )
         );
 
         $options = $options + $rules;
@@ -354,8 +363,10 @@ class iHMS_Sysconf_Config
 
         if (!is_null($priority)) {
             if (!iHMS_Sysconf_Priority::isValidPriority($priority)) {
-                iHMS_Sysconf_Log::warn("Ignoring invalid priority {$priority}");
-                iHMS_Sysconf_Log::warn(sprintf('Valid priorities are "%s"' . "\n", join(' ', iHMS_Sysconf_Priority::getPriorityList())));
+                iHMS_Sysconf_Log::warn(sprintf(_('Ignoring invalid priority %s'), $priority));
+                iHMS_Sysconf_Log::warn(
+                    sprintf(_('Valid priorities are "%s"'), join(' ', iHMS_Sysconf_Priority::getPriorityList()))
+                );
             } else {
                 $this->_config['priority'] = $priority;
             }
@@ -512,7 +523,9 @@ class iHMS_Sysconf_Config
         } elseif (isset($this->_config[$field])) {
             $ret = $this->_config[$field];
         } else {
-            throw new InvalidArgumentException("Attempt to access unknown property '{$field}' at " . __FILE__ . ' line ' . __LINE__ . "\n");
+            throw new InvalidArgumentException(
+                sprintf(_("Attempt to access unknown property '%s' at %s line %s."), $field, __FILE__, __LINE__) . "\n"
+            );
         }
 
         return $ret;
@@ -574,7 +587,7 @@ class iHMS_Sysconf_Config
             $key = str_replace('-', '_', $key);
 
             if (!$key) {
-                throw new DomainException("Error while parsing configuration file.\n");
+                throw new DomainException(_('Error while parsing configuration file.') . "\n");
             }
 
             $config[lcfirst($filter->filter($key))] = $value;

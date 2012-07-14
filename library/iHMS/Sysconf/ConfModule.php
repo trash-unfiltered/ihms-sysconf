@@ -217,7 +217,14 @@ class iHMS_Sysconf_ConfModule
 
         iHMS_Sysconf_Log::debug('developer', 'starting ' . join(' ', $args));
 
-        $this->_process = @proc_open('/usr/bin/env php ' . join(' ', $args), array(0 => array('pipe', 'r'), 1 => array('pipe', 'w')), $pipes);
+        $this->_process = @proc_open(
+            '/usr/bin/env php ' . join(' ', $args),
+            array(
+                0 => array('pipe', 'r'),
+                1 => array('pipe', 'w')
+            ),
+            $pipes
+        );
 
         if (!is_resource($this->_process)) {
             throw new Exception($php_errormsg);
@@ -369,6 +376,7 @@ class iHMS_Sysconf_ConfModule
         $this->_readHandle = null;
 
         fclose($this->_writeHandle);
+        // TODO review
         $this->_writeHandle = fopen('/dev/null', 'w'); // Needed since in communicate() method we write after closing in some cases
 
         do {

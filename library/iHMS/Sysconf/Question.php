@@ -85,7 +85,7 @@ class iHMS_Sysconf_Question
     public static function factory($name, $owner, $type)
     {
         if (in_array($name, self::$_questions)) {
-            throw new InvalidArgumentException("sysconf: A question named \"$name\" already exists.\n");
+            throw new InvalidArgumentException("A question named \"$name\" already exists.\n");
         }
 
         $self = new self();

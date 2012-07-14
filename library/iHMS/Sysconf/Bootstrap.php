@@ -31,29 +31,46 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 ini_set('track_errors', 1);
 
+// Initialize localization
+// Set locale from environment variable
+setlocale(LC_MESSAGES, '');
+//bindtextdomain('debconf', '/usr/share/locale/fr/LC_MESSAGES');
+textdomain('debconf');
+
+
 // Check for PHP version
 if (version_compare(phpversion(), '5.3.3') == -1) {
-    fwrite(STDERR, 'Your PHP version is ' . phpversion() . ". Sysconf requires PHP 5.3.3 or newer.\n");
+    fwrite(STDERR, sprintf(_('Your PHP version is %s. Sysconf require PHP %s or newer'), phpversion()) . "\n");
     exit(1);
 }
 
 // Check for PHP SAPI
 if (PHP_SAPI != 'cli') {
-    fwrite(STDERR, "Sysconf is a CLI program.\n");
+    fwrite(STDERR, _("Sysconf is a CLI program.") . "\n");
     exit(1);
 }
 
 // Check for Iconv PHP extension availability
 if (!extension_loaded('iconv')) {
-    fwrite(STDERR, "Sysconf require Iconv PHP extension.\n");
+    fwrite(STDERR, _("Sysconf require Iconv PHP extension.") . "\n");
     exit(1);
 }
 
-// Check for Zend Framework library version
+// Check for Zend Framework library availability and version
+if (stream_resolve_include_path('Zend/Version.php') === false) {
+    fwrite(STDERR, _('Sysconf require Zend Framework 1.11.x or newer.'));
+    exit;
+}
+
 /** @see Zend_Version */
 require_once 'Zend/Version.php';
 if (version_compare(Zend_Version::VERSION, '1.11') == -1) {
-    fwrite(STDERR, 'Your Zend Framework version is ' . phpversion() . ". Sysconf requires Zend Framework 1.11.x or newer.\n");
+    fwrite(STDERR,
+        sprintf(
+            _('Your Zend Framework version is %s. Sysconf require Zend Framework 1.11.x or newer'),
+            Zend_Version::VERSION
+        ) . "\n"
+    );
     exit(1);
 }
 

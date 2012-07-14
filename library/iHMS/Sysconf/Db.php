@@ -76,11 +76,11 @@ class iHMS_Sysconf_Db
         $config = iHMS_Sysconf_Config::getInstance()->load('', $parameters); // Load default config file
 
         if (!self::$_config = iHMS_Sysconf_DbDriver::getDriver($config->config)) {
-            throw new LogicException("Configuration database {$config->config} was not initialized\n");
+            throw new LogicException(sprintf(_('Configuration database %s was not initialized'), $config->config) . "\n");
         }
 
         if (!self::$_templates = iHMS_Sysconf_DbDriver::getDriver($config->templates)) {
-            throw new LogicException("Template database {$config->templates} was not initialized\n");
+            throw new LogicException(sprintf(_('Templates database %s was not initialized'), $config->templates) . "\n");
         }
     }
 
@@ -99,7 +99,7 @@ class iHMS_Sysconf_Db
     public static function makeDriver($config)
     {
         if (!isset($config['driver'])) {
-            throw new DomainException("Driver type not specified\n");
+            throw new DomainException(_('Driver type not specified') . "\n");
         } else {
             $type = $config['driver'];
         }
@@ -109,7 +109,9 @@ class iHMS_Sysconf_Db
             require_once 'Zend/Loader.php';
             @Zend_Loader::loadClass($className = "iHMS_Sysconf_DbDriver_{$type}");
         } catch (Zend_Exception $e) {
-            throw new InvalidArgumentException("Driver '{$type}' not found: " . $e->getMessage() . "\n");
+            throw new InvalidArgumentException(
+                sprintf(_('Driver %s not found: %s'), $type, $e->getMessage()) . "\n"
+            );
         }
 
         unset($config['driver']); // not a field for the object

@@ -123,7 +123,7 @@ final class iHMS_Sysconf_Client_ConfModule
         $command = strtoupper($command);
 
         if (!in_array($command, self::$_validCommands)) {
-            throw new InvalidArgumentException("Unsupported command `{$command}.\n"); // TODO ` ???
+            throw new InvalidArgumentException("Unsupported command `{$command}.\n");
         }
 
         $command = $command . ' ' . join(' ', $args);

@@ -84,7 +84,7 @@ class iHMS_Sysconf_AutoSelect
             $starttype = iHMS_Sysconf_Config::getInstance()->frontend;
 
             if (preg_match('/^[A-Z]/', $starttype)) {
-                iHMS_Sysconf_Log::warn("Please do not capitalize the first letter of the sysconf frontend.");
+                iHMS_Sysconf_Log::warn(_('Please do not capitalize the first letter of the sysconf frontend.'));
             }
 
             $starttype = ucfirst($starttype);
@@ -102,9 +102,9 @@ class iHMS_Sysconf_AutoSelect
 
         foreach ($frontendTypes as $type) {
             if (!$showfallback) {
-                iHMS_Sysconf_Log::debug('user', "Trying frontend {$type}");
+                iHMS_Sysconf_Log::debug('user', 'Trying frontend ' . $type);
             } else {
-                iHMS_Sysconf_Log::warn("Falling back to frontend {$type}");
+                iHMS_Sysconf_Log::warn(sprintf(_('Falling back to frontend %s'), $type));
             }
 
             try {
@@ -115,7 +115,7 @@ class iHMS_Sysconf_AutoSelect
                 @Zend_Loader::loadClass($frontend);
                 return self::$frontend = new $frontend();
             } catch (Zend_Exception $e) {
-                iHMS_Sysconf_Log::warn("Unable to initialize frontend {$type}");
+                iHMS_Sysconf_Log::warn(sprintf(_('Unable to initialize frontend %s'), $type));
                 iHMS_Sysconf_Log::warn($e->getMessage());
             }
 
@@ -123,7 +123,7 @@ class iHMS_Sysconf_AutoSelect
         }
 
         /** @var $e Zend_Exception */
-        throw new ErrorException('Unable to start a frontend ' . $e->getMessage() . "\n");
+        throw new ErrorException(sprintf(_('Unable to start a frontend %s') . $e->getMessage()) . "\n");
     }
 
     /**

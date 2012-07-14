@@ -145,7 +145,9 @@ abstract class iHMS_Sysconf_DbDriver
             } elseif (preg_match('/^(accept|reject)/', $field, $match)) {
                 // Tests user's regular expression and raises an error if compile failed
                 if (false === @preg_match("/{$value}/", '')) {
-                    $this->error("Wrong configuration value '$value' for {$field} field: $php_errormsg");
+                    $this->error(
+                        sprintf(_("Wrong configuration value '%s' for %s field: %s"), $value, $field, $php_errormsg)
+                    );
                 }
             }
 
@@ -155,8 +157,8 @@ abstract class iHMS_Sysconf_DbDriver
         // Name is a required field
         if (!isset($this->_name)) {
             // Set to something since error function uses this field
-            $this->_name = '(unknown)';
-            $this->error('no name specified');
+            $this->_name = _('(unknown)');
+            $this->error(_('no name specified'));
         }
 
         // Register in class data.

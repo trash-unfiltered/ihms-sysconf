@@ -129,7 +129,12 @@ class iHMS_Sysconf_Template
 
             foreach ($owners as $question) {
                 if (is_null($q = iHMS_Sysconf_Question::get($question))) {
-                    iHMS_Sysconf_Log::warn(sprintf('warning: possible database corruption. Will attempt to repair by adding back missing question %s', $question));
+                    iHMS_Sysconf_Log::warn(
+                        sprintf(
+                            _('warning: possible database corruption. Will attempt to repair by adding back missing question %s'),
+                            $question
+                        )
+                    );
                     $newQuestion = iHMS_Sysconf_Question::factory($question, $owner, $type);
                     $newQuestion->setTemplate($templateName);
                 }
@@ -247,7 +252,12 @@ class iHMS_Sysconf_Template
                 if ($field != '') {
                     if (isset($data[$field])) {
                         throw new DomainException(
-                            sprintf("Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n", $stanza, $templateFile, $field, $value)
+                            sprintf(
+                                _(
+                                    "Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n"
+                                ),
+                                $stanza, $templateFile, $field, $value
+                            )
                         );
                     }
 
@@ -277,7 +287,9 @@ class iHMS_Sysconf_Template
                     $basefield = preg_replace('/-.+$/', '', $field);
 
                     if (!in_array($basefield, self::$_kwnowTemplateFields)) {
-                        iHMS_Sysconf_Log::warn(sprintf("warning: Unknown template field %s in stanza %d of %s\n", $stanza, $field, $templatesFile));
+                        iHMS_Sysconf_Log::warn(
+                            sprintf("Unknown template field %s in stanza %d of %s\n", $stanza, $field, $templatesFile)
+                        );
                     }
                 } elseif (preg_match('/^\s\.$/', $line)) { // TODO (PO) ltrim($line) == '.'
                     // Continuation of field that contains only a blank line
@@ -303,7 +315,9 @@ class iHMS_Sysconf_Template
 
                     $extended .= $bit;
                 } else {
-                    throw new DomainException(sprintf("Template parse error near `%s', in stanza %d of %s\n", $stanza, $line, $templatesFile));
+                    throw new DomainException(
+                        sprintf(_("Template parse error near `%s', in stanza %d of %s\n"), $stanza, $line, $templatesFile)
+                    );
                 }
             } // end-foreach();
 
@@ -311,7 +325,9 @@ class iHMS_Sysconf_Template
 
             // Sanity checks
             if (!isset($data['template'])) {
-                throw new DomainException(sprintf("Template %d in %s does not contain a 'Template:' line\n", $stanza, $templatesFile));
+                throw new DomainException(
+                    sprintf(_("Template %d in %s does not contain a 'Template:' line\n"), $stanza, $templatesFile)
+                );
             }
 
             // Create and populate template from the array

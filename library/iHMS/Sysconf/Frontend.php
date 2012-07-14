@@ -359,7 +359,7 @@ abstract class iHMS_Sysconf_Frontend
      */
     public function defaultTitle($title)
     {
-        $this->_title = sprintf('Configuring %s', $title);
+        $this->_title = sprintf(_('Configuring %s'), $title);
         $this->_requestedTitle = $this->_title;
     }
 
@@ -445,7 +445,9 @@ abstract class iHMS_Sysconf_Frontend
                 @Zend_Loader::loadClass("iHMS_Sysconf_Element_{$type}");
             } catch (Exception $e) {
                 if (!$noDebug) {
-                    iHMS_Sysconf_Log::warn(sprintf('Unable to load iHMS_Sysconf_Element_%s. Failed because %s', $type, $e->getMessage()));
+                    iHMS_Sysconf_Log::warn(
+                        sprintf(_('Unable to load iHMS_Sysconf_Element_%s. Failed because %s'), $type, $e->getMessage())
+                    );
                 }
 
                 $noUse[$type] = 1;

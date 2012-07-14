@@ -55,7 +55,7 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
     public function show()
     {
         if ($this->question->getFlag('seen') != 'true') {
-            $this->sendmail('Sysconf was not configured to display this error message, so it mailed it to you');
+            $this->sendmail(_('Sysconf was not configured to display this error message, so it mailed it to you'));
         }
 
         $this->_value = '';
@@ -91,10 +91,10 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
             fwrite($mailer, "\n\n");
 
             if (!($hostname = `hostname -f 2>/dev/null`)) {
-                $hostname = "unknown system\n";
+                $hostname = _('unknown system');
             }
 
-            fwrite($mailer, "-- \n" . sprintf("Sysconf, running at %s", $hostname));
+            fwrite($mailer, "-- \n" . sprintf(_('Sysconf, running at %s'), $hostname));
 
             if ($footer != '') {
                 fwrite($mailer, "[ " . $footer . " ]\n");
