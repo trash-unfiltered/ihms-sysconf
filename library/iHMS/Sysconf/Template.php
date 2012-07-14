@@ -33,6 +33,9 @@ require_once 'iHMS/Sysconf/Db.php';
 /** @see iHMS_Sysconf_Question */
 require_once 'iHMS/Sysconf/Question.php';
 
+/** @see iHMS_Sysconf_Enconding */
+require_once 'iHMS/Sysconf/Encoding.php';
+
 /** @see iHMS_Sysconf_Log */
 require_once 'iHMS/Sysconf/Log.php';
 

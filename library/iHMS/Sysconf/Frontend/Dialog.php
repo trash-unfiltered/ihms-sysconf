@@ -30,8 +30,8 @@
 /** @see iHMS_Sysconf_Frontend_ScreenSize */
 require_once 'iHMS/Sysconf/Frontend/ScreenSize.php';
 
-/** @see Zend_Text_MultiByte */
-require_once 'Zend/Text/MultiByte.php';
+/** @see iHMS_Sysconf_Enconding */
+require_once 'iHMS/Sysconf/Encoding.php';
 
 /**
  * iHMS_Sysconf_Frontend_Dialog class
@@ -282,7 +282,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         //}
 
         // TODO support for CJK characters
-        $text = Zend_Text_MultiByte::wordWrap($text, $columns, "\n", true, 'UTF-8');
+        $text = iHMS_Sysconf_Encoding::wordWrap($text, $columns, "\n", true, 'UTF-8');
 
         $lines = explode("\n", $text);
 

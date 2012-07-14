@@ -30,6 +30,9 @@
 /** @see iHMS_Sysconf_Element_Noninteractive */
 require_once 'iHMS/Sysconf/Element/Noninteractive.php';
 
+/** @see iHMS_Sysconf_Encoding */
+require_once 'iHMS/Sysconf/Encoding.php';
+
 /**
  * iHMS_Sysconf_Element_Noninteractive_Error class
  *
@@ -79,15 +82,15 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
             }
 
             if (($extendedDescription = $this->question->getExtendedDescription()) != '') {
-                fwrite($mailer, Zend_Text_MultiByte::wordWrap($extendedDescription, 75, "\n", true, 'UTF-8'));
+                fwrite($mailer, iHMS_Sysconf_Encoding::wordWrap($extendedDescription, 75, "\n", true, 'UTF-8'));
             } else {
                 // Evil note!
-                fwrite($mailer, Zend_Text_MultiByte::wordWrap($this->question->getDescription(), 75, "\n", true, 'UTF-8'));
+                fwrite($mailer, iHMS_Sysconf_Encoding::wordWrap($this->question->getDescription(), 75, "\n", true, 'UTF-8'));
             }
 
             fwrite($mailer, "\n\n");
 
-            if (!$hostname = `hostname -f 2>/dev/null`) {
+            if (!($hostname = `hostname -f 2>/dev/null`)) {
                 $hostname = "unknown system\n";
             }
 
