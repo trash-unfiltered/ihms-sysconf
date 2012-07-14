@@ -147,9 +147,7 @@ class iHMS_Sysconf_Encoding
      */
     public static function convert($inputCharmap, $string)
     {
-        static $userCharmap = null;
-
-        if (!self::getCharmap()) {
+        if (!($userCharmap = self::getCharmap())) {
             return $string;
         }
 
