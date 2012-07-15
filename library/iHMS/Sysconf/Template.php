@@ -229,7 +229,7 @@ class iHMS_Sysconf_Template
         if (is_resource($templatesFile)) {
             $fh = $templatesFile;
         } elseif (!$fh = @fopen($templatesFile, 'r')) {
-            throw new InvalidArgumentException("{$templatesFile}: {$php_errormsg}");
+            throw new InvalidArgumentException("{$templatesFile}: {$php_errormsg}\n");
         }
 
         fseek($fh, 0, SEEK_END);
@@ -253,11 +253,9 @@ class iHMS_Sysconf_Template
                     if (isset($data[$field])) {
                         throw new DomainException(
                             sprintf(
-                                _(
-                                    "Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a lone newline.\n"
-                                ),
+                                _("Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a one newline."),
                                 $stanza, $templateFile, $field, $value
-                            )
+                            ) . "\n"
                         );
                     }
 
@@ -316,7 +314,7 @@ class iHMS_Sysconf_Template
                     $extended .= $bit;
                 } else {
                     throw new DomainException(
-                        sprintf(_("Template parse error near `%s', in stanza %d of %s\n"), $stanza, $line, $templatesFile)
+                        sprintf(_("Template parse error near `%s', in stanza %d of %s" ), $stanza, $line, $templatesFile) . "\n"
                     );
                 }
             } // end-foreach();
@@ -326,7 +324,7 @@ class iHMS_Sysconf_Template
             // Sanity checks
             if (!isset($data['template'])) {
                 throw new DomainException(
-                    sprintf(_("Template %d in %s does not contain a 'Template:' line\n"), $stanza, $templatesFile)
+                    sprintf(_("Template %d in %s does not contain a 'Template:' line"), $stanza, $templatesFile) . "\n"
                 );
             }
 

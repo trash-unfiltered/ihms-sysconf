@@ -32,14 +32,13 @@ error_reporting(E_ALL);
 ini_set('track_errors', 1);
 
 // Initialize localization
-// Set locale from environment variable
-setlocale(LC_MESSAGES, '');
-//bindtextdomain('sysconf', 'todo');
+setlocale(LC_ALL, ''); // sets the locale according to the user's environment variables
 textdomain('sysconf');
+bindtextdomain('sysconf', '/usr/local/share/locale');
 
 // Check for PHP version
 if (version_compare(phpversion(), '5.3.3') == -1) {
-    fwrite(STDERR, sprintf(_('Your PHP version is %s. Sysconf require PHP %s or newer'), phpversion()) . "\n");
+    fwrite(STDERR, sprintf(_('Your PHP version is %s. Sysconf require PHP %s or newer.'), phpversion(), '5.3.3') . "\n");
     exit(1);
 }
 
@@ -57,8 +56,8 @@ if (!extension_loaded('iconv')) {
 
 // Check for Zend Framework library availability and version
 if (stream_resolve_include_path('Zend/Version.php') === false) {
-    fwrite(STDERR, _('Sysconf require Zend Framework 1.11.x or newer.'));
-    exit;
+    fwrite(STDERR, _('Sysconf require Zend Framework 1.11.x or newer.') . "\n");
+    exit(1);
 }
 
 /** @see Zend_Version */
@@ -66,7 +65,7 @@ require_once 'Zend/Version.php';
 if (version_compare(Zend_Version::VERSION, '1.11') == -1) {
     fwrite(STDERR,
         sprintf(
-            _('Your Zend Framework version is %s. Sysconf require Zend Framework 1.11.x or newer'),
+            _('Your Zend Framework version is %s. Sysconf require Zend Framework 1.11.x or newer.'),
             Zend_Version::VERSION
         ) . "\n"
     );

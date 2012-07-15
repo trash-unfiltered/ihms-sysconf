@@ -60,7 +60,7 @@ class iHMS_Sysconf_Element_Dialog_Multiselect extends iHMS_Sysconf_Element_Multi
         $screenLines = $this->frontend->getScreenHeight() - $this->frontend->getSpacer();
         $params = array();
         $choices = $this->question->choicesSplit();
-        $value = array_fill_keys($this->translateDefault(), 1); // TODO in_array() should be sufficient
+        $value = array_fill_keys($this->translateDefault(), 1); // TODO (PO) in_array() should be sufficient
 
         // Firgure out how many lines of the  screen should be used to scroll the list. Look at how much free screen
         // real estate we have after putting the dexcription at the top. If there's too little, the list will need to

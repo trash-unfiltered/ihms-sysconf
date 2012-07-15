@@ -227,7 +227,7 @@ class iHMS_Sysconf_ConfModule
         );
 
         if (!is_resource($this->_process)) {
-            throw new Exception($php_errormsg);
+            throw new Exception("{$php_errormsg}\n");
         }
 
         $this->_writeHandle = $pipes[0];

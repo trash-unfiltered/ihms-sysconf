@@ -170,9 +170,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         // Whiptail and dialog can't deal with very small screens. Detect this and fail, forcing use of some other
         // frontend. The numbers were arrived at by experimentation.
         if ($this->_screenHeight < 13 || $this->_screenWidth < 31) {
-            throw new Exception(
-                _('Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.') . "\n"
-            );
+            throw new Exception(_('Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.') . "\n");
         }
     } // end-init()
 
@@ -404,7 +402,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * @param bool $wantInputFd
      * @param array $args Arguments
      * @return void
-     * @todo remove $question parameter?
+     * @TODO remove $question parameter?
      */
     public function startDialog(iHMS_Sysconf_Question $question, $wantInputFd, $args)
     {
@@ -456,7 +454,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         );
 
         if (!is_resource($this->_dialogProcess)) {
-            throw new RuntimeException($php_errormsg);
+            throw new RuntimeException("{$php_errormsg}\n");
         }
 
         if ($wantInputFd) {

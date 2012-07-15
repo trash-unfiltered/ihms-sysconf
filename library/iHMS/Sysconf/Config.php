@@ -154,7 +154,7 @@ class iHMS_Sysconf_Config
         }
 
         if (!$fhSysconfConfig = @fopen($configFile, 'r')) {
-            throw new RuntimeException("$php_errormsg\n");
+            throw new RuntimeException("{$php_errormsg}\n");
         }
 
         // Read global options stanza
@@ -220,6 +220,7 @@ class iHMS_Sysconf_Config
      * @param string $usage Basic usage text for the program in question.
      * @param array $rules OPTIONAL Additional rules to pass to Getopt
      * @return iHMS_Sysconf_Config Provides fluent interface, returns self
+     * @TODO terse option
      */
     public function getopt($usage, array $rules = array())
     {
@@ -491,8 +492,8 @@ class iHMS_Sysconf_Config
     }
 
     /**
-     * Set to 'true' to display "coded" values from Choices-C fields instead of the descriptive values from other
-     * fields for select and multiselect templates
+     * Set to 'true' to display "coded" values from Choices-C fields instead of the descriptive values from other fields
+     * for select and multiselect templates
      *
      * @return string
      */

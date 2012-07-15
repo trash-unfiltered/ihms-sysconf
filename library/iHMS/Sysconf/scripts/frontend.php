@@ -71,12 +71,12 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
     $module = $env;
 } elseif (preg_match('!^.*/(.*?)\.(?:postinst|postrm|prerm)!', $argv[0], $m)) {
     $module = $m[1];
-} elseif (file_exists('/usr/local/var/lib/ihms/tmp.ci/control')) { // TODO review for better reusability
+} elseif (file_exists('/usr/local/var/lib/ihms/tmp.ci/control')) { // TODO review for better reusability - /tmp ???
     // The preinst is running, presumably. Now, it gets really ugly, because we have to parse the control file
     $fh = @fopen('/usr/local/var/lib/ihms/tmp.ci/control', 'r');
 
     if (!is_resource($fh)) {
-        throw new RuntimeException($php_errormsg);
+        throw new RuntimeException("{$php_errormsg}\n");
     }
 
     while ($lines = fgets($fh)) {

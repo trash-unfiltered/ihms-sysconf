@@ -520,7 +520,7 @@ class iHMS_Sysconf_Question
      *
      * @param string $text Text
      * @return string
-     * @todo review
+     * @TODO review
      */
     protected function _expandVars($text)
     {

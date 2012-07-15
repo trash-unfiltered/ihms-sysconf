@@ -109,9 +109,7 @@ class iHMS_Sysconf_Db
             require_once 'Zend/Loader.php';
             @Zend_Loader::loadClass($className = "iHMS_Sysconf_DbDriver_{$type}");
         } catch (Zend_Exception $e) {
-            throw new InvalidArgumentException(
-                sprintf(_('Driver %s not found: %s'), $type, $e->getMessage()) . "\n"
-            );
+            throw new InvalidArgumentException(sprintf(_('Driver %s not found: %s'), $type, $e->getMessage()) . "\n");
         }
 
         unset($config['driver']); // not a field for the object
