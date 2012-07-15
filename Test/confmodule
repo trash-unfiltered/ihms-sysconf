@@ -35,7 +35,7 @@
  */
 
 // Include ConfModule client
-require_once dirname(__DIR__) . '/library/iHMS/Sysconf/Client/ConfModule.php';
+require_once dirname(__DIR__) . '/iHMS/Sysconf/Client/ConfModule.php';
 
 version('1.0');
 capb('backup');

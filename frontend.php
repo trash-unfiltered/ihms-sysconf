@@ -36,7 +36,7 @@
  */
 
 // Include bootstrap
-require_once dirname(__DIR__) . '/Bootstrap.php';
+require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
 
 /** @see iHMS_Sysconf_Db */
 require_once 'iHMS/Sysconf/Db.php';
@@ -50,7 +50,7 @@ require_once 'iHMS/Sysconf/AutoSelect.php';
 /** @see iHMS_Sysconf_Log */
 require_once 'iHMS/Sysconf/Log.php';
 
-putenv('SYSCONF_SYSTEMRC=../library/iHMS/Sysconf/sysconf.conf');
+putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO review
 
 // Load sysconf database
 iHMS_Sysconf_Db::load();
