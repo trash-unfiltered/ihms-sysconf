@@ -142,8 +142,8 @@ class iHMS_Sysconf_Config
     {
         if (!$configFile) {
             foreach (self::$_configFiles as $file) {
-                $configFile = $file;
                 if (file_exists($file)) {
+                    $configFile = $file;
                     break;
                 }
             }

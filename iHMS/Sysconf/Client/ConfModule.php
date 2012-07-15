@@ -34,7 +34,7 @@
  * version('1.0');
  * $capb = capb('backup');
  * input('medium', 'foo/bar');
- * my $ret=go();
+ * $ret=go();
  * if ($ret[0] == 30) {
  *     // Back button pressed.
  *     ...
@@ -57,7 +57,7 @@
 // running. If not, one is started up automatically and stdin and out are connected to it. Note that this statement is
 // always run when the module is loaded in the usual way.
 if (getenv('SYSCONF_HAS_FRONTEND') === false) {
-    pcntl_exec(dirname(dirname(dirname(__DIR__))) . '/frontend.php', $argv); // TODO review path
+    pcntl_exec(dirname(dirname(dirname(__DIR__))) . '/frontend', $argv); // TODO review path
 }
 
 /**
