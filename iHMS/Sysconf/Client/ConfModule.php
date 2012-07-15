@@ -57,7 +57,7 @@
 // running. If not, one is started up automatically and stdin and out are connected to it. Note that this statement is
 // always run when the module is loaded in the usual way.
 if (getenv('SYSCONF_HAS_FRONTEND') === false) {
-    pcntl_exec(dirname(__DIR__) . '/scripts/frontend.php', $argv); // TODO review path
+    pcntl_exec(dirname(dirname(dirname(__DIR__))) . '/frontend.php', $argv); // TODO review path
 }
 
 /**

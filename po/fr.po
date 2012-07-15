@@ -1,0 +1,235 @@
+# Sysconf - Interactive Configuration System for PHP Applications.
+# Copyright (C) 2012 i-HMS Team
+# This file is distributed under the same license as the Sysconf package.
+# Laurent Declercq <l.declercq@nuxwin.com>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: i-HMS Sysconf 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-15 14:23+0200\n"
+"PO-Revision-Date: 2012-07-15 14:23+0100\n"
+"Last-Translator: Laurent Declercq <l.declercq@nuxwin.com>\n"
+"Language-Team: iHMS <l.declercq@nuxwin.com>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: French\n"
+"X-Poedit-Country: FRANCE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"Plural-Forms: nplurals=2; plural=n>1;\n"
+
+#: ../library/iHMS/Sysconf/AutoSelect.php:87
+msgid "Please do not capitalize the first letter of the sysconf frontend."
+msgstr "Veuillez ne pas mettre la première lettre de l'interface sysconf en majuscule."
+
+#: ../library/iHMS/Sysconf/AutoSelect.php:107
+#, php-format
+msgid "Falling back to frontend %s"
+msgstr "Utilisation de l'interface %s en remplacement"
+
+#: ../library/iHMS/Sysconf/AutoSelect.php:118
+#, php-format
+msgid "Unable to initialize frontend %s"
+msgstr "Impossible d'initialiser l'interface : %s"
+
+#: ../library/iHMS/Sysconf/AutoSelect.php:126
+#, php-format
+msgid "Unable to start a frontend %s"
+msgstr "Impossible de démarrer l'interface : %s"
+
+#: ../library/iHMS/Sysconf/Bootstrap.php:41
+#, php-format
+msgid "Your PHP version is %s. Sysconf require PHP %s or newer."
+msgstr "Votre version PHP est %s. Sysconf requière PHP %s ou plus récent."
+
+#: ../library/iHMS/Sysconf/Bootstrap.php:47
+msgid "Sysconf is a CLI program."
+msgstr "Sysconf est un programme CLI."
+
+#: ../library/iHMS/Sysconf/Bootstrap.php:53
+msgid "Sysconf require Iconv PHP extension."
+msgstr "Sysconf requière l'extension PHP Iconv."
+
+#: ../library/iHMS/Sysconf/Bootstrap.php:59
+msgid "Sysconf require Zend Framework 1.11.x or newer."
+msgstr "Sysconf requière Zend Framework 1.11.x ou plus récent."
+
+#: ../library/iHMS/Sysconf/Bootstrap.php:68
+#, php-format
+msgid "Your Zend Framework version is %s. Sysconf require Zend Framework 1.11.x or newer."
+msgstr "Votre version de Zend Framework est %s. Sysconf requière Zend Framework 1.11.x ou plus récent."
+
+#: ../library/iHMS/Sysconf/Config.php:153
+msgid "No configuration file found."
+msgstr "Aucun fichier de configuration n'a été trouvé."
+
+#: ../library/iHMS/Sysconf/Config.php:173
+msgid "sysconf: Config database not specified in config file."
+msgstr "Le fichier de configuration n'indique pas l'emplacement de la base de données des réglages."
+
+#: ../library/iHMS/Sysconf/Config.php:176
+msgid "sysconf: Templates database not specified in config file."
+msgstr "Le fichier de configuration n'indique pas l'emplacement de la base de données des messages (« templates »)."
+
+#: ../library/iHMS/Sysconf/Config.php:193
+#, php-format
+msgid "sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s."
+msgstr "Problème pendant la configuration de la base de données définie au paragraphe %d dans %s : %s."
+
+#: ../library/iHMS/Sysconf/Config.php:239
+msgid "Specify sysconf frontend to use."
+msgstr "Spécifie l'interface sysconf à utiliser."
+
+#: ../library/iHMS/Sysconf/Config.php:246
+msgid "Specify minimum priority question to show."
+msgstr "Spécifie la priorité minimale des questions à afficher."
+
+#: ../library/iHMS/Sysconf/Config.php:255
+msgid "Show this help."
+msgstr "Affiche cette aide."
+
+#: ../library/iHMS/Sysconf/Config.php:367
+#, php-format
+msgid "Ignoring invalid priority %s"
+msgstr "La priorité « %s » non valable sera ignorée"
+
+#: ../library/iHMS/Sysconf/Config.php:369
+#, php-format
+msgid "Valid priorities are \"%s\""
+msgstr "Les priorités valables sont : %s"
+
+#: ../library/iHMS/Sysconf/Config.php:528
+#, php-format
+msgid "Attempt to access unknown property '%s' at %s line %s."
+msgstr "Tentative d'accès à une propriété inconnue '%s' dans le fichier %s à la ligne %s."
+
+#: ../library/iHMS/Sysconf/Config.php:591
+msgid "Error while parsing configuration file."
+msgstr "Erreur lors de l'analyse du fichier de configuration."
+
+#: ../library/iHMS/Sysconf/Db.php:79
+#, php-format
+msgid "Configuration database %s was not initialized"
+msgstr "La base de données des réglages %s n'a pas été initialisée"
+
+#: ../library/iHMS/Sysconf/Db.php:83
+#, php-format
+msgid "Templates database %s was not initialized"
+msgstr "La base de données des messages (« templates ») %s n'a pas été initialisée"
+
+#: ../library/iHMS/Sysconf/Db.php:102
+msgid "Driver type not specified"
+msgstr "Type du pilote non spécifié"
+
+#: ../library/iHMS/Sysconf/Db.php:112
+#, php-format
+msgid "Driver %s not found: %s"
+msgstr "Le pilote %s n'a pas été trouvé: %s"
+
+#: ../library/iHMS/Sysconf/DbDriver.php:149
+#, php-format
+msgid "Wrong configuration value '%s' for %s field: %s"
+msgstr "Mauvaise valeur de configuration '%s' pour le champs %s : %s"
+
+#: ../library/iHMS/Sysconf/DbDriver.php:160
+msgid "(unknown)"
+msgstr "(inconnu)"
+
+#: ../library/iHMS/Sysconf/DbDriver.php:161
+msgid "no name specified"
+msgstr "pas de nom spécifié"
+
+#: ../library/iHMS/Sysconf/Element/Noninteractive/Error.php:58
+msgid "Sysconf was not configured to display this error message, so it mailed it to you"
+msgstr "Sysconf n'a pas été configuré pour afficher ce message d'erreur, il vous l'a donc envoyée par courrier électronique."
+
+#: ../library/iHMS/Sysconf/Element/Noninteractive/Error.php:94
+msgid "unknown system"
+msgstr "système inconnu"
+
+#: ../library/iHMS/Sysconf/Element/Noninteractive/Error.php:97
+#, php-format
+msgid "Sysconf, running at %s"
+msgstr "Sysconf, s'exécutant sur %s"
+
+#: ../library/iHMS/Sysconf/Element/Teletype/Boolean.php:55
+msgid "yes"
+msgstr "oui"
+
+#: ../library/iHMS/Sysconf/Element/Teletype/Boolean.php:56
+msgid "no"
+msgstr "non"
+
+#: ../library/iHMS/Sysconf/Element/Teletype/Multiselect.php:56
+msgid "none of the above"
+msgstr "aucun des éléments mentionnés"
+
+#: ../library/iHMS/Sysconf/Element/Teletype/Multiselect.php:77
+msgid "Enter the items you want to select, separated by spaces."
+msgstr "Entrez les éléments que vous voulez choisir, séparés par des espaces."
+
+#: ../library/iHMS/Sysconf/Frontend.php:362
+#, php-format
+msgid "Configuring %s"
+msgstr "Configuration de %s"
+
+#: ../library/iHMS/Sysconf/Frontend.php:449
+#, php-format
+msgid "Unable to load iHMS_Sysconf_Element_%s. Failed because %s"
+msgstr "Impossible de charger iHMS_Sysconf_Element_%s. Cause de l'échec : %s"
+
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:136
+msgid "TERM is not set, so dialog frontend is not usable."
+msgstr "La variable TERM n'a pas de valeur, l'interface dialog est donc inutilisable."
+
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:138
+msgid "Dialog frontend is incompatible with emacs shell buffers."
+msgstr "L'interface dialog est incompatible avec les tampons shell d'Emacs"
+
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:141
+msgid "Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal."
+msgstr "L'interface dialog ne fonctionnera pas avec un terminal rustique (« dumb »),  un tampon shell d'Emacs ou sans terminal de contrôle."
+
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:166
+msgid "No usable dialog-like program is installed, so the dialog based frontend cannot be used"
+msgstr "Aucun programme de type dialog n'est installé, l'interface basée sur dialog ne peut donc pas être utilisée."
+
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:173
+msgid "Dialog frontend requires a screen at least 13 lines tall and 31 columns wide."
+msgstr "L'interface dialog a besoin d'un écran d'au moins 13 lignes sur 31 colonnes."
+
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:426
+msgid "Module configuration"
+msgstr "Outil de configuration des modules"
+
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:496
+#, php-format
+msgid "sysconf: %s output the above errors, giving up!"
+msgstr "sysconf: %s a produit l'erreur ci-dessus. Veullez la corriger."
+
+#: ../library/iHMS/Sysconf/Frontend/Teletype.php:115
+msgid "More"
+msgstr "Suite"
+
+#: ../library/iHMS/Sysconf/Template.php:134
+#, php-format
+msgid "warning: possible database corruption. Will attempt to repair by adding back missing question %s"
+msgstr "Attention : corruption possible de la base de données. Tentative de  réparation en rajoutant la question manquante %s."
+
+#: ../library/iHMS/Sysconf/Template.php:256
+#, php-format
+msgid "Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a one newline."
+msgstr "Dans le message (« template ») %s de %s, le champ « %s » est dupliqué avec « %s » comme nouvelle valeur. Il manque probablement la ligne vide de séparation entre deux messages."
+
+#: ../library/iHMS/Sysconf/Template.php:317
+#, php-format
+msgid "Template parse error near `%s', in stanza %d of %s"
+msgstr "Champ de message « %s » inconnu, dans la partie %d de %s"
+
+#: ../library/iHMS/Sysconf/Template.php:327
+#, php-format
+msgid "Template %d in %s does not contain a 'Template:' line"
+msgstr "Le message n° %d de %s ne contient pas de ligne « Template: »"
+
