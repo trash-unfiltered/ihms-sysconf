@@ -28,7 +28,11 @@
  */
 
 /***********************************************************************************************************************
- * Short description
+ * SYNOPSIS
+ *
+ * frontend confmodule [params]
+ *
+ * DESCRIPTION
  *
  * This is a helper program for confmodules. It expects to be passed the name of the confmodule script to run, and any
  * parameters for it.
@@ -58,10 +62,12 @@ iHMS_Sysconf_Log::debug('developer', 'frontend started');
 
 $frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
 
+// Remove script name from arguments
 array_shift($argv);
 
 if ($argv[0] == '--') {
-    array_shift($argv[0]);
+    unset($argv[0]);
+    $argv = array_values($argv);
 }
 
 // Set the default title
@@ -150,28 +156,28 @@ if (preg_match('/^(.*[.\/])(?:postinst|preinst)$/', $argv[0], $m)) {
         // We assume that the third argument passed to this program (which should be the second argument passed to the
         // preinst or postinst that ran it), is the module version.
         $version = isset($argv[2]) ? $argv[2] : '';
-        $confmodule = iHMS_Sysconf_AutoSelect::confModuleFactory($config, 'configure', $version);
+        $confModule = iHMS_Sysconf_AutoSelect::confModuleFactory($config, 'configure', $version);
 
         // Make sure any questions the confmodule generates are owned by this module
-        $confmodule->setOwner($module);
+        $confModule->setOwner($module);
 
         // Talk to it until it s done
-        while ($confmodule->communicate()) ;
+        while ($confModule->communicate()) ;
 
-        if (($exitCode = $confmodule->getExitCode()) > 0) {
+        if (($exitCode = $confModule->getExitCode()) > 0) {
             exit($exitCode);
         }
     }
 }
 
 // Start up the confmodule we were asked to run
-$confmodule = iHMS_Sysconf_AutoSelect::confModuleFactory($argv);
+$confModule = iHMS_Sysconf_AutoSelect::confModuleFactory($argv);
 
 // Make sure any questions the confmodule generates are owned by this module
-$confmodule->setOwner($module);
+$confModule->setOwner($module);
 
 // Talk to it until it s done
-while ($confmodule->communicate()) ;
+while ($confModule->communicate()) ;
 
 // Shutdown the frontend
 $frontend->shutdown();
@@ -179,4 +185,4 @@ $frontend->shutdown();
 // Save sysconf database state
 iHMS_Sysconf_Db::save();
 
-exit($confmodule->getExitCode());
+exit($confModule->getExitCode());

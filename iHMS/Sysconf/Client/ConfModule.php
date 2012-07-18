@@ -53,7 +53,7 @@
  * the numeric return code and the textual return code (if any).
  */
 
-// Ensure that a FrontEnd is running.  It's a little hackish. If DEBIAN_HAS_FRONTEND is set, a FrontEnd is assumed to be
+// Ensure that a FrontEnd is running.  It's a little hackish. If SYSCONFHAS_FRONTEND is set, a FrontEnd is assumed to be
 // running. If not, one is started up automatically and stdin and out are connected to it. Note that this statement is
 // always run when the module is loaded in the usual way.
 if (getenv('SYSCONF_HAS_FRONTEND') === false) {
@@ -119,7 +119,7 @@ final class iHMS_Sysconf_Client_ConfModule
      */
     public static function __callStatic($command, $args)
     {
-        // Normalise command
+        // Normalise command name
         $command = strtoupper($command);
 
         if (!in_array($command, self::$_validCommands)) {

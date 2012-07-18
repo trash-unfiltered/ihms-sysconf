@@ -321,6 +321,16 @@ abstract class iHMS_Sysconf_Frontend
     }
 
     /**
+     * Whether or not the frontend need tty
+     *
+     * @return bool TRUE of frontend need tty, FALSE otherwise
+     */
+    public function needTTY()
+    {
+        return $this->_needTTY;
+    }
+
+    /**
      * Returns elements
      *
      * @return iHMS_Sysconf_Element[]

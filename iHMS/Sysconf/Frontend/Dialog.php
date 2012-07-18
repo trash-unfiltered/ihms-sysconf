@@ -93,7 +93,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     protected $_selectSpacer = 13;
 
     /**
-     * @var resource Dialog process
+     * @var resource Dialog program process
      */
     protected $_dialogProcess = null;
 
@@ -103,23 +103,23 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     protected $_dialogInputWtr = null;
 
     /**
+     * @var resource Pipe to which dialog program write expected output
+     */
+    protected $_dialogOutputRdr = null;
+
+    /**
      * @var resource Pipe to which dialog program write errors
      */
     protected $_dialogErrorRdr = null;
 
     /**
-     * @var resource Pipe to which dialog program write output
-     */
-    protected $_dialogOutputRdr = null;
-
-    /**
-     * Init Dialog Frontend
+     * Initialize Dialog Frontend
      *
      * Checks to see if whiptail, or dialog are available, in that order. To make it use dialog, set
      * SYSCONF_FORCE_DIALOG in the environment.
      *
      * @throws DomainException In case running terminal is not supported
-     * @throws Exception in case no dialog program is found or screen properties do not fit with minimum requirement
+     * @throws Exception in case no dialog program is found or screen properties doesn't fit with minimum requirements
      * @return void
      */
     protected function _init()
@@ -321,7 +321,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * @param string $inText
      * @return void
      */
-    public function showText($question, $inText)
+    public function showText(iHMS_Sysconf_Question $question, $inText)
     {
         $lines = $this->_screenHeight;
 
@@ -413,10 +413,10 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             array_unshift($args, '--nocancel');
         }
 
-        // Allow separation of errors from the expected output.
+        // 1) Allow separation of errors from the expected output.
         // Default dialog behavior is to send any output on stderr
         //
-        // Add the title
+        // 2) Add the title
         array_unshift($args, '--output-fd 3', "--title {$this->_title}");
 
         // Set dialog backtitle
@@ -448,7 +448,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
                 0 => ($wantInputFd) ? array('pipe', 'r') : STDIN,
                 1 => STDOUT,
                 2 => array('pipe', 'w'), // dialog errors
-                3 => array('pipe', 'w') // dialog output (see option --output-fd set above)
+                3 => array('pipe', 'w') // dialog expected output (see option --output-fd set above)
             ),
             $pipes
         );
@@ -538,8 +538,8 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      *
      * @param iHMS_Sysconf_Question $question Question
      * @param array $args Dialog arguments
-     * @return array|null Array that hold dialog return code and the output if any or NULL in case the user hit
-     *                    escape or cancel
+     * @return array|null Array that hold dialog return code and the output if any or NULL in case the user hit escape
+     *                    or cancel
      */
     public function showDialog(iHMS_Sysconf_Question $question, array $args)
     {

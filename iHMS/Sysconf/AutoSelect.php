@@ -143,6 +143,8 @@ class iHMS_Sysconf_AutoSelect
         if (!is_null($parameters)) {
             if (is_array($parameters)) {
                 $parameters = func_get_arg(0);
+            } else {
+                $parameters = func_get_args();
             }
 
             call_user_func_array(array($confmodule, 'startup'), $parameters);

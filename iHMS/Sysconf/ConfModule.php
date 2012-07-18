@@ -935,7 +935,7 @@ class iHMS_Sysconf_ConfModule
      * Note that the frontend's progressSet(), progressStep(), and progressInfo() methods should return TRUE, unless
      * the progress bar was canceled.
      *
-     * @param string $subcommand
+     * @param string $subcommand Subcommand
      * @internal mixed $argv Subcommand arguments(s)
      * @return array
      */

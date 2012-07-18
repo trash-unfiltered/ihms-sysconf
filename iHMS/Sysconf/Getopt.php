@@ -89,7 +89,7 @@ class iHMS_Sysconf_Getopt extends Zend_Console_Getopt
         }
 
         foreach ($lines as $linepart) {
-            $usage .= sprintf("%s %s\n",
+            $usage .= sprintf("  %s %s\n",
                 str_pad($linepart['name'], $maxLen),
                 $linepart['help']);
         }

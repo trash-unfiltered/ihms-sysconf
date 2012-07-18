@@ -219,7 +219,7 @@ class iHMS_Sysconf_Config
      *
      * @param string $usage Basic usage text for the program in question.
      * @param array $rules OPTIONAL Additional rules to pass to Getopt
-     * @return iHMS_Sysconf_Config Provides fluent interface, returns self
+     * @return array The arguments from the command-line following all options found
      * @TODO terse option
      */
     public function getopt($usage, array $rules = array())
@@ -227,21 +227,21 @@ class iHMS_Sysconf_Config
         /** @see Zend_Console_Getopt */
         require_once 'iHMS/Sysconf/Getopt.php';
 
-        $getOpt = new iHMS_Sysconf_Getopt(array(), null, array('parseAll' => false));
+        $getOpt = new iHMS_Sysconf_Getopt(array());
 
         $options = array(
             'frontend|f=s' => array(
-                function($p)
+                function($_)
                 {
-                    iHMS_Sysconf_Config::getInstance()->frontend($p);
+                    iHMS_Sysconf_Config::getInstance()->frontend($_);
                     iHMS_Sysconf_Config::getInstance()->frontendForced(true);
                 },
                 _('Specify sysconf frontend to use.')
             ),
             'priority|p=s' => array(
-                function($p)
+                function($_)
                 {
-                    iHMS_Sysconf_Config::getInstance()->priority($p);
+                    iHMS_Sysconf_Config::getInstance()->priority($_);
                 },
                 _('Specify minimum priority question to show.')
             ),
@@ -256,7 +256,7 @@ class iHMS_Sysconf_Config
             )
         );
 
-        $options = $options + $rules;
+        $options = array_merge($rules, $options);
 
         // Build rules for iHMS_Sysconf_Getopt
         foreach ($options as $k => $v) {
@@ -276,9 +276,8 @@ class iHMS_Sysconf_Config
 
                 if ($value = $getOpt->getOption($loption)) {
                     // Handle extended behavior (no part of iHMS_Sysconf_Getopt)
-                    // TODO move that part into the iHMS_Sysconf_Getopt class
                     if (is_array($options[$option])) {
-                        if ($options[$option][0] instanceof Closure) {
+                        if (is_callable($options[$option][0])) {
                             $options[$option][0]($value);
                         } else {
                             $options[$option][0] = $value;
@@ -287,11 +286,11 @@ class iHMS_Sysconf_Config
                 }
             }
         } catch (Exception $e) {
-            fwrite(STDERR, $e->getMessage() . "\n" . "$usage\n" . $getOpt->getUsageMessage() . "\n");
+            fwrite(STDERR, $e->getMessage() . "\n" . "$usage\n" . $getOpt->getUsageMessage());
             exit(1);
         }
 
-        return $this;
+        return $getOpt->getRemainingArgs();
     }
 
     /**

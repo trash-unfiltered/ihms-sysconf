@@ -44,13 +44,13 @@ if (version_compare(phpversion(), '5.3.3') == -1) {
 
 // Check for PHP SAPI
 if (PHP_SAPI != 'cli') {
-    fwrite(STDERR, _("Sysconf is a CLI program.") . "\n");
+    fwrite(STDERR, _('Sysconf is a CLI program.') . "\n");
     exit(1);
 }
 
 // Check for Iconv PHP extension availability
 if (!extension_loaded('iconv')) {
-    fwrite(STDERR, _("Sysconf require Iconv PHP extension.") . "\n");
+    fwrite(STDERR, _('Sysconf require Iconv PHP extension.') . "\n");
     exit(1);
 }
 
