@@ -1,0 +1,281 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Sysconf - Interactive configuration system for PHP applications
+ * Copyright (C) 2012 by iHMS Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @category    iHMS
+ * @package     iHMS_Sysconf
+ * @copyright   2012 by iHMS Team
+ * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @version     0.0.1
+ * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
+ */
+
+/***********************************************************************************************************************
+ *
+ * SYNOPSIS
+ *
+ * sysconf-preconfigure [options] module
+ *
+ * sysconf-preconfigure --ihms
+ *
+ * DESCRIPTION
+ *
+ * sysconf-preconfigure lets modules ask questions before they are installed. It operates on a set of modules, and all
+ * modules that use sysconf will have their config script run so they can examine the system and ask questions.
+ *
+ * OPTIONS
+ *
+ * --ihms
+ *  iHMS installer mode.
+ *
+ * --s <string>, --scanner=<string>
+ *  Specify external module scanner to use.
+ *
+ * -f <string>, --frontend=<string>
+ *  Specify sysconf frontend to use.
+ *
+ * -p <string>, --priority=string>
+ *  Specify minimum priority question to show.
+ *
+ * --terse
+ *  Enables terse output mode. This affects only some frontends.
+ *
+ * -h, --help
+ *  Show help.
+ */
+
+// Include bootstrap
+require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+
+/** @see iHMS_Sysconf_Log */
+require_once 'iHMS/Sysconf/Log.php';
+
+/** @see iHMS_Sysconf_Db */
+require_once 'iHMS/Sysconf/Db.php';
+
+/** @see iHMS_Sysconf_Template */
+require_once 'iHMS/Sysconf/Template.php';
+
+/** @see iHMS_Sysconf_Config */
+require_once 'iHMS/Sysconf/Config.php';
+
+/** @see iHMS_Sysconf_AutoSelect */
+require_once 'iHMS/Sysconf/AutoSelect.php';
+
+putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
+
+// Load sysconf database
+iHMS_Sysconf_Db::load();
+
+// Initialize --ihms option
+$ihms = false;
+
+// Initialize --scanner option
+$moduleScanner = null;
+
+// Add and parse options passed to this script - After process, $modules will hold only remaining arguments (module list)
+$modules = iHMS_Sysconf_Config::getInstance()->getopt(
+    _('usage: sysconf-preconfigure [options] [modules]'),
+    array(
+        // This option can be reused by any modules management system that write module list to preconfigure on stdin
+        'ihms' => array(&$ihms, _('iHMS mode.')),
+
+        // Not part of Debconf, program on which this script is based. Allow developers to specify an external
+        // scanner  - ensures better reusability with any module management system.
+        'scanner|s-s' => array(&$moduleScanner, _('Specify external module scanner to use.'))
+    )
+);
+
+// If running from iHMS (option --ihms), read modules filenames on stdin.
+if ($ihms) {
+    while ($line = fgets(STDIN)) {
+        $line = chop($line, "\n");
+
+        if ($line != '') {
+            $modules[] = $line;
+        }
+    }
+
+    if (empty($modules)) {
+        exit(0);
+    }
+} elseif (empty($modules)) {
+    fwrite(STDERR, 'sysconf-preconfigure: ' . _('must specify some modules to preconfigure') . "\n");
+    exit(1);
+}
+
+if (!is_null($moduleScanner)) {
+    if (is_executable($moduleScanner)) {
+        //$moduleScanner = basename($moduleScanner); // TODO Any scanner must be in $PATH (eg. [/usr/local]/bin)
+    } else {
+        die(sprintf(_("sysconf: external scanner `%s' is not executable or doesn't exists."), $moduleScanner) . "\n");
+    }
+} elseif (is_executable('/usr/locale/bin/ihms-extracttemplates')) {
+    $moduleScanner = 'ihms-extracttemplates';
+} else {
+    iHMS_Sysconf_Log::warn(
+        _("delaying module configuration, since a module scanner is not installed nor provided on the command line.")
+    );
+
+    exit(0);
+}
+
+// Make frontend
+$frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
+
+// Use an external scanner to extract module information. It takes a list of modules and output to stdout a table with
+// these fields separated by spaces:
+//
+// module: Module name
+// version: Installed version if any
+// templates: Path to the extracted templates file
+// config: Path to the extracted config file
+//
+// Important: In any case, the module scanner *must* always extract both templates and config files into a temporary
+// directory since they are deleted after processing
+if (@socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets)) {
+    if (($pid = pcntl_fork()) == 0) {
+        // Extract the given module(s) information
+        $extractTemplates = function($collect) use($moduleScanner, $sockets)
+        {
+            if ($fp = popen("{$moduleScanner} " . join(' ', array_map('escapeshellarg', $collect)), 'r')) {
+                while ($line = fgets($fp)) {
+                    if (!@socket_write($sockets[1], $line)) {
+                        fwrite(STDERR, sprintf('sysconf: ' . _("%s failed: %s"), $moduleScanner, socket_strerror(socket_last_error($sockets[1]))) . "\n");
+                        break;
+                    }
+                }
+
+                pclose($fp);
+            } else {
+                fwrite(STDERR, sprintf('sysconf: ' . _("%s failed: %s"), $moduleScanner, $php_errormsg) . "\n");
+            }
+        };
+
+        // The kernel can accept command lines up to 20k worth of characters. It can happen that the list of modules to
+        // configure is more than that, which requires splitting it up into multiple module scanner runs.
+        $commandMax = 20000; // Linux specific
+        $staticLenght = strlen($moduleScanner);
+        $length = $staticLenght;
+        $collect = array();
+
+        foreach ($modules as $module) {
+            $length += strlen($module) + 1;
+
+            if ($length < $commandMax && sizeof($collect) < 30) {
+                $collect[] = $module;
+            } else {
+                $extractTemplates($collect);
+
+                if ($ihms && sizeof($modules) > 30) {
+                    $progress = (isset($progress)) ? $progress + sizeof($collect) : sizeof($collect);
+                    fwrite(STDERR, "\r" . sprintf(_('Extracting templates from modules: %d%%'), $progress * 100 / sizeof($modules)));
+                }
+
+                $collect = array($module);
+                $length = $staticLenght + strlen($module) + 1;
+            }
+        }
+
+        $extractTemplates($collect);
+
+        if ($ihms && sizeof($modules) > 30) {
+            $progress = (isset($progress)) ? $progress + sizeof($collect) : sizeof($collect);
+            fwrite(STDERR, "\r" . sprintf(_('Extracting templates from modules: %d%%'), $progress * 100 / sizeof($modules)) . "\n");
+        }
+
+        exit(0);
+    }
+
+    socket_close($sockets[1]);
+
+} else {
+    fwrite(STDERR, "sysconf: unable to extract templates: $php_errormsg\n");
+    exit(1);
+}
+
+// Why buffer here? Well, suppose 300 packages are being installed, and  only the first and last use sysconf. The first
+// is preconfigured. Then the user watches their UI lock up until it scans all the way to the last.. Blowing a bit of
+// memory on a buffer seems like a saner approach.
+$buffer = array();
+while ($line = @socket_read($sockets[0], 1024, PHP_NORMAL_READ)) {
+    $buffer[] = $line;
+}
+
+pcntl_wait($status);
+
+if ($ihms && !empty($buffer)) {
+    print _('Preconfiguring modules ...') . "\n";
+}
+
+// Load all templates
+foreach ($buffer as $line) {
+    list($module, $version, $templates, $config) = preg_split('/\s/', $line);
+
+    if (isset($templates) && $templates != '') {
+        try {
+            iHMS_Sysconf_Template::load($templates, $module);
+            @unlink($templates);
+        } catch (Exception $exception) {
+            fwrite(STDERR, sprintf(_('%s template parse error: %s'), $module, $exception->getMessage()) . "\n");
+            @unlink($config);
+            continue;
+        }
+    }
+}
+
+// Process all config files
+foreach ($buffer as $line) {
+    list($module, $version, $templates, $config) = preg_split('/\s/', $line);
+
+    // Run config script if any
+    if (isset($config) && $config != '' && file_exists($config)) {
+        iHMS_Sysconf_Log::debug('user', sprintf(_('preconfiguring %s (%s)'), $module, $version));
+        if (!@chmod($config, 0755)) {
+            fwrite(STDERR, sprintf(_("sysconf: can't chmod: %s"), $php_errormsg));
+            exit(1);
+        }
+
+        $frontend->defaultTitle($module);
+        $frontend->setInfo();
+        $confModule = iHMS_Sysconf_AutoSelect::confModuleFactory($config, 'configure', $version);
+
+        // Make sure any question created are owned by the correct module
+        $confModule->setOwner($module);
+
+        // Talk to it until it s done
+        while ($confModule->communicate()) ;
+
+        // Could just exit, but it's good to be robust so other modules can still be configured and installed
+        if (($exitCode = $confModule->getExitCode()) > 0) {
+            fwrite(STDERR, sprintf(_('%s failed to preconfigure, with exit status %d'), $module, $exitCode) . "\n");
+        }
+
+        @unlink($config);
+    }
+}
+
+// Shutdown the frontend
+$frontend->shutdown();
+
+// Save sysconf database
+iHMS_Sysconf_Db::save();
+
+exit(0);
