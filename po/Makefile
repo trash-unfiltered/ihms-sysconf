@@ -1,5 +1,6 @@
 # List here all source files with translatable strings.
-POTFILES=$(sort $(shell find ../library -type f -name \*.php))
+POTFILES=$(sort $(shell find ../iHMS/Sysconf -type f -name \*.php)) \
+    ../sysconf-*
 
 POFILES=$(wildcard *.po)
 MOFILES=$(POFILES:.po=.mo)

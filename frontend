@@ -1,4 +1,4 @@
-#!/usr/bin/env php
+#!/usr/bin/php
 <?php
 /**
  * Sysconf - Interactive configuration system for PHP applications
