@@ -150,7 +150,6 @@ abstract class iHMS_Sysconf_DbDriver
                 }
             }
 
-            echo "Setting filed _$field = $value\n";
             $this->{'_' . $field} = $value;
         }
 
