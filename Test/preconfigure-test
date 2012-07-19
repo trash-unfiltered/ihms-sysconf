@@ -38,7 +38,7 @@ $scannerTest = __DIR__ . '/Preconfigure/scanner';
 // Show user information
 putenv('SYSCONF_DEBUG=user');
 
-$fp = popen("{$sysconfPreconfigure} --ihms -s {$scannerTest} --frontend noninteractive", 'w');
+$fp = popen("{$sysconfPreconfigure} --ihms -s {$scannerTest} -f noninteractive", 'w');
 
 $itemNb = (isset($argv[1]) && preg_match('/^\d+$/', $argv[1])) ? $argv[1] : 150;
 

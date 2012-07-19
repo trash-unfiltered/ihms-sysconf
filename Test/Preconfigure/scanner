@@ -32,7 +32,7 @@
  *
  * Module scanner script. This is only intented to test the sysconf-preconfigure script.
  *
- * A real scanner will parse a module archive to extract both template and config file into a temporary directory and
+ * A real scanner will parse a module archive to extract both template and config files into a temporary directory and
  * will print the following information on STDOUT:
  *
  * module: Module name
@@ -41,7 +41,7 @@
  * config: path to extracted config file
  *
  * Beacause this scanner is only for tests, it's will extract nothing but simply mimic a scanner behavior by writing
- * some config files and their associated template files into a temporary directory.
+ * some config files and their associated template files into a temporary directory, and print the needed info on STDOUT
  */
 
 $tmpDir = '/tmp/sysconf';
@@ -50,6 +50,9 @@ if (!file_exists($tmpDir) && !@mkdir($tmpDir, 0755, true)) {
     fwrite(STDERR, "Unable to create {$tmpDir} directory: " . join(' ', error_get_last()) . "\n");
     exit(1);
 }
+
+// Find confModulePath
+$confModulePath = dirname(dirname(__DIR__)) . '/iHMS/Sysconf/Client/ConfModule.php';
 
 array_shift($argv);
 
@@ -71,7 +74,7 @@ EOF;
 <?php
 
 // Include ConfModule client
-require_once '/home/nuxwin/Bureau/working/sysconf/iHMS/Sysconf/Client/ConfModule.php';
+require_once '$confModulePath';
 
 \$module = explode('.', basename(\$argv[0]));
 
