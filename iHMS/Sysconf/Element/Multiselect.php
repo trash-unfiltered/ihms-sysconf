@@ -39,6 +39,7 @@ require_once 'iHMS/Sysconf/Element/Select.php';
  * @package     iHMS_Sysconf
  * @subpackage  Element
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 abstract class iHMS_Sysconf_Element_Multiselect extends iHMS_Sysconf_Element_Select

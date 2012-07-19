@@ -47,6 +47,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @package     iHMS_Sysconf
  * @subpackage  DbDriver
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver implements IteratorAggregate

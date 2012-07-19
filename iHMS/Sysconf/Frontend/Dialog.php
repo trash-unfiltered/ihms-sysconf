@@ -43,6 +43,7 @@ require_once 'iHMS/Sysconf/Encoding.php';
  * @package     iHMS_Sysconf
  * @subpackage  Frontend_Dialog
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize

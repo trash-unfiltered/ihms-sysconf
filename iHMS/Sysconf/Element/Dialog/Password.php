@@ -40,6 +40,7 @@ require_once 'iHMS/Sysconf/Element.php';
  * @subpackage  Element_Dialog
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 class iHMS_Sysconf_Element_Dialog_Password extends iHMS_Sysconf_Element

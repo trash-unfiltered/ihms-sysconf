@@ -33,12 +33,13 @@ require_once 'iHMS/Sysconf/Element/Noninteractive.php';
 /**
  * iHMS_Sysconf_Element_Noninteractive_String class
  *
- * This is a dummy string element.
+ * This is a dummy input string element.
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
  * @subpackage  Element_Noninteractive
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 class iHMS_Sysconf_Element_Noninteractive_String extends iHMS_Sysconf_Element_Noninteractive

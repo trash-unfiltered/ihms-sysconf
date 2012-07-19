@@ -47,6 +47,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @package     iHMS_Sysconf
  * @subpackage  ConfModule
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 class iHMS_Sysconf_ConfModule
@@ -478,7 +479,7 @@ class iHMS_Sysconf_ConfModule
         }
 
         if (!$visible) {
-            // Create a noninteractive element. Supress debug messages because they generate FAQ's and are harmless.
+            // Create a noninteractive element. Suppress debug messages because they generate FAQ's and are harmless.
             $element = iHMS_Sysconf_Frontend_Noninteractive::makeElement($question, true);
 
             // If that failed, the question is just not visible

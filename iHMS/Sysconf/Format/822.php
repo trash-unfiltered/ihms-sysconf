@@ -39,6 +39,7 @@ require_once 'iHMS/Sysconf/Format/Interface.php';
  * @package     iHMS_Sysconf
  * @subpackage  Format
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface

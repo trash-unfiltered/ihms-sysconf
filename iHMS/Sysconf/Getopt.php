@@ -37,6 +37,7 @@ require_once 'Zend/Console/Getopt.php';
  * @package     iHMS_Sysconf
  * @subpackage  Getopt
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 class iHMS_Sysconf_Getopt extends Zend_Console_Getopt

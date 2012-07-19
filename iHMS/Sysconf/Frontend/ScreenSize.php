@@ -41,6 +41,7 @@ require_once 'iHMS/Sysconf/Frontend.php';
  * @package     iHMS_Sysconf
  * @subpackage  Frontend
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 abstract class iHMS_Sysconf_Frontend_ScreenSize extends iHMS_Sysconf_Frontend

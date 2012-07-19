@@ -64,6 +64,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @package     iHMS_Sysconf
  * @subpackage  Template
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  * @todo stringify (callable in both static and object context)
  */

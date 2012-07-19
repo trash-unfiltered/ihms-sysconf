@@ -43,6 +43,7 @@ require_once 'iHMS/Sysconf/Encoding.php';
  * @package     iHMS_Sysconf
  * @subpackage  Element_Noninteractive
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Noninteractive
@@ -70,7 +71,7 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
      * @param string $footer
      * @return bool TRUE if mail was successfuly sent, FALSE otherwise
      */
-    public function sendmail($footer = '')
+    protected function sendmail($footer = '')
     {
         if (($adminEmail = iHMS_Sysconf_Config::getInstance()->adminEmail) && is_executable('/usr/bin/mail')) {
             iHMS_Sysconf_Log::debug('user', 'mailing a note');

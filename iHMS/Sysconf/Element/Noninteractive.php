@@ -33,12 +33,13 @@ require_once 'iHMS/Sysconf/Element.php';
 /**
  * iHMS_Sysconf_Element_Noninteractive abstract class
  *
- * This is noninteractive dummy element. When told to display itself, it does nothing
+ * Base class for noninteractive dummy input element. When told to display itself, it does nothing
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
  * @subpackage  Element_Noninteractive
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
 abstract class iHMS_Sysconf_Element_Noninteractive extends iHMS_Sysconf_Element
