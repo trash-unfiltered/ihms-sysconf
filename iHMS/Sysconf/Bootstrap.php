@@ -31,7 +31,7 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Initialize localization
-setlocale(LC_ALL, ''); // sets the locale according to the user's environment variables
+setlocale(LC_MESSAGES, ''); // sets the locale according to the user's environment variables
 textdomain('sysconf');
 bindtextdomain('sysconf', '/usr/local/share/locale');
 
