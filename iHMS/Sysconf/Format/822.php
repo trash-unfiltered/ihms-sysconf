@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -141,7 +141,7 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
     public function write($filehandle, $data, $itemName)
     {
         // Write Name
-        if (!fwrite($filehandle, "Name: $itemName\n")) {
+        if (!@fwrite($filehandle, "Name: $itemName\n")) {
             return false;
         }
 
@@ -162,7 +162,7 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
         if ($owners = array_keys($data['owners'])) {
             sort($owners);
 
-            if (!fwrite($filehandle, 'Owners: ' . join(', ', $owners) . "\n")) {
+            if (!@fwrite($filehandle, 'Owners: ' . join(', ', $owners) . "\n")) {
                 return false;
             }
         }
@@ -171,14 +171,14 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
         if ($flagsKeys = array_keys($data['flags'], 'true')) {
             sort($flagsKeys);
 
-            if (!fwrite($filehandle, 'Flags: ' . join(', ', $flagsKeys) . "\n")) {
+            if (!@fwrite($filehandle, 'Flags: ' . join(', ', $flagsKeys) . "\n")) {
                 return false;
             }
         }
 
         // Write variables
         if ($variablesKeys = array_keys($data['variables'])) {
-            if (!fwrite($filehandle, "Variables:\n")) {
+            if (!@fwrite($filehandle, "Variables:\n")) {
                 return false;
             }
 
@@ -188,14 +188,14 @@ class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
                 // Replace any \n by \\n
                 $value = preg_replace('/\n/', '\\n', $data['variables'][$variableKey]);
 
-                if (!fwrite($filehandle, " $variableKey = $value\n")) {
+                if (!@fwrite($filehandle, " $variableKey = $value\n")) {
                     return false;
                 }
             }
         }
 
         // Write end-of-record marker
-        if (!fwrite($filehandle, "\n")) {
+        if (!@fwrite($filehandle, "\n")) {
             return false;
         }
 

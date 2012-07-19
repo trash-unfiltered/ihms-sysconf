@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -39,7 +39,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * This is a sysconf database driver that reads the db from a file descriptor when it starts, and writes it out to
  * another when it saves it. By default, stdin and stdout are used.
  *
- * Note: Setting both $_inFd and $_outFd to none gets you a writable temporary db in memory.
+ * Note: Setting both $_infd and $_outfd to "none" gets you a writable temporary db in memory.
  *
  * @category    iHMS
  * @package     iHMS_Sysconf

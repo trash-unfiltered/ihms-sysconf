@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -127,7 +127,6 @@ abstract class iHMS_Sysconf_DbDriver
      */
     public function __construct($params)
     {
-
         // Set property from parameters
         foreach ($params as $field => $value) {
             if ($field == 'readonly' || $field == 'required' || $field == 'backup') {
@@ -151,12 +150,13 @@ abstract class iHMS_Sysconf_DbDriver
                 }
             }
 
+            echo "Setting filed _$field = $value\n";
             $this->{'_' . $field} = $value;
         }
 
         // Name is a required field
         if (!isset($this->_name)) {
-            // Set to something since error function uses this field
+            // Set to something since error method uses this field
             $this->_name = _('(unknown)');
             $this->error(_('no name specified'));
         }
@@ -195,6 +195,16 @@ abstract class iHMS_Sysconf_DbDriver
         } else {
             iHMS_Sysconf_Log::warn("DbDriver {$this->_name} warning: {$errorMessage}");
         }
+    }
+
+    /**
+     * Returns driver db name
+     *
+     * @return string Driver db name
+     */
+    public function getName()
+    {
+        return $this->_name;
     }
 
     /**

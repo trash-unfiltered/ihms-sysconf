@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -112,8 +112,13 @@ class iHMS_Sysconf_Config
     public static function getInstance()
     {
         if (null === self::$_instance) {
-            if ($env = getenv('SYSCONF_SYSTEMRC')) {
+            if (($env = getenv('SYSCONF_SYSTEMRC')) !== false) {
                 array_unshift(self::$_configFiles, $env);
+            } else {
+                // Don't use $ENV{HOME} because it can be a bit untrustworthy if set by programs like sudo, and that
+                // proved to be confusing
+                $userInfo = posix_getpwuid(posix_getuid());
+                array_unshift(self::$_configFiles, $userInfo['dir'] . '/.sysconfrc');
             }
 
             self::$_instance = new self();
@@ -202,6 +207,70 @@ class iHMS_Sysconf_Config
         }
 
         fclose($fhSysconfConfig);
+
+        // SYSCONF_DB_REPLACE bypasses the normal databases; We do still need to set up the normal databases anyway so
+        // that the templates database is available, but we load them all read-only above.
+        if (($env = getenv('SYSCONF_DB_REPLACE')) !== false) {
+            $this->_config['config'] = $this->_envToDriver($env, array('name' => '_ENV_REPLACE'));
+
+            // Unfortunally, a read-only templates database isn't always good enough, so we need to stack a throwaway
+            // one in front of it just in case anything tries to register new templates. There is no provision yet for
+            // keeping this database around after sysconf exists
+            iHMS_Sysconf_Db::makeDriver(
+                array(
+                    'driver' => 'Pipe',
+                    'name' => '_ENV_REPLACE_templates',
+                    'infd' => 'none',
+                    'outfd' => 'none'
+                )
+            );
+
+            $templateStack = array('_ENV_REPLACE_templates', $this->_config['templates']);
+            iHMS_Sysconf_Db::makeDriver(
+                array(
+                    'driver' => 'Stack',
+                    'name' => '_ENV_stack_templates',
+                    'stack' => join(', ', $templateStack)
+                )
+            );
+
+            $this->_config['templates'] = '_ENV_stack_templates';
+        }
+
+        // Allow environment overriding of primary database driver
+        $finalStack = array($this->_config['config']);
+        if (($env = getenv('SYSCONF_DB_OVERRIDE')) !== false) {
+            array_unshift($finalStack, $this->_envToDriver(
+                    $env,
+                    array(
+                        'name' => '_ENV_OVERRIDE',
+                        'readonly' => 'true'
+                    )
+                )
+            );
+        }
+
+        if (($env = getenv('SYSCONF_DB_FALLBACK')) !== false) {
+            $finalStack[] = $this->_envToDriver(
+                $env,
+                array(
+                    'name' => '_ENV_FALLBACK',
+                    'readonly' => 'true'
+                )
+            );
+        }
+
+        if (sizeof($finalStack) > 1) {
+            iHMS_Sysconf_Db::makeDriver(
+                array(
+                    'driver' => 'Stack',
+                    'name' => '_ENV_stack',
+                    'stack' => join(', ', $finalStack)
+                )
+            );
+
+            $this->_config['config'] = 'ENV_stack';
+        }
 
         return $this;
     }
@@ -594,5 +663,42 @@ class iHMS_Sysconf_Config
         }
 
         return $i;
+    }
+
+    /**
+     * Make database driver from environment variable
+     *
+     * Processes an environment variable that encodes a reference to an existing db, or the parameters to set up a new
+     * db. Returns the db. Additional parameters will be used as defaults if a new driver is set up. At least a name
+     * default should always be passed. Returns the db name.
+     *
+     * @param string $name Driver db name
+     * @param array $options Driver parameters
+     * @return string|null Driver name or null if no name is found or driver is already set
+     */
+    protected function _envToDriver($name, array $options)
+    {
+        if (!preg_match('/^(\w+)(?:{(.*)})?$/', $name, $matches)) {
+            return null;
+        }
+
+        if (!is_null(iHMS_Sysconf_DbDriver::getDriver($matches[1]))) {
+            return $name;
+        }
+
+        $options['driver'] = $matches[1];
+
+        if (isset($matches[2])) {
+            // Abd add any other name:value name:value pairs, default name is `filename' for convienence
+            foreach (explode(' ', $matches[2]) as $_) { // TODO check behavior
+                if (preg_match('/^(\w+):(.*)/', $_, $matches)) {
+                    $options[$matches[1]] = $matches[2];
+                } else {
+                    $options['filename'] = $_;
+                }
+            }
+        }
+
+        return iHMS_Sysconf_Db::makeDriver($options)->getName();
     }
 }
