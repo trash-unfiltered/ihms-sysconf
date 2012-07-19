@@ -145,7 +145,7 @@ abstract class iHMS_Sysconf_DbDriver
                 // Tests user's regular expression and raises an error if compile failed
                 if (false === @preg_match("/{$value}/", '')) {
                     $this->error(
-                        sprintf(_("Wrong configuration value '%s' for %s field: %s"), $value, $field, $php_errormsg)
+                        sprintf(_("Wrong configuration value '%s' for %s field: %s"), $value, $field, join(' ', error_get_last()))
                     );
                 }
             }

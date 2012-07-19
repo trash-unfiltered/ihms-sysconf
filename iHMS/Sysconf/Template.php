@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -229,7 +229,7 @@ class iHMS_Sysconf_Template
         if (is_resource($templatesFile)) {
             $fh = $templatesFile;
         } elseif (!$fh = @fopen($templatesFile, 'r')) {
-            throw new InvalidArgumentException("{$templatesFile}: {$php_errormsg}\n");
+            throw new InvalidArgumentException("{$templatesFile}: " . join(' ', error_get_last()) . "\n");
         }
 
         fseek($fh, 0, SEEK_END);
@@ -314,7 +314,7 @@ class iHMS_Sysconf_Template
                     $extended .= $bit;
                 } else {
                     throw new DomainException(
-                        sprintf(_("Template parse error near `%s', in stanza %d of %s" ), $stanza, $line, $templatesFile) . "\n"
+                        sprintf(_("Template parse error near `%s', in stanza %d of %s"), $stanza, $line, $templatesFile) . "\n"
                     );
                 }
             } // end-foreach();

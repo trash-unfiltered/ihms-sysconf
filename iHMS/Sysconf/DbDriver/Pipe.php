@@ -98,7 +98,7 @@ class iHMS_Sysconf_DbDriver_Pipe extends iHMS_Sysconf_DbDriver_Cache
         if (!is_null($this->_infd)) {
             if ($this->_infd != 'none') {
                 if (!($fh = @fopen("php://fd/{$this->_infd}", 'r'))) {
-                    $this->error("could not open file descriptor #[$this->_infd}: {$php_errormsg}");
+                    $this->error("could not open file descriptor #{$this->_infd}: " . join(' ', error_get_last()));
                 }
             }
         } else {
@@ -123,7 +123,7 @@ class iHMS_Sysconf_DbDriver_Pipe extends iHMS_Sysconf_DbDriver_Cache
     }
 
     /**
-     * Save the entire cache out to the fd.
+     * Save the entire cache out to the fd
      *
      * Always write the cache, even if it's not dirty, for consistency's sake.
      *

@@ -159,7 +159,7 @@ class iHMS_Sysconf_Config
         }
 
         if (!$fhSysconfConfig = @fopen($configFile, 'r')) {
-            throw new RuntimeException("{$php_errormsg}\n");
+            throw new RuntimeException(join(' ', error_get_last()) . "\n");
         }
 
         // Read global options stanza

@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -105,16 +105,16 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
 
             if (!is_dir($dirname)) {
                 if (!@mkdir($dirname, 0755, true)) {
-                    $this->error("could not create {$dirname}: $php_errormsg");
+                    $this->error("could not create {$dirname}: " . join(' ', error_get_last()));
                 }
             }
 
             if (@touch($this->_filename)) {
                 if (!@chmod($this->_filename, $this->_mode)) {
-                    $this->error("could not set mode for {$this->_filename}: $php_errormsg");
+                    $this->error("could not set mode for {$this->_filename}: " . join(' ', error_get_last()));
                 }
             } else {
-                $this->error("could not create {$this->_filename}: : $php_errormsg");
+                $this->error("could not create {$this->_filename}: " . join(' ', error_get_last()));
             }
         }
 
@@ -135,7 +135,7 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
 
         if ($this->_readonly || $implicitReadonly) {
             if (!$this->_fh = @fopen($this->_filename, 'r')) {
-                $this->error("could not open {$this->_filename}: $php_errormsg");
+                $this->error("could not open {$this->_filename}: " . join(' ', error_get_last()));
                 return; // Always abort, even if not throwing fatal error
             }
         }
@@ -183,9 +183,9 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
 
         // Write out the file to -new, locking it as we go
         if (!$fh = @fopen($this->_filename . '-new', 'w')) {
-            $this->error("could not write the {$this->_filename}-new file: $php_errormsg");
+            $this->error("could not write the {$this->_filename}-new file: " . join(' ', error_get_last()));
         } elseif (!@chmod($this->_filename . '-new', $this->_mode)) {
-            $this->error("could not set mode of the {$this->_filename}-new file: $php_errormsg");
+            $this->error("could not set mode of the {$this->_filename}-new file: " . join(' ', error_get_last()));
         }
 
         if (!flock($fh, LOCK_EX | LOCK_NB)) {
@@ -217,12 +217,12 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
         // Now rename the old file to -old (if doing backups), and put -new in its place.
         if (file_exists($this->_filename) && $this->_backup) {
             if (!@rename($this->_filename, $this->_filename . '-old')) {
-                iHMS_Sysconf_Log::debug("db {$this->_name}", "rename failed: $php_errormsg");
+                iHMS_Sysconf_Log::debug("db {$this->_name}", "rename failed: " . join(' ', error_get_last()));
             }
         }
 
         if (!@rename($this->_filename . '-new', $this->_filename)) {
-            $this->error("rename failed: $php_errormsg");
+            $this->error("rename failed: " . join(' ', error_get_last()));
         }
 
         // TODO check unlock issue here

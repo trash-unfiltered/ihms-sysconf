@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -454,7 +454,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         );
 
         if (!is_resource($this->_dialogProcess)) {
-            throw new RuntimeException("{$php_errormsg}\n");
+            throw new RuntimeException(join(' ', error_get_last()) . "\n");
         }
 
         if ($wantInputFd) {

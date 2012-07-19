@@ -23,13 +23,12 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-ini_set('track_errors', 1);
 
 // Initialize localization
 setlocale(LC_ALL, ''); // sets the locale according to the user's environment variables

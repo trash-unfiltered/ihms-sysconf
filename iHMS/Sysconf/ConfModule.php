@@ -23,7 +23,7 @@
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
- * @link        http://www.i-mscp.net i-MSCP Home Site
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
@@ -227,7 +227,7 @@ class iHMS_Sysconf_ConfModule
         );
 
         if (!is_resource($this->_process)) {
-            throw new Exception("{$php_errormsg}\n");
+            throw new Exception(join(' ', error_get_last()) . "\n");
         }
 
         $this->_writeHandle = $pipes[0];
@@ -1054,7 +1054,7 @@ class iHMS_Sysconf_ConfModule
     public function commandXloadTemplateFile($file, $owner = null)
     {
         if (!($fh = @fopen($file, 'r'))) {
-            return array($this->_codes['badparams'], "failed to open {$file}: $php_errormsg");
+            return array($this->_codes['badparams'], "failed to open {$file}: " . join(' ', error_get_last()));
         }
 
         if (is_null($owner)) {
