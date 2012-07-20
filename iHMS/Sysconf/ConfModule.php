@@ -49,6 +49,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
+ * TODO In any method that receive parameter from confmodule, check number of arguments and don't let PHP raise any error
  */
 class iHMS_Sysconf_ConfModule
 {
@@ -132,7 +133,7 @@ class iHMS_Sysconf_ConfModule
         'version_bad' => 30,
         'go_back' => 30,
         'progresscancel' => 30,
-        'internalerror' => 100,
+        'internalerror' => 100
     );
 
     /**
@@ -147,22 +148,9 @@ class iHMS_Sysconf_ConfModule
         // If the frontend thought the client confmodule could backup
         // (eg, because it was dealing earlier with a confmodule that could),
         // tell it otherwise.
-        $this->_frontend->setCapbBackup(false); // TODO Check
+        $this->_frontend->setCapbBackup(false);
 
         putenv('SYSCONF_HAS_FRONTEND=1');
-    }
-
-    /**
-     * Set named parameters
-     *
-     * @param array $params
-     * @return void
-     */
-    protected function _setParams(array $params)
-    {
-        foreach ($params as $param => $value) {
-            $this->{'_' . $param} = $value;
-        }
     }
 
     /**
@@ -196,16 +184,38 @@ class iHMS_Sysconf_ConfModule
     }
 
     /**
+     * Set read handle
+     *
+     * @param resource $readHandle
+     */
+    public function setReadHandle($readHandle)
+    {
+        $this->_readHandle = $readHandle;
+    }
+
+    /**
+     * Set write handle
+     *
+     * Pass this the handle
+     *
+     * @param resource $writeHandle
+     */
+    public function setWriteHandle($writeHandle)
+    {
+        $this->_writeHandle = $writeHandle;
+    }
+
+    /**
      * Startup confmodule
      *
      * Pass this the name of a confmodule program, and it is started up. Any further options are parameters to pass to
      * the confmodule. You generally need to do this before trying to use any of the rest of this object. The
-     * alternative is to launch a confmodule manually, and connect the read_handle and write_handle fields of this
-     * object to it.
+     * alternative is to launch a confmodule manually, and use both {@link setReadHandle()} and {@link setWriteHandle()}
+     * to connect this object to it.
      *
      * @throws Exception in case confmodule cannot be started
      * @param string $confmodule confmodule
-     * @internal mixed $params,... Parameter to pass to the confmodule
+     * @internal mixed $params,... Parameters to pass to the confmodule
      */
     public function startup($confmodule)
     {
@@ -252,11 +262,11 @@ class iHMS_Sysconf_ConfModule
     public function communicate()
     {
         if (($_ = fgets($this->_readHandle)) === false) {
-            return $this->finish();
+            return $this->_finish();
         }
 
         $_ = chop($_, "\n");
-        $ret = $this->processCommand($_);
+        $ret = $this->_processCommand($_);
 
         fwrite($this->_writeHandle, "{$ret}\n");
 
@@ -268,12 +278,46 @@ class iHMS_Sysconf_ConfModule
     }
 
     /**
+     * Destroy ConfModule object
+     *
+     * When the object is destroyed, the filehandles are closed and the confmodule script stopped. All questions that
+     * have been displayed during the lifetime of the confmodule are marked as seen.
+     */
+    public function __destruct()
+    {
+        if (!is_null($this->_readHandle)) {
+            fclose($this->_readHandle);
+        }
+
+        if (!is_null($this->_writeHandle)) {
+            fclose($this->_writeHandle);
+        }
+
+        if (!is_null($this->_process)) {
+            proc_terminate($this->_process, SIGTERM);
+        }
+    }
+
+    /**
+     * Set named parameters
+     *
+     * @param array $params Named parameters
+     * @return void
+     */
+    protected function _setParams(array $params)
+    {
+        foreach ($params as $param => $value) {
+            $this->{'_' . $param} = $value;
+        }
+    }
+
+    /**
      * Escape backslashes and newlines for output via the sysconf protocol
      *
      * @param string $text Text to escape
      * @return string
      */
-    public function escape($text)
+    protected function _escape($text)
     {
         return addcslashes($text, "\\\n");
     }
@@ -284,7 +328,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $text Text to unescape
      * @return array
      */
-    public function unescapSplit($text)
+    protected function _unescapSplit($text)
     {
         $words = array();
         $word = '';
@@ -315,7 +359,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $rawCommand Raw command to process
      * @return bool|string
      */
-    public function processCommand($rawCommand)
+    protected function _processCommand($rawCommand)
     {
         iHMS_Sysconf_Log::debug('developer', "<-- {$rawCommand}");
 
@@ -326,7 +370,7 @@ class iHMS_Sysconf_ConfModule
         $rawCommand = chop($rawCommand, "\n");
 
         if (in_array('escape', $this->_clientCapb)) {
-            $params = $this->unescapSplit($rawCommand);
+            $params = $this->_unescapSplit($rawCommand);
         } else {
             $params = explode(' ', $rawCommand);
         }
@@ -335,19 +379,18 @@ class iHMS_Sysconf_ConfModule
 
         $command = strtolower($command);
 
-        // This command cannot be handle by a method
         if ($command == 'stop') {
-            return $this->finish();
+            return $this->_finish();
         }
 
         // Make sure that the command is valid
-        if (!method_exists($this, "command{$command}")) {
+        if (!method_exists($this, "_command{$command}")) {
             return $this->_codes['syntaxerror'] . ' ' .
                 "Unsupported command \"{$command}\" (full line was \"{$rawCommand}\") received from confmodule";
         }
 
         // Now call the method for the command
-        $command = "command{$command}";
+        $command = "_command{$command}";
 
         $ret = join(' ', call_user_func_array(array($this, $command), $params));
 
@@ -366,12 +409,14 @@ class iHMS_Sysconf_ConfModule
     }
 
     /**
-     * Waits for the child process (if any) to finish so its return code can be examined.  The return code is stored in
-     * the exitcode field of the object. It also marks all questions that were shown as seen
+     * Waits for the child process (if any) to finish
+     *
+     * This method wait for the child process to finishn so its return code can be examined.  The return code is stored
+     * in the $_exitCode field of the object. It also marks all questions that were shown as seen.
      *
      * @return string
      */
-    public function finish()
+    protected function _finish()
     {
         fclose($this->_readHandle);
         $this->_readHandle = null;
@@ -420,7 +465,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $questionName Question name
      * @return array
      */
-    public function commandInput($priority, $questionName)
+    protected function _commandInput($priority, $questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -504,7 +549,7 @@ class iHMS_Sysconf_ConfModule
      *
      * @return array
      */
-    public function commandClear()
+    protected function _commandClear()
     {
         $this->_frontend->clear();
         $this->_busy = array();
@@ -517,7 +562,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $version Version to compare
      * @return array
      */
-    public function commandVersion($version = null)
+    protected function _commandVersion($version = null)
     {
         if (!is_null($version)) {
             if (version_compare($version, $this->_version, '<')) {
@@ -531,14 +576,14 @@ class iHMS_Sysconf_ConfModule
     }
 
     /**
-     * Sets the client_capb field to the confmodules's capabilities, and also sets the capb_backup field of the
-     * ConfModules associated FrontEnd if the confmodule can backup. Sends the capb field of the associated FrontEnd
-     * to the confmodule.
+     * Sets the _clientCcapb field to the confmodules's capabilities, and also sets the _capbBackup field of the
+     * ConfModules associated FrontEnd if the confmodule can backup. Sends the _capb field value of the associate
+     * FrontEnd to the confmodule.
      *
      * @param string|array capabilitie(s)
      * @return array
      */
-    public function commandCapb($capabilities)
+    protected function _commandCapb($capabilities)
     {
         $capabilities = (array)$capabilities;
         $this->_clientCapb = $capabilities;
@@ -563,7 +608,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $title Title
      * @return array
      */
-    public function commandTitle($title)
+    protected function _commandTitle($title)
     {
         $title = join(' ', func_get_args());
         $this->_frontend->setTitle($title);
@@ -577,9 +622,9 @@ class iHMS_Sysconf_ConfModule
      *
      * @param string $questionName Question name
      * @return array
-     * // TODO review
+     * TODO review
      */
-    public function commandSetTitle($questionName)
+    protected function _commandSetTitle($questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"$questionName\" doesn't exist");
@@ -596,7 +641,7 @@ class iHMS_Sysconf_ConfModule
      *
      * @return int
      */
-    public function commandBeginblock()
+    protected function _commandBeginblock()
     {
         return array($this->_codes['success']);
     }
@@ -606,7 +651,7 @@ class iHMS_Sysconf_ConfModule
      *
      * @return int
      */
-    public function commandEndblock()
+    protected function _commandEndblock()
     {
         return array($this->_codes['success']);
     }
@@ -620,13 +665,13 @@ class iHMS_Sysconf_ConfModule
      *
      * @return array
      */
-    public function commandGo()
+    protected function _commandGo()
     {
         $ret = $this->_frontend->go();
 
         // If no elements were shown, and we backed up last time, back up again even if the user didn't indicate they want
         // to back up. This causes invisible elements to be skipped over in multi-stage backups.
-        if ($ret && (!$this->_backedUp or array_filter($this->_frontend->getElements(), function($_) // TODO check behavior
+        if ($ret && (!$this->_backedUp or array_filter($this->_frontend->getElements(), function($_)
             {
                 /** @var $_ iHMS_Sysconf_Element */
                 return $_->isVisible();
@@ -664,7 +709,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $questionName Question name
      * @return array
      */
-    public function commandGet($questionName)
+    protected function _commandGet($questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -674,7 +719,7 @@ class iHMS_Sysconf_ConfModule
 
         if (!is_null($value)) {
             if (in_array('escape', $this->_clientCapb)) {
-                return array($this->_codes['escaped_data'], $this->escape($value));
+                return array($this->_codes['escaped_data'], $this->_escape($value));
             } else {
                 return array($this->_codes['success'], $value);
             }
@@ -690,7 +735,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $value Value
      * @return array
      */
-    public function commandSet($questionName, $value)
+    protected function _commandSet($questionName, $value)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -709,7 +754,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $questionName Question name
      * @return array
      */
-    public function commandQreset($questionName)
+    protected function _commandQreset($questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -730,7 +775,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $value Value
      * @return array
      */
-    public function commandSubst($questionName, $key, $value)
+    protected function _commandSubst($questionName, $key, $value)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -754,7 +799,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $questionName Question name
      * @return array
      */
-    public function commandRegister($templateName, $questionName)
+    protected function _commandRegister($templateName, $questionName)
     {
         $tempObj = iHMS_Sysconf_Question::get($templateName);
 
@@ -784,7 +829,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $questionName Question name
      * @return array
      */
-    public function commandUnregister($questionName)
+    protected function _commandUnregister($questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -804,7 +849,7 @@ class iHMS_Sysconf_ConfModule
      *
      * @return array
      */
-    public function commandPurge()
+    protected function _commandPurge()
     {
         $iterator = iHMS_Sysconf_Question::getIterator();
 
@@ -825,7 +870,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $fieldName Field name
      * @return array
      */
-    public function commandMetaget($questionName, $fieldName)
+    protected function _commandMetaget($questionName, $fieldName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -839,7 +884,7 @@ class iHMS_Sysconf_ConfModule
         }
 
         if (in_array('escape', $this->_clientCapb)) {
-            return array($this->_codes['escaped_data'], $this->escape($fieldVal));
+            return array($this->_codes['escaped_data'], $this->_escape($fieldVal));
         }
 
         return array($this->_codes['success'], $fieldVal);
@@ -852,7 +897,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $flagName Flag name
      * @return array
      */
-    public function commandFget($questionName, $flagName)
+    protected function _commandFget($questionName, $flagName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -870,7 +915,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $value Value
      * @return array
      */
-    public function commandFset($questionName, $flagName, $value)
+    protected function _commandFset($questionName, $flagName, $value)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
@@ -901,7 +946,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $questionName Question name
      * @return array
      */
-    public function commandInfo($questionName = null)
+    protected function _commandInfo($questionName = null)
     {
         if (is_null($questionName)) {
             $this->_frontend->setInfo(); // Set to null
@@ -940,7 +985,7 @@ class iHMS_Sysconf_ConfModule
      * @internal mixed $argv Subcommand arguments(s)
      * @return array
      */
-    public function commandProgress($subcommand)
+    protected function _commandProgress($subcommand)
     {
         $subcommand = strtolower($subcommand);
 
@@ -1016,7 +1061,7 @@ class iHMS_Sysconf_ConfModule
      * @return array
      * @TODO passthrough frontend
      */
-    public function commandData($templateName, $item, $value)
+    protected function _commandData($templateName, $item, $value)
     {
         $value = join(' ', array_slice(func_get_args(), 2));
         $value = preg_replace('/\\\\([n"\\\\])/e', '"$1" == "n" ? "\n" : "$1"', $value);
@@ -1052,7 +1097,7 @@ class iHMS_Sysconf_ConfModule
      * @param string $owner OPTIONAL Owner
      * @return array
      */
-    public function commandXloadTemplateFile($file, $owner = null)
+    protected function _commandXloadTemplateFile($file, $owner = null)
     {
         if (!($fh = @fopen($file, 'r'))) {
             return array($this->_codes['badparams'], "failed to open {$file}: " . join(' ', error_get_last()));
@@ -1071,24 +1116,5 @@ class iHMS_Sysconf_ConfModule
 
         return array($this->_codes['success']);
 
-    }
-
-    /**
-     * When the object is destroyed, the filehandles are closed and the confmodule script stopped. All questions that
-     * have been displayed during the lifetime of the confmodule are marked as seen.
-     */
-    public function __destruct()
-    {
-        if (!is_null($this->_readHandle)) {
-            fclose($this->_readHandle);
-        }
-
-        if (!is_null($this->_writeHandle)) {
-            fclose($this->_writeHandle);
-        }
-
-        if (!is_null($this->_process)) {
-            proc_terminate($this->_process, SIGTERM);
-        }
     }
 }

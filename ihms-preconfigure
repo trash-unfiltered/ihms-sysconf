@@ -31,34 +31,44 @@
  *
  * SYNOPSIS
  *
- * sysconf-preconfigure [options] module
+ * ihms-preconfigure [options] module
  *
- * sysconf-preconfigure --ihms
+ * ihms-preconfigure --ihms
  *
  * DESCRIPTION
  *
- * sysconf-preconfigure lets modules ask questions before they are installed. It operates on a set of modules, and all
+ * ihms-preconfigure lets modules ask questions before they are installed. It operates on a set of modules, and all
  * modules that use sysconf will have their config script run so they can examine the system and ask questions.
  *
  * OPTIONS
  *
- * --ihms
- *  iHMS installer mode.
+ * -s <string>, --scanner=<string>
  *
- * --s <string>, --scanner=<string>
- *  Specify external module scanner to use.
+ * Specify external module scanner to use.
  *
  * -f <string>, --frontend=<string>
- *  Specify sysconf frontend to use.
+ *
+ * Specify sysconf frontend to use.
  *
  * -p <string>, --priority=string>
- *  Specify minimum priority question to show.
+ *
+ * Set the lowest priority of questions you are interested in. Any questions with a priority below the selected priority
+ * will be ignored and their default answers will be used..
  *
  * --terse
  *  Enables terse output mode. This affects only some frontends.
  *
+ * --ihms
+ *
+ * Run in ihms mode. It will expect to read a set of module filenames from stdin, rather than getting them as parameters.
+ * Typically this is used to make apt run ihms-preconfigure on all modules before they are installed.
+ * To do this, add something like this to /usr/local/etc/ihms/ihms.conf:
+ *
+ * // Pre-configure all packages before they are installed.
+ * ihms.installer.preinstall = "ihms-preconfigure --ihms --priority=low"
+ *
  * -h, --help
- *  Show help.
+ *  Display usage help.
  */
 
 // Include bootstrap
@@ -92,7 +102,7 @@ $moduleScanner = null;
 
 // Add and parse options passed to this script - After process, $modules will hold only remaining arguments (module list)
 $modules = iHMS_Sysconf_Config::getInstance()->getopt(
-    _('usage: sysconf-preconfigure [options] [modules]'),
+    _('Usage: sysconf-preconfigure [options] [modules]'),
     array(
         // This option can be reused by any modules management system that write module list to preconfigure on stdin
         'ihms' => array(&$ihms, _('iHMS mode.')),
@@ -117,15 +127,14 @@ if ($ihms) {
         exit(0);
     }
 } elseif (empty($modules)) {
-    fwrite(STDERR, 'sysconf-preconfigure: ' . _('must specify some modules to preconfigure') . "\n");
+    fwrite(STDERR, 'ihms-preconfigure: ' . _('must specify some modules to preconfigure') . "\n");
     exit(1);
 }
 
 if (!is_null($moduleScanner)) {
-    if (is_executable($moduleScanner)) {
-        //$moduleScanner = basename($moduleScanner); // TODO Any scanner must be in $PATH (eg. [/usr/local]/bin)
-    } else {
-        die(sprintf(_("sysconf: external scanner `%s' is not executable or doesn't exists."), $moduleScanner) . "\n");
+    if (!is_executable($moduleScanner)) {
+        fwrite(STDERR, sprintf(_("sysconf: external scanner `%s' is not executable or doesn't exists."), $moduleScanner) . "\n");
+        exit(1);
     }
 } elseif (is_executable('/usr/locale/bin/ihms-extracttemplates')) {
     $moduleScanner = 'ihms-extracttemplates';
@@ -152,6 +161,14 @@ $frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
 // directory since they are deleted after processing
 if (@socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets)) {
     if (($pid = pcntl_fork()) == 0) {
+
+        // The kernel can accept command lines up to 20k worth of characters. It can happen that the list of modules to
+        // configure is more than that, which requires splitting it up into multiple module scanner runs.
+        $commandMax = 20000; // Linux specific
+        $staticLenght = strlen($moduleScanner);
+        $length = $staticLenght;
+        $collect = array();
+
         // Extract the given module(s) information
         $extractTemplates = function($collect) use($moduleScanner, $sockets)
         {
@@ -168,13 +185,6 @@ if (@socket_create_pair(AF_UNIX, SOCK_STREAM, 0, $sockets)) {
                 fwrite(STDERR, sprintf('sysconf: ' . _("%s failed: %s"), $moduleScanner, join(' ', error_get_last())) . "\n");
             }
         };
-
-        // The kernel can accept command lines up to 20k worth of characters. It can happen that the list of modules to
-        // configure is more than that, which requires splitting it up into multiple module scanner runs.
-        $commandMax = 20000; // Linux specific
-        $staticLenght = strlen($moduleScanner);
-        $length = $staticLenght;
-        $collect = array();
 
         foreach ($modules as $module) {
             $length += strlen($module) + 1;

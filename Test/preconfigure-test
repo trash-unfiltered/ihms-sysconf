@@ -29,14 +29,24 @@
 /***********************************************************************************************************************
  * DESCRIPTION
  *
- *  Test sysconf-preconfigure script. This is a regression/stress test.
+ * Test ihms-preconfigure script. This is a regression/stress test.
+ *
+ * Important: We do this test in non-interactive mode to avoid the user to press enter again and again (by default, 150
+ * confmodules are created and run...). If you want run this test with other FrontEnd such dialog,  you can set a lower
+ * value for number of confmodules to create and set the SYSCONF_FRONTEND environement variable. for instance:
+ *
+ * SYSCONF_FRONTEND=dialog php preconfigure-test 2
+ *
+ * Will create 2 confmodule (rather than 150) and use Dialog FronTend during test.
  */
 
-$sysconfPreconfigure = dirname(__DIR__) . '/sysconf-preconfigure';
+$sysconfPreconfigure = dirname(__DIR__) . '/ihms-preconfigure';
 $scannerTest = __DIR__ . '/Preconfigure/scanner';
 
-// Show user information
-putenv('SYSCONF_DEBUG=user');
+// Show user information if we are in noninteractive mode
+if (getenv('SYSCONF_FRONTEND') === false) {
+    putenv('SYSCONF_DEBUG=user');
+}
 
 $fp = popen("{$sysconfPreconfigure} --ihms -s {$scannerTest} -f noninteractive", 'w');
 
