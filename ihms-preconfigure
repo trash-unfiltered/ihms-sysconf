@@ -64,7 +64,7 @@
  * Typically this is used to make apt run ihms-preconfigure on all modules before they are installed.
  * To do this, add something like this to /usr/local/etc/ihms/ihms.conf:
  *
- * // Pre-configure all packages before they are installed.
+ * // Pre-configure all modules before they are installed.
  * ihms.installer.preinstall = "ihms-preconfigure --ihms --priority=low"
  *
  * -h, --help

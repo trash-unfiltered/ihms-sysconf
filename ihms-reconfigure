@@ -1,0 +1,316 @@
+#!/usr/bin/php
+<?php
+/**
+ * Sysconf - Interactive configuration system for PHP applications
+ * Copyright (C) 2012 by iHMS Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @category    iHMS
+ * @package     iHMS_Sysconf
+ * @copyright   2012 by iHMS Team
+ * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @version     0.0.1
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
+ */
+
+/***********************************************************************************************************************
+ *
+ * SYNOPSIS
+ *
+ * ihms-reconfigure [options] modules
+ *
+ * DESCRIPTION
+ *
+ * ihms-reconfigure reconfigures modules after they have already been installed. Pass it the names of a module or
+ * modules to reconfigure. It will ask configuration questions, much like when the module was first installed.
+ *
+ * OPTIONS
+ *
+ * -f <string>, --frontend=<string>
+ *
+ * Specify the frontend to use. The default frontend can be permanently changed by:
+ *
+ * ihms-reconfigure sysconf
+ *
+ * Note that if you normally have sysconf set to use the noninteractive frontend, ihms-reconfigure will use the
+ * dialog frontend instead, so you actually get to reconfigure the module.
+ *
+ * -p <string>, --priority=string>
+ *
+ * Specify the minimum priority of question that will be displayed.
+ * ihms-reconfigure normally shows low priority questions no matter what your default priority is.
+ *
+ * --default-priority
+ *
+ *  Use whatever the default priority of question is, instead of forcing the priority to low
+ *
+ * -a, --all
+ *  Reconfigure all installed modules that use sysconf. Warning: this may take a long time
+ *
+ * -u, --unseen-only
+ *
+ * By default, all questions are shown, even if they have already been answered. If this parameter is set though, only
+ * questions that have not yet been seen will be asked
+ *
+ * --terse
+ *  Enables terse output mode. This affects only some frontends.
+ *
+ * --force
+ *
+ * Force ihms-reconfigure to reconfigure a module even if the module is in an inconsistent or broken state. Use with
+ * caution.
+ *
+ * --no-reload
+ *
+ * Prevent ihms-reconfigure from reloading templates. Use with caution; this will prevent ihms-reconfigure from
+ * repairing broken templates databases. However, it may be useful in constrained environments where rewriting the
+ * templates database is expensive.
+ *
+ * -h, --help
+ *
+ * Display usage help.
+ *
+ * TODO Reusability
+ */
+
+// Include bootstrap
+require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+
+/** @see iHMS_Sysconf_Db */
+require_once 'iHMS/Sysconf/Db.php';
+
+/** @see iHMS_Sysconf_Template */
+require_once 'iHMS/Sysconf/Template.php';
+
+/** @see iHMS_Sysconf_Config */
+require_once 'iHMS/Sysconf/Config.php';
+
+/** @see iHMS_Sysconf_AutoSelect */
+require_once 'iHMS/Sysconf/AutoSelect.php';
+
+/** @see iHMS_Sysconf_Log */
+require_once 'iHMS/Sysconf/Log.php';
+
+/***********************************************************************************************************************
+ * Functions
+ */
+
+/**
+ * Returns a list of all installed modules.
+ *
+ * @return array List of all installed modules
+ */
+function getAllModules()
+{
+    $ret = array();
+
+    if (!($fh = @fopen('/usr/local/var/lib/ihms/status', 'r'))) {
+        fwrite(STDERR, sprintf(_('Cannot read status file: %s'), join(' ', error_get_last())) . "\n");
+        exit(1);
+    }
+
+    fseek($fh, 0, SEEK_END);
+    $length = ftell($fh);
+    rewind($fh);
+
+    // Parse each stanza to extract installed modules
+    while ($line = stream_get_line($fh, $length, "\n\n")) {
+        if (preg_match('/Status:\s*.*\sinstalled\n/', $line) && preg_match('/Module:\s*(.*)\n/', $line, $m)) {
+            $ret[] = $m[1];
+        }
+    }
+
+    fclose($fh);
+    sort($ret);
+
+    return $ret;
+}
+
+/***********************************************************************************************************************
+ * Main
+ */
+
+putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
+
+// Set up default modules management system info directory path (can be overridden in sysconf.conf)
+iHMS_Sysconf_Config::getInstance()->infoDirectory = '/usr/local/var/lib/ihms';
+
+// Use low priority unless an option below overrides
+iHMS_Sysconf_Config::getInstance()->priority('low');
+
+// Initialize options
+$unseenOnly = false;
+$all = false;
+$force = false;
+$defaultPriority = false;
+$reload = true;
+
+// Add and parse options passed to this script - After process, $modules will hold only remaining arguments (module list)
+$modules = iHMS_Sysconf_Config::getInstance()->getopt(
+    _('Usage: sysconf-reconfigure [options] modules'),
+    array(
+        'all|a' => array(&$all, _('Reconfigure all modules.')),
+        'unseen-only|u' => array(&$unseenOnly, _('Show only not yet seen questions.')),
+        'default-priority' => array(&$defaultPriority, _('Use default priority instead of low.')),
+        'force' => array(&$force, _('Force reconfiguration of broken modules.')),
+        'no-reload' => array(&$reload, _('Do not reload templates. (Use with caution.)'))
+    )
+);
+
+if ((posix_geteuid()) != 0) {
+    fwrite(STDERR, sprintf(_('%s must be run as root.'), 'ihms-reconfigure') . "\n");
+    exit(1);
+}
+
+// Load sysconf database
+iHMS_Sysconf_Db::load();
+
+if ($defaultPriority) {
+    iHMS_Sysconf_Config::getInstance()->priority = iHMS_Sysconf_Question::get('sysconf/priority')->getValue();
+}
+
+// If the frontend is noninteractive, change it temporarily to dialog.
+if (
+    strtolower(iHMS_Sysconf_Config::getInstance()->frontend) == 'noninteractive' &&
+    !iHMS_Sysconf_Config::getInstance()->frontendForced
+) {
+    iHMS_Sysconf_Config::getInstance()->frontend = 'dialog';
+}
+
+// Make frontend
+$frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
+
+if (!$unseenOnly) {
+    // Make the frontend show questions even if the user has already seen them. Since this is a reconfigure program,
+    // they may want to change their choices.
+    iHMS_Sysconf_Config::getInstance()->reShow = true;
+}
+
+if ($all) {
+    $modules = getAllModules();
+    if (empty($modules)) {
+        exit(0);
+    }
+} else {
+    if (empty($modules)) {
+        fwrite(STDERR, "ihms-reconfigure: " . _('Please specify a module to reconfigure') . "\n");
+        exit(1);
+    }
+}
+
+// Let postinsts know when they're being reconfigured.
+putenv('SYSCONF_RECONFIGURE=1');
+
+// Get info directory path
+$infoDir = iHMS_Sysconf_Config::getInstance()->infoDirectory;
+
+foreach ($modules as $module) {
+    // Set default title
+    $frontend->defaultTitle($module);
+    $frontend->setInfo();
+
+    // Get module version. Also check to make sure it is installed
+    $ret = `ihms status module $module 2>/dev/null`;
+    preg_match('/^Version: (.*)\n/', $ret, $version);
+    preg_match('/Status: (.*)\n/', $ret, $status);
+
+    if (!$force) {
+        if (!$status || !preg_match('/not-installed$/', $status)) {
+            fwrite(STDERR, "ihms-reconfigure: " . sprintf(_('%s is not installed.'), $module) . "\n");
+            exit(1);
+        }
+
+        if (!preg_match('/ ok installed$/', $status)) {
+            fwrite(STDERR, "ihms-reconfigure: " . sprintf(_('%s is broken or not fully installed.'), $module) . "\n");
+            exit(1);
+        }
+    }
+
+    if ($reload) {
+        // Load up templates just in case they aren't already.
+        if (file_exists($infoDir . "/{$module}.templates")) {
+            iHMS_Sysconf_Template::load($infoDir . "/{$module}.templates", $module);
+        }
+    }
+
+    // Simulation of reinstalling a module, without bothering with removing the files and putting them back; Just like
+    // in a regular reinstall, run config, and postinst scripts in sequence, with args.
+    // Do not run postrm, because the postrm can depend on the module's files actually being gone already.
+    foreach (array(
+                 array('prerm', 'upgrade', $version),
+                 array('config', 'reconfigure', $version),
+                 array('postinst', 'configure', $version),
+             ) as $info
+    ) {
+        $script = $info[0];
+
+        if (!is_executable("{$infoDir}/{$module}.{$script}")) {
+            continue;
+        }
+
+        $isConfModule = false;
+
+        if ($script != 'config') {
+            // Test to see if the script uses sysconf
+            $fh = fopen("{$infoDir}/{$module}.{$script}", 'r');
+
+            while ($line = fgets($fh)) {
+                if (stripos($line, 'confmodule') !== false) {
+                    $isConfModule = true;
+                    break;
+                }
+            }
+
+            fclose($fh);
+        }
+
+        if ($script == 'config' || $isConfModule) {
+            // Start up the confmodule
+            $confModule = iHMS_Sysconf_AutoSelect::confModuleFactory("{$infoDir}/{$module}.{$script}", $info[1], $info[2]);
+
+            // Make sure any questions the confmodule registers are oned by this module
+            $confModule->setOwner($module);
+
+            // Talk to it until it is done
+            while ($confModule->communicate()) ;
+
+            if (($exitCode = $confModule->getExitCode()) > 0) {
+                exit($exitCode);
+            }
+        } else {
+            // Not a confmodule, so run it as a normal script. Since it might run other programs that do use sysconf
+            // checkpoint the current database state and re-initialize it when the script finishes.
+
+            iHMS_Sysconf_Db::save();
+            putenv('SYSCONF_HAS_FRONTEND');
+
+            exec("{$infoDir}/{$module}.{$script} {$info[1]} {$info[2]}", $out, $ret);
+            if ($ret) {
+                exit($ret);
+            }
+
+            putenv('SYSCONF_HAS_FRONTEND=1');
+            iHMS_Sysconf_Db::load();
+        }
+    }
+}
+
+// Shutdown the frotend
+$frontend->shutdown();
+
+// Save sysconf databse
+iHMS_Sysconf_Db::save();

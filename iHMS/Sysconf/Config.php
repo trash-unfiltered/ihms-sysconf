@@ -49,6 +49,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @property string $noWarnings (yes|no) Tells whethers or not warnings must be hidden
  * @property string $nonInteractiveSeen
  * @property string $cValues
+ * @property string $infoDirectory Directory where the modules management system store its info files
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -89,6 +90,7 @@ class iHMS_Sysconf_Config
         'noWarnings' => '',
         'nonInteractiveSeen' => '',
         'cValues' => '',
+        'infoDirectory' => ''
     );
 
     /**
@@ -163,14 +165,15 @@ class iHMS_Sysconf_Config
             throw new RuntimeException(join(' ', error_get_last()) . "\n");
         }
 
-        // Read global options stanza
         fseek($fhSysconfConfig, 0, SEEK_END);
         $length = ftell($fhSysconfConfig);
         rewind($fhSysconfConfig);
         $stanza = 1;
 
         // TODO try flip condionnal statement here (feof first)
-        while (!self::_toArray(stream_get_line($fhSysconfConfig, $length, "\n\n"), $this->_config) && !feof($fhSysconfConfig)) {
+        // Read global options stanza
+        //while (!self::_toArray(stream_get_line($fhSysconfConfig, $length, "\n\n"), $this->_config) && !feof($fhSysconfConfig)) {
+        while (!feof($fhSysconfConfig) && !self::_toArray(stream_get_line($fhSysconfConfig, $length, "\n\n"), $this->_config)) {
             $stanza++;
         }
 
@@ -322,7 +325,7 @@ class iHMS_Sysconf_Config
                     fwrite(STDERR, "$usage\n" . $getOpt->getUsageMessage());
                     exit(0);
                 },
-                _('Show this help.')
+                _('Display usage help.')
             )
         );
 
@@ -639,6 +642,7 @@ class iHMS_Sysconf_Config
 
         $i = 0;
 
+        /** @see Zend_Filter_Word_UnderscoreToCamelCase */
         require_once 'Zend/Filter/Word/UnderscoreToCamelCase.php';
         $filter = new Zend_Filter_Word_UnderscoreToCamelCase();
 
