@@ -1,0 +1,108 @@
+#!/usr/bin/php
+<?php
+/**
+ * Sysconf - Interactive configuration system for PHP applications
+ * Copyright (C) 2012 by iHMS Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @category    iHMS
+ * @package     iHMS_Sysconf
+ * @copyright   2012 by iHMS Team
+ * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @version     0.0.1
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
+ */
+
+/***********************************************************************************************************************
+ *
+ * NAME
+ *
+ * sysconf-communicate - communicate with sysconf
+ *
+ * SYNOPSIS
+ *
+ * echo commands | sysconf-communicate [options] [module]
+ *
+ * DESCRIPTION
+ *
+ * sysconf-communicate allows you to communicate with sysconf on the fly, from the command line. The module argument is
+ * the name of the module which you are pretending to be as you communicate with sysconf, and it may be omitted if you
+ * are lazy. It reads commands in the form used by the sysconf protocol from stdin. For documentation on the available
+ * commands and their usage, see the sysconf specification.
+ *
+ * The commands are executed in sequence. The textual return code of each is printed out to standard output.
+ *
+ * The return value of this program is the numeric return code of the last executed command.
+ *
+ * EXAMPLE
+ *
+ * echo get sysconf/frontend | sysconf-communicate
+ *
+ * Print out the value of the sysconf/frontend question.
+ *
+ * WARNING
+ *
+ * This program should never be used from a maintainer script of a module that uses sysconf! It may however, be useful
+ * in debugging.
+ */
+
+// Include bootstrap
+require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+
+/** @see iHMS_Sysconf_Db */
+require_once 'iHMS/Sysconf/Db.php';
+
+/** @see iHMS_Sysconf_AutoSelect */
+require_once 'iHMS/Sysconf/AutoSelect.php';
+
+/** @see iHMS_Sysconf_Config */
+require_once 'iHMS/Sysconf/Config.php';
+
+putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
+
+// Load sysconf database
+iHMS_Sysconf_Db::load();
+
+// parse options passed to this script - After process, $modules will hold only remaining arguments
+$modules = iHMS_Sysconf_Config::getInstance()->getopt(_('Usage: sysconf-communicate [options] [module]'));
+
+$frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
+$confModule = iHMS_Sysconf_AutoSelect::confModuleFactory();
+
+if (!empty($modules)) {
+    $confModule->setOwner(array_shift($modules));
+}
+
+$code = 127;
+
+while ($command = fgets(STDIN)) {
+    $command = chop($command, "\n");
+    $ret = $confModule->processCommand($command);
+    list($code) = preg_split('/ /', $ret, 2);
+    print $ret . "\n";
+}
+
+// Shutdown the frontend
+$frontend->shutdown();
+
+// Finnish the confModule
+$confModule->finish();
+
+// Save sysonf database
+iHMS_Sysconf_Db::save();
+
+exit((int)$code);

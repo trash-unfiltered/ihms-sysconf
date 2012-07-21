@@ -262,11 +262,11 @@ class iHMS_Sysconf_ConfModule
     public function communicate()
     {
         if (($_ = fgets($this->_readHandle)) === false) {
-            return $this->_finish();
+            return $this->finish();
         }
 
         $_ = chop($_, "\n");
-        $ret = $this->_processCommand($_);
+        $ret = $this->processCommand($_);
 
         fwrite($this->_writeHandle, "{$ret}\n");
 
@@ -275,6 +275,113 @@ class iHMS_Sysconf_ConfModule
         }
 
         return true;
+    }
+
+    /**
+     * Pass in a raw command, and it will be processed and handled
+     *
+     * @param string $rawCommand Raw command to process
+     * @return bool|string
+     */
+    public function processCommand($rawCommand)
+    {
+        iHMS_Sysconf_Log::debug('developer', "<-- {$rawCommand}");
+
+        if (preg_match('/^\s*#/', $rawCommand)) { // Skip blank lines, comments.
+            return 1;
+        }
+
+        $rawCommand = chop($rawCommand, "\n");
+
+        if (in_array('escape', $this->_clientCapb)) {
+            $params = $this->_unescapSplit($rawCommand);
+        } else {
+            $params = explode(' ', $rawCommand);
+        }
+
+        list($command, $params) = array($params[0], array_slice($params, 1));
+
+        $command = strtolower($command);
+
+        if ($command == 'stop') {
+            return $this->finish();
+        }
+
+        // Make sure that the command is valid
+        if (!method_exists($this, "_command{$command}")) {
+            return $this->_codes['syntaxerror'] . ' ' .
+                "Unsupported command \"{$command}\" (full line was \"{$rawCommand}\") received from confmodule";
+        }
+
+        // Now call the method for the command
+        $command = "_command{$command}";
+
+        $ret = join(' ', call_user_func_array(array($this, $command), $params));
+
+        iHMS_Sysconf_Log::debug('developer', "--> {$ret}");
+
+        if (preg_match("/\n/", $ret)) { // TODO (PO) strpos()
+            iHMS_Sysconf_Log::debug(
+                'developer',
+                "Warning: return value is multiline, and would break the sysconf protocol. Truncating to first line."
+            );
+
+            $ret = preg_replace("/\n.*/", '', $ret);
+        }
+
+        return $ret;
+    }
+
+    /**
+     * Waits for the child process (if any) to finish
+     *
+     * This method wait for the child process to finishn so its return code can be examined.  The return code is stored
+     * in the $_exitCode field of the object. It also marks all questions that were shown as seen.
+     *
+     * @return string
+     */
+    public function finish()
+    {
+        if (is_resource($this->_process)) {
+            fclose($this->_readHandle);
+            $this->_readHandle = null;
+
+            fclose($this->_writeHandle);
+            // TODO review
+            $this->_writeHandle = fopen('/dev/null', 'w'); // Needed since in communicate() method we write after closing in some cases
+
+            do {
+                usleep(2000);
+                $status = proc_get_status($this->_process);
+            } while ($status['running']);
+
+            // proc_close make call of system waitpid(3) here
+            proc_close($this->_process);
+            $this->_process = null;
+            $ret = $status['exitcode'];
+
+
+            $this->_exitCode = ($this->_caughtSigpipe) ? $this->_caughtSigpipe : $ret;
+
+            // Stop catching SIGPIPE now.
+            // IGNORE (SIG_IGN) and DEFAULT (SIG_DFL) both cause obscure failures, BTW
+            // TODO check if problem occur with PHP since problems were encountered with Perl
+            pcntl_signal(SIGPIPE, function()
+            {
+            });
+        }
+
+        /** @var $question iHMS_Sysconf_Question */
+        foreach ($this->_seen as $question) {
+            // Try to get the question again, because it's possible it was show, and then unregistered.
+            if (!is_null(iHMS_Sysconf_Question::get($question->getName()))) {
+                $question->setFlag('seen', 'true');
+            }
+        }
+
+        $this->_seen = array();
+
+        return false;
     }
 
     /**
@@ -351,110 +458,6 @@ class iHMS_Sysconf_ConfModule
         }
 
         return $words;
-    }
-
-    /**
-     * Pass in a raw command, and it will be processed and handled
-     *
-     * @param string $rawCommand Raw command to process
-     * @return bool|string
-     */
-    protected function _processCommand($rawCommand)
-    {
-        iHMS_Sysconf_Log::debug('developer', "<-- {$rawCommand}");
-
-        if (preg_match('/^\s*#/', $rawCommand)) { // Skip blank lines, comments.
-            return 1;
-        }
-
-        $rawCommand = chop($rawCommand, "\n");
-
-        if (in_array('escape', $this->_clientCapb)) {
-            $params = $this->_unescapSplit($rawCommand);
-        } else {
-            $params = explode(' ', $rawCommand);
-        }
-
-        list($command, $params) = array($params[0], array_slice($params, 1));
-
-        $command = strtolower($command);
-
-        if ($command == 'stop') {
-            return $this->_finish();
-        }
-
-        // Make sure that the command is valid
-        if (!method_exists($this, "_command{$command}")) {
-            return $this->_codes['syntaxerror'] . ' ' .
-                "Unsupported command \"{$command}\" (full line was \"{$rawCommand}\") received from confmodule";
-        }
-
-        // Now call the method for the command
-        $command = "_command{$command}";
-
-        $ret = join(' ', call_user_func_array(array($this, $command), $params));
-
-        iHMS_Sysconf_Log::debug('developer', "--> {$ret}");
-
-        if (preg_match("/\n/", $ret)) { // TODO (PO) strpos()
-            iHMS_Sysconf_Log::debug(
-                'developer',
-                "Warning: return value is multiline, and would break the sysconf protocol. Truncating to first line."
-            );
-
-            $ret = preg_replace("/\n.*/", '', $ret);
-        }
-
-        return $ret;
-    }
-
-    /**
-     * Waits for the child process (if any) to finish
-     *
-     * This method wait for the child process to finishn so its return code can be examined.  The return code is stored
-     * in the $_exitCode field of the object. It also marks all questions that were shown as seen.
-     *
-     * @return string
-     */
-    protected function _finish()
-    {
-        fclose($this->_readHandle);
-        $this->_readHandle = null;
-
-        fclose($this->_writeHandle);
-        // TODO review
-        $this->_writeHandle = fopen('/dev/null', 'w'); // Needed since in communicate() method we write after closing in some cases
-
-        do {
-            usleep(2000);
-            $status = proc_get_status($this->_process);
-        } while ($status['running']);
-
-        // proc_close make call of system waitpid(3) here
-        proc_close($this->_process);
-        $this->_process = null;
-        $ret = $status['exitcode'];
-
-        $this->_exitCode = ($this->_caughtSigpipe) ? $this->_caughtSigpipe : $ret;
-
-        // Stop catching SIGPIPE now.
-        // IGNORE (SIG_IGN) and DEFAULT (SIG_DFL) both cause obscure failures, BTW
-        // TODO check if problem occur with PHP since problems were encountered with Perl
-        pcntl_signal(SIGPIPE, function()
-        {
-        });
-
-        /** @var $_ iHMS_Sysconf_Question */
-        foreach ($this->_seen as $_) {
-            // Try to get the question again, because it's possible it was show, and then unregistered.
-            if (!is_null(iHMS_Sysconf_Question::get($_->getName()))) {
-                $_->setFlag('seen', 'true');
-            }
-        }
-
-        $this->_seen = array();
-
-        return false;
     }
 
     /**
@@ -712,7 +715,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandGet($questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         $value = $question->getValue();
@@ -738,7 +741,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandSet($questionName, $value)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         $value = join(' ', array_slice(func_get_args(), 1));
@@ -757,7 +760,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandQreset($questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         $question->setValue($question->default);
@@ -778,7 +781,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandSubst($questionName, $key, $value)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         $value = join(' ', array_slice(func_get_args(), 2));
@@ -832,7 +835,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandUnregister($questionName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         if (in_array($questionName, $this->_busy)) {
@@ -873,7 +876,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandMetaget($questionName, $fieldName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         $lcfield = strtolower($fieldName);
@@ -900,7 +903,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandFget($questionName, $flagName)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         return array($this->_codes['success'], $question->getFlag($flagName));
@@ -918,7 +921,7 @@ class iHMS_Sysconf_ConfModule
     protected function _commandFset($questionName, $flagName, $value)
     {
         if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+            return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
         if ($flagName == 'seen') {
@@ -1003,7 +1006,7 @@ class iHMS_Sysconf_ConfModule
             }
 
             if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-                return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+                return array($this->_codes['badparams'], "{$questionName} doesn't exist");
             }
 
             $this->_frontend->progressStart($min, $max, $question);
@@ -1030,7 +1033,7 @@ class iHMS_Sysconf_ConfModule
             $questionName = func_get_arg(1);
 
             if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-                return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
+                return array($this->_codes['badparams'], "{$questionName} doesn't exist");
             }
 
             $ret = $this->_frontend->progressInfo($question);
