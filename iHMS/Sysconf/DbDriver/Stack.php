@@ -91,6 +91,16 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     }
 
     /**
+     * Return full stack of drivers
+     *
+     * @return iHMS_Sysconf_DbDriver[]
+     */
+    public function getStack()
+    {
+        return $this->_stack;
+    }
+
+    /**
      * Returns iterator
      *
      * Iterates over all the items in all the drivers in the whole stack. However, only return each item once, even if

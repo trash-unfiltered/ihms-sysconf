@@ -121,7 +121,7 @@ class iHMS_Sysconf_Db
     }
 
     /**
-     * Return config database driver
+     * Returns config database driver
      *
      * @static
      * @return iHMS_Sysconf_DbDriver|null
@@ -129,6 +129,18 @@ class iHMS_Sysconf_Db
     public static function getConfig()
     {
         return self::$_config;
+    }
+
+    /**
+     * Set config database driver
+     *
+     * @static
+     * @param iHMS_Sysconf_DbDriver $config Config database driver
+     * @return void
+     */
+    public static function setConfig(iHMS_Sysconf_DbDriver $config)
+    {
+        self::$_config = $config;
     }
 
     /**

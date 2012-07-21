@@ -29,6 +29,10 @@
 
 /***********************************************************************************************************************
  *
+ * NAME
+ *
+ * ihms-preconfigure - let modules ask questions prior to their installation
+ *
  * SYNOPSIS
  *
  * ihms-preconfigure [options] module

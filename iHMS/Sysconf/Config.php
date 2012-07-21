@@ -292,44 +292,48 @@ class iHMS_Sysconf_Config
      *
      * @param string $usage Basic usage text for the program in question.
      * @param array $rules OPTIONAL Additional rules to pass to Getopt
+     * @param bool $disableDefault Whether or not default options must be disabled
      * @return array The arguments from the command-line following all options found
      * @TODO terse option
      */
-    public function getopt($usage, array $rules = array())
+    public function getopt($usage, array $rules = array(), $disableDefault = false)
     {
         /** @see Zend_Console_Getopt */
         require_once 'iHMS/Sysconf/Getopt.php';
 
         $getOpt = new iHMS_Sysconf_Getopt(array());
 
-        $options = array(
-            'frontend|f=s' => array(
-                function($_)
-                {
-                    iHMS_Sysconf_Config::getInstance()->frontend($_);
-                    iHMS_Sysconf_Config::getInstance()->frontendForced(true);
-                },
-                _('Specify sysconf frontend to use.')
-            ),
-            'priority|p=s' => array(
-                function($_)
-                {
-                    iHMS_Sysconf_Config::getInstance()->priority($_);
-                },
-                _('Specify minimum priority question to show.')
-            ),
-            'help|h' => array(
-                function() use($getOpt, $usage)
-                {
-                    /** @var $getOpt iHMS_Sysconf_Getopt */
-                    fwrite(STDERR, "$usage\n" . $getOpt->getUsageMessage());
-                    exit(0);
-                },
-                _('Display usage help.')
-            )
-        );
-
-        $options = array_merge($rules, $options);
+        if (!$disableDefault) {
+            $options = array(
+                'frontend|f=s' => array(
+                    function($_)
+                    {
+                        iHMS_Sysconf_Config::getInstance()->frontend($_);
+                        iHMS_Sysconf_Config::getInstance()->frontendForced(true);
+                    },
+                    _('Specify sysconf frontend to use.')
+                ),
+                'priority|p=s' => array(
+                    function($_)
+                    {
+                        iHMS_Sysconf_Config::getInstance()->priority($_);
+                    },
+                    _('Specify minimum priority question to show.')
+                ),
+                'help|h' => array(
+                    function() use($getOpt, $usage)
+                    {
+                        /** @var $getOpt iHMS_Sysconf_Getopt */
+                        fwrite(STDERR, "$usage\n" . $getOpt->getUsageMessage());
+                        exit(0);
+                    },
+                    _('Display usage help.')
+                )
+            );
+            $options = array_merge($rules, $options);
+        } else {
+            $options = $rules;
+        }
 
         // Build rules for iHMS_Sysconf_Getopt
         foreach ($options as $k => $v) {
@@ -359,7 +363,17 @@ class iHMS_Sysconf_Config
                 }
             }
         } catch (Exception $e) {
-            fwrite(STDERR, $e->getMessage() . "\n" . "$usage\n" . $getOpt->getUsageMessage());
+            if (!$disableDefault) {
+                fwrite(STDERR, $e->getMessage() . "\n" . "$usage\n" . $getOpt->getUsageMessage());
+            } else {
+                if (is_callable($usage)) {
+                    fwrite(STDERR, $e->getMessage() . "\n");
+                    $usage();
+                } else {
+                    fwrite(STDERR, $usage);
+                }
+            }
+
             exit(1);
         }
 

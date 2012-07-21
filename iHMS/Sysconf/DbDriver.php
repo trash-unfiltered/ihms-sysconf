@@ -222,6 +222,17 @@ abstract class iHMS_Sysconf_DbDriver
     }
 
     /**
+     * Returns all drivers
+     *
+     * @static
+     * @return array
+     */
+    public static function getDrivers()
+    {
+        return self::$_drivers;
+    }
+
+    /**
      * Current driver accept queries for the given item?
      *
      * Return TRUE if this driver will accept queries for the given item. Uses the various accept* and reject* fields

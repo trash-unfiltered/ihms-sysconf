@@ -29,6 +29,10 @@
 
 /***********************************************************************************************************************
  *
+ * NAME
+ *
+ * ihms-reconfigure - reconfigure an already installed module
+ *
  * SYNOPSIS
  *
  * ihms-reconfigure [options] modules

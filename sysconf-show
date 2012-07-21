@@ -1,0 +1,221 @@
+#!/usr/bin/php
+<?php
+/**
+ * Sysconf - Interactive configuration system for PHP applications
+ * Copyright (C) 2012 by iHMS Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @category    iHMS
+ * @package     iHMS_Sysconf
+ * @copyright   2012 by iHMS Team
+ * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @version     0.0.1
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
+ */
+
+/***********************************************************************************************************************
+ *
+ * NAME
+ *
+ * sysconf-show - query the sysconf database
+ *
+ * SYNOPSIS
+ *
+ * sysconf-show packagename [...] [--db=dbname]
+ * sysconf-show --listowners [--db=dbname]
+ * sysconf-show --listdbs
+ *
+ * DESCRIPTION
+ *
+ * sysconf-show lets you query the sysconf database in different ways.
+ *
+ * The most common use is "debconf-show packagename", which displays all items in the debconf database owned by a given
+ * package, and their current values. Questions that have been asked already are prefixed with an '*'.
+ *
+ * This can be useful as a debugging aid, and especially handy in bug reports involving a package's use of sysconf.
+ *
+ * OPTIONS
+ *
+ * --db=<dbname>
+ *
+ *  Specify the database to query. By default, sysconf-show queries the main database.
+ *
+ * --listowners
+ *
+ *  Lists all owners of questions in the database. Generally an owner is equivalent to a module name.
+ *
+ * --listdbs
+ *
+ * Lists all available databases.
+ */
+
+// Include bootstrap
+require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+
+/** @see iHMS_Sysconf_Db */
+require_once 'iHMS/Sysconf/Db.php';
+
+/** @see iHMS_Sysconf_Template */
+require_once 'iHMS/Sysconf/Template.php';
+
+/** @see iHMS_Sysconf_Question */
+require_once 'iHMS/Sysconf/Question.php';
+
+/** @see iHMS_Sysconf_Config */
+require_once 'iHMS/Sysconf/Config.php';
+
+/***********************************************************************************************************************
+ * Functions
+ */
+
+/**
+ * Show usage
+ *
+ * @return void
+ */
+function usage()
+{
+    fwrite(STDERR, <<<EOF
+Usage:
+    sysconf-show modulename [...] [--db=dbname]
+    sysconf-show --listowners [--db=dbname]
+    sysconf-show --listdbs
+
+EOF
+    );
+}
+
+/**
+ * Recursive function to show the config tree
+ *
+ * @param string $node Node to show
+ * @param string $string
+ * @return void
+ */
+function showConfigTree($node, $string = '')
+{
+    $driver = iHMS_Sysconf_DbDriver::getDriver($node);
+    $name = $driver->getName();
+
+    $string = $string . $name;
+    print $string . "\n";
+
+    // If the node is a stack, call tree again to get subtree
+    if ($driver instanceof iHMS_Sysconf_DbDriver_Stack) {
+        /** @var $driver iHMS_Sysconf_DbDriver_Stack */
+        $string = $string . '/';
+        array_map(
+            function($_) use($string)
+            {
+                /** @var $_ iHMS_Sysconf_DbDriver */
+                showConfigTree($_->getName(), $string);
+            },
+            $driver->getStack()
+        );
+    }
+}
+
+/***********************************************************************************************************************
+ * Main
+ */
+
+putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
+
+// Initialize options
+$db = '';
+$listOwners = false;
+$listDbs = false;
+
+// Add and parse options passed to this script - After process, $modules will hold only remaining arguments (module list)
+$modules = iHMS_Sysconf_Config::getInstance()->getopt(
+    'usage',
+    array(
+        'db=s' => array(&$db),
+        'listowners' => array(&$listOwners),
+        'listdbs' => array(&$listDbs)
+    ),
+    true
+);
+
+if (!$listOwners && !$listDbs) {
+    if (empty($modules)) {
+        usage();
+    }
+}
+
+iHMS_Sysconf_Db::load(array('readonly' => 'true'));
+
+$drivers = iHMS_Sysconf_DbDriver::getDrivers();
+$conf = iHMS_Sysconf_Config::getInstance()->config;
+
+// If a specific database is given (with --db), redefine the global config database to use it
+if ($db) {
+    if (array_key_exists($db, $drivers)) {
+        $driver = $drivers[$db];
+    } else {
+        fwrite(STDERR, sprintf(_('%s: unknown database'), $db) . "\n");
+        exit(1);
+    }
+
+    iHMS_Sysconf_Db::setConfig($driver);
+}
+
+$questionIterator = iHMS_Sysconf_Question::getIterator();
+
+if ($listDbs) {
+    // Display the config tree
+    showConfigTree($conf);
+} elseif (!empty($modules)) {
+    /** @var $question iHMS_Sysconf_Question */
+    foreach ($questionIterator as $question) {
+        // Show the question of a module
+        foreach ($modules as $module) {
+            if (in_array($module, explode(', ', $question->getOwners()))) {
+                if ($question->getFlag('seen') == 'true') {
+                    print '* ';
+                } else {
+                    print ' ';
+                }
+
+                print $question->getName() . ':';
+
+                if ($question->type == 'password') {
+                    print " (password ommitted)";
+                } elseif (strlen($value = $question->getValue())) {
+                    print ' ' . $value;
+                }
+
+                print "\n";
+            }
+        }
+    }
+} elseif ($listOwners) {
+    // Show all the owners in the databse
+    $seen = array();
+
+    /** @var $question iHMS_Sysconf_Question */
+    foreach ($questionIterator as $question) {
+        foreach (explode(', ', $question->getOwners()) as $owner) {
+            if (!in_array($owner, $seen)) {
+                print "$owner\n";
+                $seen[] = $owner;
+            }
+        }
+    }
+}
+
+exit(0);
