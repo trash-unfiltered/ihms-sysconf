@@ -43,10 +43,10 @@
  *
  * sysconf-show lets you query the sysconf database in different ways.
  *
- * The most common use is "debconf-show packagename", which displays all items in the debconf database owned by a given
- * package, and their current values. Questions that have been asked already are prefixed with an '*'.
+ * The most common use is "sysconf-show modulename", which displays all items in the sysconf database owned by a given
+ * module, and their current values. Questions that have been asked already are prefixed with an '*'.
  *
- * This can be useful as a debugging aid, and especially handy in bug reports involving a package's use of sysconf.
+ * This can be useful as a debugging aid, and especially handy in bug reports involving a module's use of sysconf.
  *
  * OPTIONS
  *
