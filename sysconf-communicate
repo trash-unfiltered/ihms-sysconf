@@ -54,6 +54,10 @@
  *
  * Print out the value of the sysconf/frontend question.
  *
+ * cat filename | ./sysconf-communicate
+ *
+ * Print out the values of all commands from filename
+ *
  * WARNING
  *
  * This program should never be used from a maintainer script of a module that uses sysconf! It may however, be useful
