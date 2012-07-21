@@ -50,11 +50,11 @@
  *
  * EXAMPLE
  *
- * echo get sysconf/frontend | sysconf-communicate
+ * echo get sysconf/frontend | php sysconf-communicate
  *
  * Print out the value of the sysconf/frontend question.
  *
- * cat filename | ./sysconf-communicate
+ * cat filename | php sysconf-communicate
  *
  * Print out the values of all commands from filename
  *
