@@ -1,0 +1,358 @@
+#!/usr/bin/php
+<?php
+/**
+ * Sysconf - Interactive configuration system for PHP applications
+ * Copyright (C) 2012 by iHMS Team
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * @category    iHMS
+ * @package     iHMS_Sysconf
+ * @copyright   2012 by iHMS Team
+ * @author      Laurent Declercq <l.declercq@nuxwin.com>
+ * @version     0.0.1
+ * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
+ * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
+ */
+
+/***********************************************************************************************************************
+ *
+ * NAME
+ *
+ * sysconf-set-selections - insert new default values into the syconf database
+ *
+ * SYNOPSIS
+ *
+ * sysconf-set-selections file
+ * sysconf-get-selections | ssh newhost sysconf-set-selections
+ *
+ * DESCRIPTION
+ *
+ * sysconf-set-selections can be used to pre-seed the syconf database with answers, or to change answers in the
+ * database. Each question will be marked as seen to prevent syconf from asking the question interactively.
+ *
+ * Reads from a file if a filename is given, otherwise from stdin.
+ *
+ * WARNING
+ *
+ * Only use this command to seed syconf values for modules that will be or are installed. Otherwise you can end up with
+ * values in the database for uninstalled modules that will not go away, or with worse problems involving shared values.
+ * It is recommended that this only be used to seed the database if the originating machine has an identical install.
+ *
+ * DATA FORMAT
+ *
+ * The data is a series of lines. Lines beginning with a # character are comments. Blank lines are ignored. All other
+ * lines set the value of one question, and should contain four values, each separated by one character of whitespace.
+ * The first value is the name of the module that owns the question. The second is the name of the question, the third
+ * value is the type of this question, and the fourth value (through the end of the line) is the value to use for the
+ * answer of the question.
+ *
+ * Alternatively, the third value can be "seen"; then the preseed line only controls whether the question is marked as
+ * seen in syconf's database. Note that preseeding a question's value defaults to marking that question as seen, so to
+ * override the default value without marking a question seen, you need two lines.
+ *
+ * Lines can be continued to the next line by ending them with a "\" character.
+ *
+ * EXAMPLES
+ *
+ * Force syconf priority to critical:
+ *
+ *  syconf syconf/priority select critical
+ *
+ * Override default frontend to readline, but allow user to select:
+ *
+ *  syconf syconf/frontend select readline
+ *  syconf syconf/frontend seen false
+ *
+ * OPTIONS
+ *
+ * --verbose, -v
+ *
+ * Verbose output
+ *
+ * --checkonly>, -c
+ *
+ * Only check the input file format, do not save changes to database
+ */
+
+// Include bootstrap
+require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+
+/** @see iHMS_Sysconf_Db */
+require_once 'iHMS/Sysconf/Db.php';
+
+/** @see iHMS_Sysconf_Template */
+require_once 'iHMS/Sysconf/Template.php';
+
+/***********************************************************************************************************************
+ * Functions
+ */
+
+/**
+ * Display usage
+ */
+function usage()
+{
+    fwrite(STDERR,
+        <<<EOF
+Usage: sysconf-set-selections [-vcu] [file]
+  -v, --verbose     verbose output
+  -c, --checkonly   only check the input file format
+  -u, --unseen      do not set the 'seen' flag when preseeding values
+
+EOF
+    );
+}
+
+/**
+ * Print an info message
+ *
+ * @param string $message Info message
+ * @return void
+ */
+function info($message)
+{
+    global $debug;
+
+    if ($debug) {
+        fwrite(STDERR, "info: $message\n");
+    }
+}
+
+/**
+ * Print a warning message
+ *
+ * @param string $message Warning message
+ * @return void
+ */
+function warning($message)
+{
+    fwrite(STDERR, "warning: $message\n");
+}
+
+/**
+ * Print an error message
+ *
+ * @param string $message Error message
+ * @return void
+ */
+function error($message)
+{
+    global $error;
+
+    fwrite(STDERR, "error: $message\n");
+    $error++;
+}
+
+/**
+ * Load anwser
+ *
+ * @param string $owner Owner
+ * @param string $label Label
+ * @param string $type Type
+ * @param string $content Content
+ * @return void
+ */
+function loadAnswer($owner, $label, $type, $content)
+{
+    global $unSeen;
+
+    info(sprintf(_("Loading answer for '%s'"), $label));
+
+    // Set up the template. If it already exists, override its default value.
+    $template = iHMS_Sysconf_Template::get($label);
+
+    if (is_null($template)) {
+        $template = iHMS_Sysconf_Template::factory($label, $owner, $type);
+        $template->description = 'Dummy template';
+        $template->extended_description = 'This is a fake template used to pre-seed the sysconf database. If you are seeing this, something is probably wrong.';
+    } else {
+        $template->default = $content;
+    }
+
+    $template->type = $type;
+
+    // The question should already exist, it was created along with the template. Set it up.
+    $question = iHMS_Sysconf_Question::get($label);
+
+    if (is_null($question)) {
+        error(sprintf(_('Cannot find a question for %s'), $label));
+        return;
+    }
+
+    $question->addOwner($owner, $type);
+    $question->setValue($content);
+
+    if (!$unSeen) {
+        $question->setFlag('seen', 'true');
+    }
+}
+
+/**
+ * Sets flag
+ *
+ * @param string $owner Owner
+ * @param string $label Label
+ * @param string $flag Flag
+ * @param string $content Content
+ * @return void
+ */
+function setFlag($owner, $label, $flag, $content)
+{
+    info(sprintf(_('Setting %s answer flag'), $flag));
+
+    $question = iHMS_Sysconf_Question::get($label);
+
+    if (is_null($question)) {
+        error(sprintf(_('Cannot find a question for %s'), $label));
+        return;
+    }
+
+    $question->setFlag('seen', $content);
+}
+
+/**
+ * Check format
+ *
+ * @param string $owner Owner
+ * @param string $label Label
+ * @param string $type Type
+ * @param string $content Content
+ * @return bool TRUE if format is OK, FALSE otherwise
+ */
+function okFormat($owner, $label, $type, $content)
+{
+    global $knownTypes, $knownFlags, $lineNumber, $line;
+
+    if (is_null($owner) || is_null($label) || is_null($content)) {
+        error(sprintf(_("parse error on line %d: '%s'"), $lineNumber, $line));
+        return false;
+    } elseif (!in_array($type, array_merge($knownTypes, $knownFlags))) {
+        warning(sprintf(_('Unknown type %s, skipping line %s'), $type, $lineNumber));
+        return false;
+    } else {
+        return true;
+    }
+}
+
+/**
+ * Munge the given line
+ *
+ * @param string $line Line to munge
+ * @return string
+ */
+function mungeLine($line)
+{
+    $line = chop($line, "\n");
+    return preg_replace(array('/\\\\#.*$/', '/\\\\r$/'), '', $line);
+}
+
+
+/***********************************************************************************************************************
+ * Main
+ */
+
+putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
+
+// Initialize options
+$debug = false;
+$checkOnly = false;
+$unSeen = false;
+
+// Add and parse options passed to this script - After process, $remainingArgs will hold only remaining arguments
+$remainingArgs = iHMS_Sysconf_Config::getInstance()->getopt(
+    'usage',
+    array(
+        'verbose|v' => array(&$debug),
+        'checkonly|c' => array(&$checkOnly),
+        'unseen|u' => array(&$unSeen)
+    ),
+    true
+);
+
+// Load sysconf database
+iHMS_Sysconf_Db::load();
+
+// Known types and flags
+$knownTypes = array('select', 'boolean', 'string', 'multiselect', 'note', 'password', 'text', 'title');
+$knownFlags = array('seen');
+
+$error = 0;
+$lineNumber = 1;
+
+$fileHandles = array();
+if (!empty($remainingArgs)) {
+    foreach ($remainingArgs as $file) {
+        if ($fh = @fopen($file, 'r')) {
+            $fileHandles[] = $fh;
+        } else {
+            error(sprintf(_("Can't open %s: %s"), $file, join(' ', error_get_last())));
+        }
+    }
+} else {
+    $fileHandles[] = STDIN;
+}
+
+foreach ($fileHandles as $fileHandle) {
+    while ($line = fgets($fileHandle)) {
+        $line = mungeLine($line);
+
+        while (preg_match('/\\\\$/', $line) && !feof(STDIN)) {
+            $line = preg_replace('/\\\\$/', '', $line);
+            $line = mungeLine($line);
+        }
+
+        if (preg_match('/^\s*$/', $line)) {
+            continue;
+        }
+
+        // Allow multiple spaces between all values except the last one.
+        // Extract whitespace in the content is significant.
+        preg_match('/^\s*(\S+)\s+(\S+)\s+(\S+)(?:\s(.*))?/', $line, $data);
+        array_shift($data);
+
+        // Hide any notice since null values are expected in some cases
+        @list($owner, $label, $type, $content) = $data;
+
+        if (is_null($content)) {
+            $content = '';
+        }
+
+        if (okFormat($owner, $label, $type, $content)) {
+            if (in_array($type, $knownFlags)) {
+                info(sprintf(_("Trying to set '%s' flag to '%s'"), $type, $content));
+                setFlag($owner, $label, $type, $content);
+            } else {
+                info(sprintf(_("Trying to set '%s' [%s] to '%s'"), $type, $label, $content));
+                loadAnswer($owner, $label, $type, $content);
+            }
+        }
+
+        $lineNumber++;
+    }
+
+    fclose($fileHandle);
+}
+
+if (!$checkOnly) {
+    // Save sysconf database
+    iHMS_Sysconf_Db::save();
+}
+
+if ($error) {
+    exit(1);
+}
+
+exit(0);
