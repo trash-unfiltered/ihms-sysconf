@@ -32,7 +32,7 @@ namespace iHMS\Sysconf;
 use iHMS\Sysconf\Iterator\Callback;
 
 /**
- * iHMS_Sysconf_Question class
+ * Question class
  *
  * This is an object that represents a question. Each question has some associated data (which is stored in a backend
  * database). To get at this data, just use $question->fieldname to read a field, and $question->fieldname = 'value' to

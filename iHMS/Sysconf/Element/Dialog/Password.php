@@ -33,7 +33,7 @@ use iHMS\Sysconf\Frontend\Dialog;
 use iHMS\Sysconf\Element;
 
 /**
- * iHMS_Sysconf_Element_Dialog_Password class
+ * Password class
  *
  * @property Dialog $frontend
  *

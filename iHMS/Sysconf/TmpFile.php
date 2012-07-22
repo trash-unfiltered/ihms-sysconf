@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_TmpFile class
+ * TmpFile class
  *
  * This class helps sysconf make safe temporary files. At least, their are safe, if /tmp is not on NFS.
  *

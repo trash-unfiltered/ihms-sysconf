@@ -34,7 +34,7 @@ use iterator;
 use Closure;
 
 /**
- * iHMS_Sysconf_Iterator_Callback class
+ * Callback class
  *
  * @category    iHMS
  * @package     iHMS_Sysconf

@@ -32,7 +32,7 @@ namespace iHMS\Sysconf\Element\Noninteractive;
 use iHMS\Sysconf\Element\AbstractNoninteractive;
 
 /**
- * iHMS_Sysconf_Element_Noninteractive_Multiselect class
+ * Multiselect class
  *
  * This is a dummy multiselect element.
  *

@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf\Format;
 
 /**
- * iHMS_Sysconf_Format_822 class
+ * Format822 class
  *
  * This formats data in a vaguely RFC-822-ish way
  *

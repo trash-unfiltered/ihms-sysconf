@@ -38,7 +38,7 @@ use iHMS\Sysconf\Iterator\CallbackFilter;
 use iHMS\Sysconf\Log;
 
 /**
- * iHMS_Sysconf_DbDriver_Cache class
+ * Cache class
  *
  * This is a base class for cacheable database drivers. Use this as the base class for your driver if it makes sense to
  * load and store items as a whole (eg, if you are using text files to represent each item, or downloading whole items

@@ -63,7 +63,7 @@ if (getenv('SYSCONF_HAS_FRONTEND') === false) {
 }
 
 /**
- * iHMS_Sysconf_Client_ConfModule class
+ * ConfModule class
  *
  * @method static array version($version)
  * @method static array capb($capabilities)

@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_DbDriver class
+ * DbDriver class
  *
  * This is a base class that may be inherited from by the sysconf database drivers. It provides a simple interface that
  * sysconf uses to look up information related to items in the database.

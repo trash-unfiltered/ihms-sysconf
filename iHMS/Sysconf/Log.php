@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Log class
+ * _Log class
  *
  * @category    iHMS
  * @package     iHMS_Sysconf

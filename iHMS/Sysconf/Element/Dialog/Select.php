@@ -33,7 +33,7 @@ use iHMS\Sysconf\Frontend\Dialog;
 use iHMS\Sysconf\Element\AbstractSelect;
 
 /**
- * iHMS_Sysconf_Element_Dialog_Select class
+ * Select class
  *
  * This is an input element that can display a dialog box with a list of choices on it.
  *

@@ -32,7 +32,7 @@ namespace iHMS\Sysconf\Element\Noninteractive;
 use iHMS\Sysconf\Element\AbstractNoninteractive;
 
 /**
- * iHMS_Sysconf_Element_Noninteractive_Text class
+ * Text class
  *
  * This is a dummy input text element.
  *

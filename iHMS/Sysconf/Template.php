@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Template class
+ * Template class
  *
  * This is an object that represents a Template. Each Template has some associated data, the fields of the template
  * structure. To get at this data, just use $template->fieldname to read a field, and $template->fieldname = 'value' to

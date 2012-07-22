@@ -34,7 +34,7 @@ use iHMS\Sysconf\Element\AbstractProgress;
 use iHMS\Sysconf\Question;
 
 /**
- * iHMS_Sysconf_Element_Dialog_Progress class
+ * Progress class
  *
  * @property Dialog $frontend
  *

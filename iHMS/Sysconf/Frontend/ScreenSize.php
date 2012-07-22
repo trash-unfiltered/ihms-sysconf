@@ -32,7 +32,7 @@ namespace iHMS\Sysconf\Frontend;
 use iHMS\Sysconf\Frontend;
 
 /**
- * iHMS_Sysconf_Frontend_ScreenSize class
+ * ScreenSize class
  *
  * This class serves as a base for frontends that have an user interface that runs on a resizable tty.
  * The _screenHeight property is always set to the current height of the tty, while the _screenWidth property is always

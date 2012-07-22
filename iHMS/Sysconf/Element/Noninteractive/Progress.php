@@ -33,7 +33,7 @@ use iHMS\Sysconf\Element\AbstractProgress;
 use iHMS\Sysconf\Question;
 
 /**
- * iHMS_Sysconf_Element_Noninteractive_Progress class
+ * Progress class
  *
  * This is a dummy progress element.
  *

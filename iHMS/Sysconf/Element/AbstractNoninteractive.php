@@ -32,7 +32,7 @@ namespace iHMS\Sysconf\Element;
 use iHMS\Sysconf\Element;
 
 /**
- * iHMS_Sysconf_Element_Noninteractive abstract class
+ * AbstractNoninteractive class
  *
  * Base class for noninteractive dummy input element. When told to display itself, it does nothing
  *

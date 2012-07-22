@@ -34,7 +34,7 @@ use iHMS\Sysconf\Format\FormatInterface;
 use iHMS\Sysconf\Log;
 
 /**
- * iHMS_Sysconf_DbDriver_File class
+ * File class
  *
  * This is a sysconf database driver that uses a single flat file for storing the database. It uses more memory than
  * most other drivers, has a slower startup time (it reads the whole file at startup), and is very fast thereafter

@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_AutoSelect class
+ * AutoSelect class
  *
  * This library makes it easy to create FrontEnd and ConfModule objects. It starts with the desired type of object, and
  * tries to make it. If that fails, it progressively falls back to other types in the list.

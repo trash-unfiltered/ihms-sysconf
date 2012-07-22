@@ -33,7 +33,7 @@ use iHMS\Sysconf\Frontend\Dialog;
 use iHMS\Sysconf\Element;
 
 /**
- * iHMS_Sysconf_Element_Dialog_Text class
+ * Text class
  *
  * This is an input element that can display a dialog box with a message on it.
  *

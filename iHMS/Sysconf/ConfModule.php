@@ -32,7 +32,7 @@ namespace iHMS\Sysconf;
 use iHMS\Sysconf\Frontend\Noninteractive;
 
 /**
- * iHMS_Sysconf_ConfModule class
+ * ConfModule class
  *
  * This is a configuration module communication class for the Sysconf configuration management system. It can launch a
  * configuration module script (hereafter called a "confmodule") and communicate with it. Each instance of a ConfModule

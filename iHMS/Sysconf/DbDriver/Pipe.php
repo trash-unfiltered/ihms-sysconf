@@ -34,7 +34,7 @@ use iHMS\Sysconf\Format\FormatInterface;
 use iHMS\Sysconf\Log;
 
 /**
- * Class iHMS_Sysconf_DbDriver_Pipe
+ * Pipe class
  *
  * This is a sysconf database driver that reads the db from a file descriptor when it starts, and writes it out to
  * another when it saves it. By default, stdin and stdout are used.

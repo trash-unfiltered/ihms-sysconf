@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Config class
+ * Config class
  *
  * This class holds configuration values for sysconf. It supplies defaults, and allows them to be overridden by values
  * from the command line, the  environment, the config file, and values pulled out of the sysconf database.

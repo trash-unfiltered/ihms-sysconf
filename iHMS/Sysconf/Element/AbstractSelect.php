@@ -33,7 +33,7 @@ use iHMS\Sysconf\Element;
 use iHMS\Sysconf\Log;
 
 /**
- * iHMS_Sysconf_Element_Select abstract class
+ * AbstractSelect class
  *
  * Base class for input select element.
  *

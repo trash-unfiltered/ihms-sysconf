@@ -32,7 +32,7 @@ namespace iHMS\Sysconf;
 use iHMS\Sysconf\Element\AbstractProgress;
 
 /**
- * iHMS_Sysconf_Frontend_Abstract class
+ * Frontend abstract class
  *
  * This is the base of the Frontend classes. Each FrontEnd presents a user interface of some kind to the user, and
  * handles generating and communicating with elements to form that FrontEnd.

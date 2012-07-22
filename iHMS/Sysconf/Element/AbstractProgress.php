@@ -33,7 +33,7 @@ use iHMS\Sysconf\Element;
 use iHMS\Sysconf\Question;
 
 /**
- * iHMS_Sysconf_Element_ProgressInterface abstract class
+ * AbstractProgress class
  *
  * Base class for progress element.
  *

@@ -34,7 +34,7 @@ use iHMS\Sysconf\Log;
 use iHMS\Sysconf\Template;
 
 /**
- * iHMS_Sysconf_DbDriver_Copy class
+ * Copy class
  *
  * Base driver for of other classes that need to be able to copy entire database items around.
  *

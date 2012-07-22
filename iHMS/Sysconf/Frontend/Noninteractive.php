@@ -32,7 +32,7 @@ namespace iHMS\Sysconf\Frontend;
 use iHMS\Sysconf\Frontend;
 
 /**
- * iHMS_Sysconf_Frontend_Noninteractive class
+ * Noninteractive class
  *
  * This FrontEnd is completly non-interactive.
  *

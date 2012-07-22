@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Db class
+ * Db class
  *
  * This class makes available an {@link iHMS_Sysconf_Db::$_config}, which is the root db driver for storing state, and
  * an {@link iHMS_Sysconf_Db::$_templates}, which is the root db driver for storing template data. Both are available

@@ -36,7 +36,7 @@ use iHMS\Sysconf\Iterator\CallbackFilter;
 use iHMS\Sysconf\Log;
 
 /**
- * iHMS_Sysconf_DbDriver_Stack class
+ * Stack class
  *
  * This sets up a stack of drivers. Items in drivers higher in the stack shadow items lower in the stack, so requests
  * for items will be passed on to the first driver in the stack that contains the item.

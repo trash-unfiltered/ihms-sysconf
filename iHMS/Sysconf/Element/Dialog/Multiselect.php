@@ -33,7 +33,7 @@ use iHMS\Sysconf\Frontend\Dialog;
 use iHMS\Sysconf\Element\AbstractMultiselect;
 
 /**
- * iHMS_Sysconf_Element_Dialog_Multiselect class
+ * Multiselect class
  *
  * This is an input element that can display a dialog box with a check list in it.
  *

@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Priority class
+ * Priority class
  *
  * This class deals with the priorities of questions. Currently known priorities are low, medium, high, and critical.
  *

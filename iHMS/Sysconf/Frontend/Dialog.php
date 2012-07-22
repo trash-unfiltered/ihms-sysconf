@@ -35,7 +35,7 @@ use iHMS\Sysconf\Question;
 use iHMS\Sysconf\TmpFile;
 
 /**
- * iHMS_Sysconf_Frontend_Dialog class
+ * Dialog class
  *
  * This FrontEnd is for an user interface based on dialog or whiptail. It will use whichever is available, but prefers
  * to use whiptail if available. It handles all the messy communication with these programs.

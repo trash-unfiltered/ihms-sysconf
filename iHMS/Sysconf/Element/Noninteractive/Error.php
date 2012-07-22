@@ -35,7 +35,7 @@ use iHMS\Sysconf\Config;
 use iHMS\Sysconf\Log;
 
 /**
- * iHMS_Sysconf_Element_Noninteractive_Error class
+ * Error class
  *
  * This is a noninteractive error message element. Since we are running non-interactively, we can't pause to show the
  * error messages. Instead, they are mailed to someone

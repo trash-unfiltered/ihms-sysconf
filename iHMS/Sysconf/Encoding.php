@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Encoding class
+ * Encoding class
  *
  * This class provides facilities to convert between character encodings for sysconf, as well as other functions to
  * operate on characters.

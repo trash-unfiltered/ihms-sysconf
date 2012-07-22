@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf\Element;
 
 /**
- * iHMS_Sysconf_Element_Multiselect abstract class
+ * AbstractMultiselect class
  *
  * Base class for multiselect input element.
  *

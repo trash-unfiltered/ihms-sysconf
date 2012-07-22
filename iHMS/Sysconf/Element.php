@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Element_Abstract class
+ * Element abstract class
  *
  * This is the base object on which many different types of input elements are built. Each element represents one user
  * interface element in a Frontend.

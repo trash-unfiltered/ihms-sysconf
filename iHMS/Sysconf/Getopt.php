@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * iHMS_Sysconf_Getopt class
+ * Getopt class
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
