@@ -42,27 +42,20 @@
  * Output the current sysconf database in a format understandable by sysconf-set-selections.
  */
 
+namespace iHMS\Sysconf;
+
 // Include bootstrap
 require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
-
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
-
-/** @see iHMS_Sysconf_Question */
-require_once 'iHMS/Sysconf/Question.php';
 
 putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
 
 // Load sysconf database
-iHMS_Sysconf_Db::load(array('readonly' => 'true'));
+Db::load(array('readonly' => 'true'));
 
 $defaultOwner = 'unknown';
 
-/** @var $question iHMS_Sysconf_Question */
-foreach (iHMS_Sysconf_Question::getIterator() as $question) {
+/** @var $question Question */
+foreach (Question::getIterator() as $question) {
     $name = $question->getName();
     $type = $question->type;
     $value = $question->getValue();

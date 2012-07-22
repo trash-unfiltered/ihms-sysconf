@@ -27,17 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_Question */
-require_once 'iHMS/Sysconf/Question.php';
-
-/** @see iHMS_Sysconf_Enconding */
-require_once 'iHMS/Sysconf/Encoding.php';
-
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_Template class
@@ -68,10 +58,10 @@ require_once 'iHMS/Sysconf/Log.php';
  * @version     0.0.1
  * @todo stringify (callable in both static and object context)
  */
-class iHMS_Sysconf_Template
+class Template
 {
     /**
-     * @var iHMS_Sysconf_Template[]
+     * @var Template[]
      */
     protected static $_templateInstances = array();
 
@@ -105,7 +95,7 @@ class iHMS_Sysconf_Template
      * @param string $templateName Template name
      * @param string $owner Template owner
      * @param string $type Template type
-     * @return null|iHMS_Sysconf_Template
+     * @return null|Template
      */
     public static function factory($templateName, $owner, $type)
     {
@@ -114,29 +104,26 @@ class iHMS_Sysconf_Template
         }
 
         // See if we can use an existing template
-        if (
-            iHMS_Sysconf_Db::getTemplates()->exists($templateName) &&
-            !is_null(iHMS_Sysconf_Db::getTemplates()->getOwners($templateName))
-        ) {
+        if (Db::getTemplates()->exists($templateName) && !is_null(Db::getTemplates()->getOwners($templateName))) {
             // If a question matching this template already exists in the db, add the owner to it. This handles shared
             // owner questions
-            if (!is_null($question = iHMS_Sysconf_Question::get($templateName))) {
+            if (!is_null($question = Question::get($templateName))) {
                 $question->addOwner($owner, $type);
             }
 
             // See if the template claims to own any questions that cannot be found. If so, the database is corrupted;
             // attempt to recover
-            $owners = iHMS_Sysconf_Db::getTemplates()->getOwners($templateName);
+            $owners = Db::getTemplates()->getOwners($templateName);
 
             foreach ($owners as $question) {
-                if (is_null($q = iHMS_Sysconf_Question::get($question))) {
-                    iHMS_Sysconf_Log::warn(
+                if (is_null($q = Question::get($question))) {
+                    Log::warn(
                         sprintf(
                             _('warning: possible database corruption. Will attempt to repair by adding back missing question %s'),
                             $question
                         )
                     );
-                    $newQuestion = iHMS_Sysconf_Question::factory($question, $owner, $type);
+                    $newQuestion = Question::factory($question, $owner, $type);
                     $newQuestion->setTemplate($templateName);
                 }
             }
@@ -153,22 +140,22 @@ class iHMS_Sysconf_Template
 
         // Create a question in the database to go with it, unless one with the same name already exists. If one with
         // the same name exists, it may be a shared question so we add the current owner to it.
-        if (iHMS_Sysconf_Db::getConfig()->exists($templateName)) {
-            if (!is_null($q = iHMS_Sysconf_Question::get($templateName))) {
+        if (Db::getConfig()->exists($templateName)) {
+            if (!is_null($q = Question::get($templateName))) {
                 $q->addowner($owner, $type);
             }
         } else {
-            $q = iHMS_Sysconf_Question::factory($templateName, $owner, $type);
+            $q = Question::factory($templateName, $owner, $type);
             $q->setTemplate($templateName);
         }
 
 
         // This is what actually creates the template in the database
-        if (is_null(iHMS_Sysconf_Db::getTemplates()->addOwner($templateName, $templateName, $type))) {
+        if (is_null(Db::getTemplates()->addOwner($templateName, $templateName, $type))) {
             return null;
         }
 
-        iHMS_Sysconf_Db::getTemplates()->setField($templateName, 'type', $type);
+        Db::getTemplates()->setField($templateName, 'type', $type);
 
         return self::$_templateInstances[$templateName] = $self;
     }
@@ -178,13 +165,13 @@ class iHMS_Sysconf_Template
      *
      * @static
      * @param string $templateName Template name
-     * @return iHMS_Sysconf_Template|null
+     * @return Template|null
      */
     public static function get($templateName)
     {
         if (isset(self::$_templateInstances[$templateName])) {
             return self::$_templateInstances[$templateName];
-        } elseif (iHMS_Sysconf_Db::getTemplates()->exists($templateName)) {
+        } elseif (Db::getTemplates()->exists($templateName)) {
             $self = new self();
             $self->_templateName = $templateName;
             return self::$_templateInstances[$templateName] = $self;
@@ -216,12 +203,12 @@ class iHMS_Sysconf_Template
      * instantiated templates. Pass it the file to load (or an already open FileHandle) and the template owner.
      *
      * @static
-     * @throws InvalidArgumentException in case templates file cannot be opened
-     * @throws DomainException in case templates file doesn't not fit with expected syntax
+     * @throws \InvalidArgumentException in case templates file cannot be opened
+     * @throws \DomainException in case templates file doesn't not fit with expected syntax
      * @param string|resource $templatesFile Either a string representing a templates file or a resource of templates
      *                                      file already opened
      * @param string $templateOwner Templates owner (eg: The module name that the templates file belongs)
-     * @return iHMS_Sysconf_Template[]
+     * @return Template[]
      */
     public static function load($templatesFile, $templateOwner)
     {
@@ -230,7 +217,7 @@ class iHMS_Sysconf_Template
         if (is_resource($templatesFile)) {
             $fh = $templatesFile;
         } elseif (!$fh = @fopen($templatesFile, 'r')) {
-            throw new InvalidArgumentException("{$templatesFile}: " . join(' ', error_get_last()) . "\n");
+            throw new \InvalidArgumentException("{$templatesFile}: " . join(' ', error_get_last()) . "\n");
         }
 
         fseek($fh, 0, SEEK_END);
@@ -252,7 +239,7 @@ class iHMS_Sysconf_Template
 
                 if ($field != '') {
                     if (isset($data[$field])) {
-                        throw new DomainException(
+                        throw new \DomainException(
                             sprintf(
                                 _("Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a one newline."),
                                 $stanza, $templateFile, $field, $value
@@ -286,7 +273,7 @@ class iHMS_Sysconf_Template
                     $basefield = preg_replace('/-.+$/', '', $field);
 
                     if (!in_array($basefield, self::$_kwnowTemplateFields)) {
-                        iHMS_Sysconf_Log::warn(
+                        Log::warn(
                             sprintf("Unknown template field %s in stanza %d of %s\n", $stanza, $field, $templatesFile)
                         );
                     }
@@ -314,7 +301,7 @@ class iHMS_Sysconf_Template
 
                     $extended .= $bit;
                 } else {
-                    throw new DomainException(
+                    throw new \DomainException(
                         sprintf(_("Template parse error near `%s', in stanza %d of %s"), $stanza, $line, $templatesFile) . "\n"
                     );
                 }
@@ -324,7 +311,7 @@ class iHMS_Sysconf_Template
 
             // Sanity checks
             if (!isset($data['template'])) {
-                throw new DomainException(
+                throw new \DomainException(
                     sprintf(_("Template %d in %s does not contain a 'Template:' line"), $stanza, $templatesFile) . "\n"
                 );
             }
@@ -368,7 +355,7 @@ class iHMS_Sysconf_Template
      */
     public function getFields()
     {
-        return iHMS_Sysconf_Db::getTemplates()->getFields($this->_templateName);
+        return Db::getTemplates()->getFields($this->_templateName);
     }
 
     /**
@@ -378,7 +365,7 @@ class iHMS_Sysconf_Template
     {
         if (!is_null($fields = $this->getFields())) {
             foreach ($fields as $field) {
-                iHMS_Sysconf_Db::getTemplates()->removeField($this->_templateName, $field);
+                Db::getTemplates()->removeField($this->_templateName, $field);
             }
         }
     }
@@ -391,7 +378,7 @@ class iHMS_Sysconf_Template
      */
     public function __get($fieldName)
     {
-        $wanti18n = self::$_i18n && iHMS_Sysconf_Config::getInstance()->cValues != 'true';
+        $wanti18n = self::$_i18n && Config::getInstance()->cValues != 'true';
 
         # Check to see if i18n and/or charset encoding should be used.
         if ($wanti18n) {
@@ -412,16 +399,16 @@ class iHMS_Sysconf_Template
 
                 // First check for a field that matches the language and the encoding. No charset conversion is needed.
                 // This also takes care of the case where encoding is not specified
-                if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName . '-' . $lang))) {
+                if (!is_null($ret = Db::getTemplates()->getField($this->_templateName, $fieldName . '-' . $lang))) {
                     return $ret;
                 }
 
                 // Failing that, look for a field that matches the language, and do charset conversion
-                if (iHMS_Sysconf_Encoding::getCharmap()) {
-                    foreach (iHMS_Sysconf_Db::getTemplates()->getFields($this->_templateName) as $field) {
+                if (Encoding::getCharmap()) {
+                    foreach (Db::getTemplates()->getFields($this->_templateName) as $field) {
                         if (preg_match('/' . preg_quote("{$fieldName}-{$lang}") . '\.(.+)/', $field, $m)) {
-                            $ret = iHMS_Sysconf_Encoding::convert(
-                                $m[1], iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, strtolower($field))
+                            $ret = Encoding::convert(
+                                $m[1], Db::getTemplates()->getField($this->_templateName, strtolower($field))
                             );
 
                             if (!is_null($ret)) {
@@ -440,12 +427,12 @@ class iHMS_Sysconf_Template
             }
         } elseif (!$wanti18n && !preg_match('/-c$/i', $fieldName)) {
             // If i18n is turned off, try *-C first
-            if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName . '-c'))) {
+            if (!is_null($ret = Db::getTemplates()->getField($this->_templateName, $fieldName . '-c'))) {
                 return $ret;
             }
         }
 
-        if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $fieldName))) {
+        if (!is_null($ret = Db::getTemplates()->getField($this->_templateName, $fieldName))) {
             return $ret;
         }
 
@@ -454,7 +441,7 @@ class iHMS_Sysconf_Template
         if (strpos($fieldName, '-') !== false) {
             $plainfield = preg_replace('/-.*/', '', $fieldName);
 
-            if (!is_null($ret = iHMS_Sysconf_Db::getTemplates()->getField($this->_templateName, $plainfield))) {
+            if (!is_null($ret = Db::getTemplates()->getField($this->_templateName, $plainfield))) {
                 return $ret;
             }
 
@@ -473,7 +460,7 @@ class iHMS_Sysconf_Template
      */
     public function __set($fieldName, $value)
     {
-        return iHMS_Sysconf_Db::getTemplates()->setField($this->_templateName, $fieldName, $value);
+        return Db::getTemplates()->setField($this->_templateName, $fieldName, $value);
     }
 
     /**

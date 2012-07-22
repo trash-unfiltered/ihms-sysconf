@@ -27,14 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
-
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
-
-/** @see Zend_Filter_Word_UnderscoreToCamelCase */
-require_once 'Zend/Filter/Word/UnderscoreToCamelCase.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_DbDriver class
@@ -49,7 +42,7 @@ require_once 'Zend/Filter/Word/UnderscoreToCamelCase.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_DbDriver
+abstract class DbDriver
 {
     /**
      * @var string The name of the database. This field is required
@@ -190,10 +183,10 @@ abstract class iHMS_Sysconf_DbDriver
     public function error($errorMessage)
     {
         if ($this->_required) {
-            iHMS_Sysconf_Log::warn("DbDriver {$this->_name}: {$errorMessage}");
+            Log::warn("DbDriver {$this->_name}: {$errorMessage}");
             exit(1);
         } else {
-            iHMS_Sysconf_Log::warn("DbDriver {$this->_name} warning: {$errorMessage}");
+            Log::warn("DbDriver {$this->_name} warning: {$errorMessage}");
         }
     }
 
@@ -214,7 +207,7 @@ abstract class iHMS_Sysconf_DbDriver
      *
      * @static
      * @param string $driverName Driver name
-     * @return iHMS_Sysconf_DbDriver|null
+     * @return DbDriver|null
      */
     public static function getDriver($driverName)
     {
@@ -256,13 +249,13 @@ abstract class iHMS_Sysconf_DbDriver
             !is_null($this->_acceptName) && !preg_match("/{$this->_acceptName}/i", $itemName) ||
             !is_null($this->_rejectName) && preg_match("/{$this->_rejectName}/i", $itemName)
         ) {
-            iHMS_Sysconf_Log::debug("db {$this->_name}", "reject {$itemName}");
+            Log::debug("db {$this->_name}", "reject {$itemName}");
             return false;
         }
 
         if (isset($this->_acceptType) || isset($this->_rejectType)) {
             if (!$type) {
-                $template = iHMS_Sysconf_Template::get($this->getField($itemName, 'template'));
+                $template = Template::get($this->getField($itemName, 'template'));
 
                 if (!$template) {
                     return true;
@@ -302,7 +295,7 @@ abstract class iHMS_Sysconf_DbDriver
             return false;
         }
 
-        $template = iHMS_Sysconf_Template::get($template);
+        $template = Template::get($template);
 
         if (!$template) {
             return false;
@@ -319,7 +312,7 @@ abstract class iHMS_Sysconf_DbDriver
      * Each subclass must implement this method
      *
      * @abstract
-     * @return Iterator
+     * @return \Iterator
      */
     abstract public function getIterator();
 

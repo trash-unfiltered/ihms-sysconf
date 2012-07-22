@@ -38,29 +38,24 @@
  * parameters for it.
  */
 
+namespace iHMS\Sysconf;
+
+use iHMS\Sysconf\Db;
+use iHMS\Sysconf\Template;
+use iHMS\Sysconf\AutoSelect;
+use iHMS\Sysconf\Log;
+
 // Include bootstrap
 require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
-
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
-
-/** @see iHMS_Sysconf_AutoSelect */
-require_once 'iHMS/Sysconf/AutoSelect.php';
-
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
 
 putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO review
 
 // Load sysconf database
-iHMS_Sysconf_Db::load();
+Db::load();
 
-iHMS_Sysconf_Log::debug('developer', 'frontend started');
+Log::debug('developer', 'frontend started');
 
-$frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
+$frontend = AutoSelect::frontendFactory();
 
 // Remove script name from arguments
 array_shift($argv);
@@ -81,7 +76,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
     $fh = @fopen('/usr/local/var/lib/ihms/tmp.ci/control', 'r');
 
     if (!is_resource($fh)) {
-        throw new RuntimeException(join(' ', error_get_last()) . "\n");
+        throw new \RuntimeException(join(' ', error_get_last()) . "\n");
     }
 
     while ($lines = fgets($fh)) {
@@ -96,15 +91,15 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
     // Being run some other way, not via an iHMS script
     $module = '';
 
-    iHMS_Sysconf_Log::debug('developer', 'Trying to find a templates file..');
+    Log::debug('developer', 'Trying to find a templates file..');
 
     $tryTemplate = function($fn) use($module)
     {
-        iHMS_Sysconf_Log::debug('developer', "Trying {$fn}");
+        Log::debug('developer', "Trying {$fn}");
 
         if (file_exists($fn)) {
-            iHMS_Sysconf_Log::debug('developer', "I guess it is {$fn}");
-            iHMS_Sysconf_Template::load($fn, $module);
+            Log::debug('developer', "I guess it is {$fn}");
+            Template::load($fn, $module);
             return true;
         }
 
@@ -121,13 +116,13 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
                 !(preg_match('!^(?:.*/)?(.*)!', $argv[0], $m) &&
                     $tryTemplate("/usr/local/share/sysconf/templates/{$m[1]}.templates"))
             ) {
-                iHMS_Sysconf_Log::debug('developer', "Couldn't find a templates file.");
+                Log::debug('developer', "Couldn't find a templates file.");
             }
         }
     }
 }
 
-iHMS_Sysconf_Log::debug('developer', "frontend running, module name is {$module}");
+Log::debug('developer', "frontend running, module name is {$module}");
 
 if ($module != '') {
     $frontend->defaultTitle($module);
@@ -146,7 +141,7 @@ if (preg_match('/^(.*[.\/])(?:postinst|preinst)$/', $argv[0], $m)) {
     // Load templates, if any
     $templates = $base . '.templates';
     if (file_exists($templates)) {
-        iHMS_Sysconf_Template::load($templates, $module);
+        Template::load($templates, $module);
     }
 
     // Run config method, if any
@@ -156,7 +151,7 @@ if (preg_match('/^(.*[.\/])(?:postinst|preinst)$/', $argv[0], $m)) {
         // We assume that the third argument passed to this program (which should be the second argument passed to the
         // preinst or postinst that ran it), is the module version.
         $version = isset($argv[2]) ? $argv[2] : '';
-        $confModule = iHMS_Sysconf_AutoSelect::confModuleFactory($config, 'configure', $version);
+        $confModule = AutoSelect::confModuleFactory($config, 'configure', $version);
 
         // Make sure any questions the confmodule generates are owned by this module
         $confModule->setOwner($module);
@@ -171,7 +166,7 @@ if (preg_match('/^(.*[.\/])(?:postinst|preinst)$/', $argv[0], $m)) {
 }
 
 // Start up the confmodule we were asked to run
-$confModule = iHMS_Sysconf_AutoSelect::confModuleFactory($argv);
+$confModule = AutoSelect::confModuleFactory($argv);
 
 // Make sure any questions the confmodule generates are owned by this module
 $confModule->setOwner($module);
@@ -183,6 +178,6 @@ while ($confModule->communicate()) ;
 $frontend->shutdown();
 
 // Save sysconf database state
-iHMS_Sysconf_Db::save();
+Db::save();
 
 exit($confModule->getExitCode());

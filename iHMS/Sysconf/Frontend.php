@@ -27,8 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+namespace iHMS\Sysconf;
+
+use iHMS\Sysconf\Element\AbstractProgress;
 
 /**
  * iHMS_Sysconf_Frontend_Abstract class
@@ -43,12 +44,12 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_Frontend
+abstract class Frontend
 {
     /**
      * Array that contains all the elements that the FrontEnd needs to show to the user
      *
-     * @var iHMS_Sysconf_Element[]
+     * @var Element[]
      */
     protected $_elements = array();
 
@@ -80,7 +81,7 @@ abstract class iHMS_Sysconf_Frontend
      * Frontends may choose not to implement this. If they do implement it, they should display the info persistently
      * until some other info comes along
      *
-     * @var iHMS_Sysconf_Question
+     * @var Question
      */
     protected $_info = null;
 
@@ -100,7 +101,7 @@ abstract class iHMS_Sysconf_Frontend
     /**
      * The element used for the currently running progress bar, if any
      *
-     * @var iHMS_Sysconf_Element_Progress
+     * @var AbstractProgress
      */
     protected $_progressBar;
 
@@ -146,8 +147,9 @@ abstract class iHMS_Sysconf_Frontend
      */
     public static function getElementType()
     {
-        // TODO (PO) return substr(get_called_class(), 22) should be sufficient here
-        preg_match('/iHMS_Sysconf_Frontend_(.*)$/s', get_called_class(), $type);
+        // TODO (PO) return substr() should be sufficient here
+        preg_match('/iHMS\\\\Sysconf\\\\Frontend\\\\(.*)$/s', get_called_class(), $type);
+
         return $type[1];
     }
 
@@ -162,19 +164,19 @@ abstract class iHMS_Sysconf_Frontend
      *
      * Note: This method is callable in both static and object context
      *
-     * @param iHMS_Sysconf_Question $question Question bound to the element.
+     * @param Question $question Question bound to the element.
      * @param bool $noDebug Whether or not debug information must be show
-     * @return iHMS_Sysconf_Element
+     * @return Element
      */
     public static function makeElement($question, $noDebug = false)
     {
         // Figure out what type of frontend this is (eg. Dialog_Boolean)
-        $type = self::getElementType() . '_' . ucfirst($question->type);
-        $type = preg_replace('/_$/', '', $type); // In case the question has no type..
+        $type = self::getElementType() . '\\' . ucfirst($question->type);
+        $type = preg_replace('/\\\\$/', '', $type); // In case the question has no type..
 
         self::_loadElementClass($type, $noDebug);
 
-        $element = "iHMS_Sysconf_Element_{$type}";
+        $element = "\\iHMS\\Sysconf\\Element\\{$type}";
         $element = new $element(array('question' => $question));
 
         // TODO must return false if it was unable to create element of the given type
@@ -188,7 +190,7 @@ abstract class iHMS_Sysconf_Frontend
      * Just pass the element to add. Note that it detects multiple Elements that point to the same Question and only
      * adds the first.
      *
-     * @param iHMS_Sysconf_Element $element
+     * @param Element $element
      * @return void
      */
     public function add($element)
@@ -226,16 +228,16 @@ abstract class iHMS_Sysconf_Frontend
      *
      * @param int $min
      * @param int $max
-     * @param iHMS_Sysconf_Question $question Question
+     * @param Question $question Question
      */
     public function progressStart($min, $max, $question)
     {
-        $type = $this->getElementType() . '_Progress';
+        $type = $this->getElementType() . '\Progress';
         self::_loadElementClass($type);
 
-        $element = "iHMS_Sysconf_Element_{$type}";
+        $element = "\\iHMS\\Sysconf\\Element\\{$type}";
 
-        /** @var $element iHMS_Sysconf_Element_Progress */
+        /** @var $element AbstractProgress */
         $element = new $element(array('question' => $question));
 
         $element->frontend = $this;
@@ -282,10 +284,10 @@ abstract class iHMS_Sysconf_Frontend
      * Returns true unless the progress bar was canceled by the user. Cancelation is indicated by the progress bar
      * object's info method returning false
      *
-     * @param iHMS_Sysconf_Question $question Question
+     * @param Question $question Question
      * @return bool
      */
-    public function progressInfo(iHMS_Sysconf_Question $question)
+    public function progressInfo(Question $question)
     {
         return $this->_progressBar->info($question);
     }
@@ -334,7 +336,7 @@ abstract class iHMS_Sysconf_Frontend
     /**
      * Returns elements
      *
-     * @return iHMS_Sysconf_Element[]
+     * @return Element[]
      */
     public function getElements()
     {
@@ -398,9 +400,9 @@ abstract class iHMS_Sysconf_Frontend
     /**
      * Sets info
      *
-     * @param iHMS_Sysconf_Question $info
+     * @param Question $info
      */
-    public function setInfo(iHMS_Sysconf_Question $info = null)
+    public function setInfo(Question $info = null)
     {
         $this->_info = $info;
     }
@@ -447,16 +449,14 @@ abstract class iHMS_Sysconf_Frontend
     {
         static $noUse = array();
 
-        if (!class_exists("iHMS_Sysconf_Element_{$type}")) {
+        if (!class_exists("\\iHMS\\Sysconf\\Element\\{$type}")) {
             if (isset($noUse[$type])) return;
 
             try {
-                /** @see Zend_Loader */
-                require_once 'Zend/Loader.php';
-                @Zend_Loader::loadClass("iHMS_Sysconf_Element_{$type}");
-            } catch (Exception $e) {
+                @\Zend_Loader::loadClass("\\iHMS\\Sysconf\\Element\\{$type}");
+            } catch (\Exception $e) {
                 if (!$noDebug) {
-                    iHMS_Sysconf_Log::warn(
+                    Log::warn(
                         sprintf(_('Unable to load iHMS_Sysconf_Element_%s. Failed because %s'), $type, $e->getMessage())
                     );
                 }

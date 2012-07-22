@@ -27,14 +27,11 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_DbDriver */
-require_once 'iHMS/Sysconf/DbDriver.php';
+namespace iHMS\Sysconf\DbDriver;
 
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
-
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+use iHMS\Sysconf\DbDriver;
+use iHMS\Sysconf\Log;
+use iHMS\Sysconf\Template;
 
 /**
  * iHMS_Sysconf_DbDriver_Copy class
@@ -48,7 +45,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_DbDriver_Copy extends iHMS_Sysconf_DbDriver
+abstract class Copy extends DbDriver
 {
     /**
      * Copies the given item from the source database to the destination database
@@ -56,13 +53,13 @@ abstract class iHMS_Sysconf_DbDriver_Copy extends iHMS_Sysconf_DbDriver
      * The item is assumed to not already exist in dest
      *
      * @param string $itemName Item name to copy
-     * @param iHMS_Sysconf_DbDriver $src Source database
-     * @param iHMS_Sysconf_DbDriver $dest Destination database
+     * @param DbDriver $src Source database
+     * @param DbDriver $dest Destination database
      * @reutrn void
      */
     public function copy($itemName, $src, $dest)
     {
-        iHMS_Sysconf_Log::debug("db {$this->_name}", "copying {$itemName} from {$src->_name} to {$dest->_name}");
+        Log::debug("db {$this->_name}", "copying {$itemName} from {$src->_name} to {$dest->_name}");
 
         $owners = $src->getOwners($itemName);
 
@@ -72,7 +69,7 @@ abstract class iHMS_Sysconf_DbDriver_Copy extends iHMS_Sysconf_DbDriver
 
         # First copy the owners, which makes sure $dest has the item
         foreach ($owners as $owner) {
-            $template = iHMS_Sysconf_Template::get($src->getField($itemName, 'template'));
+            $template = Template::get($src->getField($itemName, 'template'));
             $type = '';
 
             if (!is_null($template)) {

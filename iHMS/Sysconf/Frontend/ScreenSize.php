@@ -27,8 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Frontend */
-require_once 'iHMS/Sysconf/Frontend.php';
+namespace iHMS\Sysconf\Frontend;
+
+use iHMS\Sysconf\Frontend;
 
 /**
  * iHMS_Sysconf_Frontend_ScreenSize class
@@ -44,7 +45,7 @@ require_once 'iHMS/Sysconf/Frontend.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_Frontend_ScreenSize extends iHMS_Sysconf_Frontend
+abstract class ScreenSize extends Frontend
 {
     /**
      * @var int The height of the screen

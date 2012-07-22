@@ -27,8 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @See Zend_Console_Getopt */
-require_once 'Zend/Console/Getopt.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_Getopt class
@@ -40,7 +39,7 @@ require_once 'Zend/Console/Getopt.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Getopt extends Zend_Console_Getopt
+class Getopt extends \Zend_Console_Getopt
 {
     /**
      * Return a useful option reference, formatted for display in an error message.

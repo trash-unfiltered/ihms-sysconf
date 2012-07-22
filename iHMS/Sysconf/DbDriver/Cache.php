@@ -27,11 +27,15 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_DbDriver */
-require_once 'iHMS/Sysconf/DbDriver.php';
+namespace iHMS\Sysconf\DbDriver;
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+use iHMS\Sysconf\DbDriver;
+use IteratorAggregate;
+use Iterator;
+use Traversable;
+use ArrayIterator;
+use iHMS\Sysconf\Iterator\CallbackFilter;
+use iHMS\Sysconf\Log;
 
 /**
  * iHMS_Sysconf_DbDriver_Cache class
@@ -50,7 +54,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver implements IteratorAggregate
+abstract class Cache extends DbDriver implements IteratorAggregate
 {
     /**
      * An associative array that holds the data for each loaded item in the database. Each key is an item name;
@@ -120,7 +124,7 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
     public function cached($itemName)
     {
         if (!array_key_exists($itemName, $this->_cache)) {
-            iHMS_Sysconf_Log::debug("db {$this->_name}", "cache miss on {$itemName}");
+            Log::debug("db {$this->_name}", "cache miss on {$itemName}");
             $this->load($itemName);
         }
 
@@ -133,16 +137,13 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
      * Derived classes *should* override this method and construct their own iterator. Then at the end return an
      * {@link AppendIterator} that holds both iterators (this one first)
      *
-     * @return \Iterator|\Traversable
+     * @return Iterator|Traversable
      */
     public function getIterator()
     {
         $cache = $this->_cache;
 
-        /** @see iHMS_Sysconf_Iterator_CallbackFilter */
-        require_once 'iHMS/Sysconf/Iterator/CallbackFilter.php';
-
-        $iterator = new iHMS_Sysconf_Iterator_CallbackFilter(
+        $iterator = new CallbackFilter(
             new ArrayIterator(array_keys($cache)),
             function($_) use($cache)
             {
@@ -247,7 +248,7 @@ abstract class iHMS_Sysconf_DbDriver_Cache extends iHMS_Sysconf_DbDriver impleme
                 return null;
             }
 
-            iHMS_Sysconf_Log::debug("db {$this->_name}", "creating in-cache {$itemName}");
+            Log::debug("db {$this->_name}", "creating in-cache {$itemName}");
 
             // The item springs into existance
             $this->_cache[$itemName] = array(

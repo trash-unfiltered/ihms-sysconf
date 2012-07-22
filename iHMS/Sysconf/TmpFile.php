@@ -27,6 +27,8 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+namespace iHMS\Sysconf;
+
 /**
  * iHMS_Sysconf_TmpFile class
  *
@@ -39,7 +41,7 @@
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_TmpFile
+class TmpFile
 {
     /**
      * @var string Filename of the last opened temp file

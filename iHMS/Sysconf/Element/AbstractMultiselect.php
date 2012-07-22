@@ -27,8 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element_Select */
-require_once 'iHMS/Sysconf/Element/Select.php';
+namespace iHMS\Sysconf\Element;
 
 /**
  * iHMS_Sysconf_Element_Multiselect abstract class
@@ -42,7 +41,7 @@ require_once 'iHMS/Sysconf/Element/Select.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_Element_Multiselect extends iHMS_Sysconf_Element_Select
+abstract class AbstractMultiselect extends AbstractSelect
 {
     /**
      * Given a set of values, reorders them to be in the same order as the choices field of the question's template,

@@ -27,8 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element_Noninteractive */
-require_once 'iHMS/Sysconf/Element/Noninteractive.php';
+namespace iHMS\Sysconf\Element\Noninteractive;
+
+use iHMS\Sysconf\Element\AbstractNoninteractive;
 
 /**
  * iHMS_Sysconf_Element_Noninteractive_Note class
@@ -42,7 +43,7 @@ require_once 'iHMS/Sysconf/Element/Noninteractive.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Noninteractive_Note extends iHMS_Sysconf_Element_Noninteractive
+class Note extends AbstractNoninteractive
 {
 
 }

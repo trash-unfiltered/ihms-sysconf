@@ -27,11 +27,11 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_DbDriver_Cache */
-require_once 'iHMS/Sysconf/DbDriver/Cache.php';
+namespace iHMS\Sysconf\DbDriver;
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+use iHMS\Sysconf\DbDriver\Cache;
+use iHMS\Sysconf\Format\FormatInterface;
+use iHMS\Sysconf\Log;
 
 /**
  * iHMS_Sysconf_DbDriver_File class
@@ -47,7 +47,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
+class File extends Cache
 {
     /**
      * @var string database filename
@@ -60,9 +60,9 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
     protected $_mode = 600;
 
     /**
-     * @var string|iHMS_Sysconf_Format_Interface
+     * @var string|FormatInterface
      */
-    protected $_format = '822';
+    protected $_format = 'Format822';
 
     /**
      * @var resource File handle
@@ -81,10 +81,8 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
         }
 
         try {
-            /** @see Zend_Loader */
-            require_once 'Zend/Loader.php';
-            @Zend_Loader::loadClass($formatClass = 'iHMS_Sysconf_Format_' . $this->_format);
-        } catch (Zend_Exception $e) {
+            @\Zend_Loader::loadClass($formatClass = '\\iHMS\\Sysconf\\Format\\' . $this->_format);
+        } catch (\Zend_Exception $e) {
             $this->error("error setting up format object {$this->_format}: " . $e->getMessage());
         }
 
@@ -94,11 +92,11 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
             $this->error('no filename specified');
         }
 
-        iHMS_Sysconf_Log::debug("db {$this->_name}", "started; filename is {$this->_filename}");
+        Log::debug("db {$this->_name}", "started; filename is {$this->_filename}");
 
         // Make sure that the file exists, and set the mode too
         if (!file_exists($this->_filename)) {
-            iHMS_Sysconf_Log::debug("db {$this->_name}", "created inexistent {$this->_filename} file with filemode {$this->_mode}");
+            Log::debug("db {$this->_name}", "created inexistent {$this->_filename} file with filemode {$this->_mode}");
 
             $this->_backup = false; // No need to backup for new file
 
@@ -141,7 +139,7 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
             }
         }
 
-        iHMS_Sysconf_Log::debug("db {$this->_name}", 'loading database');
+        Log::debug("db {$this->_name}", 'loading database');
 
         // Now read in the whole file using the Format object
         while (!feof($this->_fh)) {
@@ -169,9 +167,9 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
         }
 
         if (array_intersect_key($this->_cache, $this->_dirty)) {
-            iHMS_Sysconf_Log::debug("db {$this->_name}", 'saving database');
+            Log::debug("db {$this->_name}", 'saving database');
         } else {
-            iHMS_Sysconf_Log::debug("db {$this->_name}", 'no database changes, no saving');
+            Log::debug("db {$this->_name}", 'no database changes, no saving');
 
             //if(is_resource($this->_fh)) {
             //    flock($this->_fh, LOCK_UN);
@@ -218,7 +216,7 @@ class iHMS_Sysconf_DbDriver_File extends iHMS_Sysconf_DbDriver_Cache
         // Now rename the old file to -old (if doing backups), and put -new in its place.
         if (file_exists($this->_filename) && $this->_backup) {
             if (!@rename($this->_filename, $this->_filename . '-old')) {
-                iHMS_Sysconf_Log::debug("db {$this->_name}", "rename failed: " . join(' ', error_get_last()));
+                Log::debug("db {$this->_name}", "rename failed: " . join(' ', error_get_last()));
             }
         }
 

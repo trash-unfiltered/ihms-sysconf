@@ -27,8 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_Config class
@@ -58,10 +57,10 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Config
+class Config
 {
     /**
-     * @var iHMS_Sysconf_Config
+     * @var Config
      */
     protected static $_instance = null;
 
@@ -110,7 +109,7 @@ class iHMS_Sysconf_Config
     /**
      * Implements singleton design pattern
      *
-     * @return iHMS_Sysconf_Config
+     * @return Config
      */
     public static function getInstance()
     {
@@ -139,12 +138,12 @@ class iHMS_Sysconf_Config
      * the defaults for *every* database driver that is loaded up. Practically, setting  (readonly => "true") is the
      * only use of this.
      *
-     * @throws InvalidArgumentException in case no configuration is found or setting database failed
-     * @throws RuntimeException in case configuration file cannot be opened
-     * @throws DomainException in case config or template database is not specified in configuration file
+     * @throws \InvalidArgumentException in case no configuration is found or setting database failed
+     * @throws \RuntimeException in case configuration file cannot be opened
+     * @throws \DomainException in case config or template database is not specified in configuration file
      * @param string $configFile Configuration file path
      * @param array $defaults Default parameter
-     * @return iHMS_Sysconf_Config Provides fluent interface, return self
+     * @return Config Provides fluent interface, return self
      */
     public function load($configFile, array $defaults = array())
     {
@@ -158,11 +157,11 @@ class iHMS_Sysconf_Config
         }
 
         if (!$configFile) {
-            throw new InvalidArgumentException(_('No configuration file found.') . "\n");
+            throw new \InvalidArgumentException(_('No configuration file found.') . "\n");
         }
 
         if (!$fhSysconfConfig = @fopen($configFile, 'r')) {
-            throw new RuntimeException(join(' ', error_get_last()) . "\n");
+            throw new \RuntimeException(join(' ', error_get_last()) . "\n");
         }
 
         fseek($fhSysconfConfig, 0, SEEK_END);
@@ -179,10 +178,10 @@ class iHMS_Sysconf_Config
 
         # Verify that all options are sane
         if ($this->_config['config'] == '') {
-            throw new DomainException(_('sysconf: Config database not specified in config file.') . "\n");
+            throw new \DomainException(_('sysconf: Config database not specified in config file.') . "\n");
         }
         if ($this->_config['templates'] == '') {
-            throw new DomainException(_('sysconf: Templates database not specified in config file.') . "\n");
+            throw new \DomainException(_('sysconf: Templates database not specified in config file.') . "\n");
         }
 
         // Now read in each database driver, and set it up
@@ -194,13 +193,13 @@ class iHMS_Sysconf_Config
             }
 
             try {
-                iHMS_Sysconf_Db::makeDriver($config);
-            } catch (InvalidArgumentException $exception) {
+                Db::makeDriver($config);
+            } catch (\InvalidArgumentException $exception) {
                 fwrite(
                     STDERR,
                     sprintf(
                         _('sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s.'),
-                        $stanza, $configFile
+                        $stanza, $configFile, $exception->getMessage()
                     ) . "\n"
                 );
 
@@ -220,7 +219,7 @@ class iHMS_Sysconf_Config
             // Unfortunally, a read-only templates database isn't always good enough, so we need to stack a throwaway
             // one in front of it just in case anything tries to register new templates. There is no provision yet for
             // keeping this database around after sysconf exists
-            iHMS_Sysconf_Db::makeDriver(
+            Db::makeDriver(
                 array(
                     'driver' => 'Pipe',
                     'name' => '_ENV_REPLACE_templates',
@@ -230,7 +229,7 @@ class iHMS_Sysconf_Config
             );
 
             $templateStack = array('_ENV_REPLACE_templates', $this->_config['templates']);
-            iHMS_Sysconf_Db::makeDriver(
+            Db::makeDriver(
                 array(
                     'driver' => 'Stack',
                     'name' => '_ENV_stack_templates',
@@ -265,7 +264,7 @@ class iHMS_Sysconf_Config
         }
 
         if (sizeof($finalStack) > 1) {
-            iHMS_Sysconf_Db::makeDriver(
+            Db::makeDriver(
                 array(
                     'driver' => 'Stack',
                     'name' => '_ENV_stack',
@@ -298,32 +297,29 @@ class iHMS_Sysconf_Config
      */
     public function getopt($usage, array $rules = array(), $disableDefault = false)
     {
-        /** @see Zend_Console_Getopt */
-        require_once 'iHMS/Sysconf/Getopt.php';
-
-        $getOpt = new iHMS_Sysconf_Getopt(array());
+        $getOpt = new Getopt(array());
 
         if (!$disableDefault) {
             $options = array(
                 'frontend|f=s' => array(
                     function($_)
                     {
-                        iHMS_Sysconf_Config::getInstance()->frontend($_);
-                        iHMS_Sysconf_Config::getInstance()->frontendForced(true);
+                        Config::getInstance()->frontend($_);
+                        Config::getInstance()->frontendForced(true);
                     },
                     _('Specify sysconf frontend to use.')
                 ),
                 'priority|p=s' => array(
                     function($_)
                     {
-                        iHMS_Sysconf_Config::getInstance()->priority($_);
+                        Config::getInstance()->priority($_);
                     },
                     _('Specify minimum priority question to show.')
                 ),
                 'help|h' => array(
                     function() use($getOpt, $usage)
                     {
-                        /** @var $getOpt iHMS_Sysconf_Getopt */
+                        /** @var $getOpt Getopt */
                         fwrite(STDERR, "$usage\n" . $getOpt->getUsageMessage());
                         exit(0);
                     },
@@ -362,7 +358,7 @@ class iHMS_Sysconf_Config
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             if (!$disableDefault) {
                 fwrite(STDERR, $e->getMessage() . "\n" . "$usage\n" . $getOpt->getUsageMessage());
             } else {
@@ -408,7 +404,7 @@ class iHMS_Sysconf_Config
 
         $ret = 'dialog';
 
-        if (!is_null($question = iHMS_Sysconf_Question::get('sysconf/question'))) {
+        if (!is_null($question = Question::get('sysconf/question'))) {
             $ret = lcfirst($question->getValue()) ? : $ret;
         }
 
@@ -449,11 +445,9 @@ class iHMS_Sysconf_Config
         }
 
         if (!is_null($priority)) {
-            if (!iHMS_Sysconf_Priority::isValidPriority($priority)) {
-                iHMS_Sysconf_Log::warn(sprintf(_('Ignoring invalid priority %s'), $priority));
-                iHMS_Sysconf_Log::warn(
-                    sprintf(_('Valid priorities are "%s"'), join(' ', iHMS_Sysconf_Priority::getPriorityList()))
-                );
+            if (!Priority::isValidPriority($priority)) {
+                Log::warn(sprintf(_('Ignoring invalid priority %s'), $priority));
+                Log::warn(sprintf(_('Valid priorities are "%s"'), join(' ', Priority::getPriorityList())));
             } else {
                 $this->_config['priority'] = $priority;
             }
@@ -465,7 +459,7 @@ class iHMS_Sysconf_Config
 
         $ret = 'high';
 
-        if ($question = iHMS_Sysconf_Question::get('sysconf/priority')) {
+        if ($question = Question::get('sysconf/priority')) {
             $ret = $question->getValue() ? : $ret;
         }
 
@@ -599,7 +593,7 @@ class iHMS_Sysconf_Config
     /**
      * Returns value of the given field
      *
-     * @throws InvalidArgumentException in case property is unknown
+     * @throws \InvalidArgumentException in case property is unknown
      * @param string $field Field name
      * @return string Field value
      */
@@ -610,7 +604,7 @@ class iHMS_Sysconf_Config
         } elseif (isset($this->_config[$field])) {
             $ret = $this->_config[$field];
         } else {
-            throw new InvalidArgumentException(
+            throw new \InvalidArgumentException(
                 sprintf(_("Attempt to access unknown property '%s' at %s line %s."), $field, __FILE__, __LINE__) . "\n"
             );
         }
@@ -639,7 +633,7 @@ class iHMS_Sysconf_Config
      *
      * Returns number of fields that were processed. Also handles environment variable expansion.
      *
-     * @throws DomainException in case error is encountered during parsing
+     * @throws \DomainException in case error is encountered during parsing
      * @param string $text Chunk of text
      * @param array &$config Reference to config array
      * @return int Number of fields that were processed
@@ -656,9 +650,7 @@ class iHMS_Sysconf_Config
 
         $i = 0;
 
-        /** @see Zend_Filter_Word_UnderscoreToCamelCase */
-        require_once 'Zend/Filter/Word/UnderscoreToCamelCase.php';
-        $filter = new Zend_Filter_Word_UnderscoreToCamelCase();
+        $filter = new \Zend_Filter_Word_UnderscoreToCamelCase();
 
         foreach (explode("\n", $text) as $line) {
             if (preg_match('/^\s*#|^\s*$/', $line)) {
@@ -675,7 +667,7 @@ class iHMS_Sysconf_Config
             $key = str_replace('-', '_', $key);
 
             if (!$key) {
-                throw new DomainException(_('Error while parsing configuration file.') . "\n");
+                throw new \DomainException(_('Error while parsing configuration file.') . "\n");
             }
 
             $config[lcfirst($filter->filter($key))] = $value;
@@ -701,7 +693,7 @@ class iHMS_Sysconf_Config
             return null;
         }
 
-        if (!is_null(iHMS_Sysconf_DbDriver::getDriver($matches[1]))) {
+        if (!is_null(DbDriver::getDriver($matches[1]))) {
             return $name;
         }
 
@@ -718,6 +710,6 @@ class iHMS_Sysconf_Config
             }
         }
 
-        return iHMS_Sysconf_Db::makeDriver($options)->getName();
+        return Db::makeDriver($options)->getName();
     }
 }

@@ -27,15 +27,17 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+namespace iHMS\Sysconf;
+
 /**
  * iHMS_Sysconf_Element_Abstract class
  *
  * This is the base object on which many different types of input elements are built. Each element represents one user
  * interface element in a Frontend.
  *
- * @property iHMS_Sysconf_Frontend $frontend
- * @property iHMS_Sysconf_Question $question
- * @property iHMS_Sysconf_Question $markseen
+ * @property Frontend $frontend
+ * @property Question $question
+ * @property Question $markseen
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -44,7 +46,7 @@
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_Element
+abstract class Element
 {
     /**
      * @var string The value the user entered into the element

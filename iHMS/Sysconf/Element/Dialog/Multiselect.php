@@ -27,15 +27,17 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element/Multiselect */
-require_once 'iHMS/Sysconf/Element/Multiselect.php';
+namespace iHMS\Sysconf\Element\Dialog;
+
+use iHMS\Sysconf\Frontend\Dialog;
+use iHMS\Sysconf\Element\AbstractMultiselect;
 
 /**
  * iHMS_Sysconf_Element_Dialog_Multiselect class
  *
  * This is an input element that can display a dialog box with a check list in it.
  *
- * @property iHMS_Sysconf_Frontend_Dialog $frontend
+ * @property Dialog $frontend
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -45,7 +47,7 @@ require_once 'iHMS/Sysconf/Element/Multiselect.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Dialog_Multiselect extends iHMS_Sysconf_Element_Multiselect
+class Multiselect extends AbstractMultiselect
 {
     /**
      * Show the multiselect input element

@@ -27,8 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Config */
-require_once 'iHMS/Sysconf/Config.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_Log class
@@ -40,10 +39,10 @@ require_once 'iHMS/Sysconf/Config.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Log
+class Log
 {
     /**
-     * @var Zend_Log_Writer_Syslog
+     * @var \Zend_Log_Writer_Syslog
      */
     protected static $sysLogWriter = null;
 
@@ -62,19 +61,17 @@ class iHMS_Sysconf_Log
      */
     public static function debug($type, $message)
     {
-        $debug = iHMS_Sysconf_Config::getInstance()->debug;
+        $debug = Config::getInstance()->debug;
 
         if ($debug && preg_match("/$debug/", $type)) {
             fwrite(STDERR, "sysconf: ({$type}): {$message}\n");
         }
 
-        $log = iHMS_Sysconf_Config::getInstance()->log;
+        $log = Config::getInstance()->log;
 
         if ($log && preg_match("/{$log}/", $type)) {
             if (!self::$sysLogWriter) {
-                /** @see Zend_Log_Writer_Syslog */
-                require_once 'Zend/Log/Writer/Syslog.php';
-                self::$sysLogWriter = new Zend_Log_Writer_Syslog(array('application' => 'iHMS'));
+                self::$sysLogWriter = new \Zend_Log_Writer_Syslog(array('application' => 'iHMS'));
             }
 
             self::$sysLogWriter->write(array('priority' => LOG_DEBUG, 'message' => "({$type}) {$message}"));
@@ -89,7 +86,7 @@ class iHMS_Sysconf_Log
      */
     public static function warn($message)
     {
-        if (iHMS_Sysconf_Config::getInstance()->noWarnings != 'yes') {
+        if (Config::getInstance()->noWarnings != 'yes') {
             fwrite(STDERR, "sysconf: {$message}\n");
         }
     }

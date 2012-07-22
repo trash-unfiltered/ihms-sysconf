@@ -64,28 +64,21 @@
  * in debugging.
  */
 
+namespace iHMS\Sysconf;
+
 // Include bootstrap
 require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
-
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_AutoSelect */
-require_once 'iHMS/Sysconf/AutoSelect.php';
-
-/** @see iHMS_Sysconf_Config */
-require_once 'iHMS/Sysconf/Config.php';
 
 putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
 
 // Load sysconf database
-iHMS_Sysconf_Db::load();
+Db::load();
 
 // parse options passed to this script - After process, $modules will hold only remaining arguments
-$modules = iHMS_Sysconf_Config::getInstance()->getopt(_('Usage: sysconf-communicate [options] [module]'));
+$modules = Config::getInstance()->getopt(_('Usage: sysconf-communicate [options] [module]'));
 
-$frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
-$confModule = iHMS_Sysconf_AutoSelect::confModuleFactory();
+$frontend = AutoSelect::frontendFactory();
+$confModule = AutoSelect::confModuleFactory();
 
 if (!empty($modules)) {
     $confModule->setOwner(array_shift($modules));
@@ -107,6 +100,6 @@ $frontend->shutdown();
 $confModule->finish();
 
 // Save sysonf database
-iHMS_Sysconf_Db::save();
+Db::save();
 
 exit((int)$code);

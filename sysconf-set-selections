@@ -87,14 +87,10 @@
  * Only check the input file format, do not save changes to database
  */
 
+namespace iHMS\Sysconf;
+
 // Include bootstrap
 require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
-
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
 
 /***********************************************************************************************************************
  * Functions
@@ -172,10 +168,10 @@ function loadAnswer($owner, $label, $type, $content)
     info(sprintf(_("Loading answer for '%s'"), $label));
 
     // Set up the template. If it already exists, override its default value.
-    $template = iHMS_Sysconf_Template::get($label);
+    $template = Template::get($label);
 
     if (is_null($template)) {
-        $template = iHMS_Sysconf_Template::factory($label, $owner, $type);
+        $template = Template::factory($label, $owner, $type);
         $template->description = 'Dummy template';
         $template->extended_description = 'This is a fake template used to pre-seed the sysconf database. ' .
             'If you are seeing this, something is probably wrong.';
@@ -186,7 +182,7 @@ function loadAnswer($owner, $label, $type, $content)
     $template->type = $type;
 
     // The question should already exist, it was created along with the template. Set it up.
-    $question = iHMS_Sysconf_Question::get($label);
+    $question = Question::get($label);
 
     if (is_null($question)) {
         error(sprintf(_('Cannot find a question for %s'), $label));
@@ -214,7 +210,7 @@ function setFlag($owner, $label, $flag, $content)
 {
     info(sprintf(_('Setting %s answer flag'), $flag));
 
-    $question = iHMS_Sysconf_Question::get($label);
+    $question = Question::get($label);
 
     if (is_null($question)) {
         error(sprintf(_('Cannot find a question for %s'), $label));
@@ -272,7 +268,7 @@ $checkOnly = false;
 $unSeen = false;
 
 // Add and parse options passed to this script - After process, $remainingArgs will hold only remaining arguments
-$remainingArgs = iHMS_Sysconf_Config::getInstance()->getopt(
+$remainingArgs = Config::getInstance()->getopt(
     'usage',
     array(
         'verbose|v' => array(&$debug),
@@ -283,7 +279,7 @@ $remainingArgs = iHMS_Sysconf_Config::getInstance()->getopt(
 );
 
 // Load sysconf database
-iHMS_Sysconf_Db::load();
+Db::load();
 
 // Known types and flags
 $knownTypes = array('select', 'boolean', 'string', 'multiselect', 'note', 'password', 'text', 'title');
@@ -348,7 +344,7 @@ foreach ($fileHandles as $fileHandle) {
 
 if (!$checkOnly) {
     // Save sysconf database
-    iHMS_Sysconf_Db::save();
+    Db::save();
 }
 
 if ($error) {

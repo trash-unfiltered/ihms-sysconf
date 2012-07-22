@@ -27,11 +27,11 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_DbDriver_Cache */
-require_once 'iHMS/Sysconf/DbDriver/Cache.php';
+namespace iHMS\Sysconf\DbDriver;
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+use iHMS\Sysconf\DbDriver\Cache;
+use iHMS\Sysconf\Format\FormatInterface;
+use iHMS\Sysconf\Log;
 
 /**
  * Class iHMS_Sysconf_DbDriver_Pipe
@@ -48,7 +48,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_DbDriver_Pipe extends iHMS_Sysconf_DbDriver_Cache
+class Pipe extends Cache
 {
     /**
      * File descriptor number to read from
@@ -71,11 +71,11 @@ class iHMS_Sysconf_DbDriver_Pipe extends iHMS_Sysconf_DbDriver_Cache
     /**
      * The Format object to use for reading and writing.
      *
-     * In the config file, just the name of the format to use, such as '822' can be specified. Default is 822.
+     * In the config file, just the name of the format to use, such as '822' can be specified. Default is Format822.
      *
-     * @var string|iHMS_Sysconf_Format_Interface
+     * @var string|FormatInterface
      */
-    protected $_format = '822';
+    protected $_format = 'Format822';
 
     /**
      * Intiialize the database driver
@@ -87,10 +87,8 @@ class iHMS_Sysconf_DbDriver_Pipe extends iHMS_Sysconf_DbDriver_Cache
     protected function _init()
     {
         try {
-            /** @see Zend_Loader */
-            require_once 'Zend/Loader.php';
-            @Zend_Loader::loadClass($formatClass = 'iHMS_Sysconf_Format_' . $this->_format);
-        } catch (Zend_Exception $e) {
+            @\Zend_Loader::loadClass($formatClass = '\\iHMS\\Sysconf\\Format\\' . $this->_format);
+        } catch (\Zend_Exception $e) {
             $this->error("error setting up format object {$this->_format}: " . $e->getMessage());
         }
 
@@ -108,7 +106,7 @@ class iHMS_Sysconf_DbDriver_Pipe extends iHMS_Sysconf_DbDriver_Cache
 
         parent::_init();
 
-        iHMS_Sysconf_Log::debug("db {$this->_name}", 'Loading database');
+        Log::debug("db {$this->_name}", 'Loading database');
 
         // Now read in the whole file using the iHMS_Sysconf_Format_Interface object
         if (isset($fh)) {

@@ -27,6 +27,12 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+namespace iHMS\Sysconf\Iterator;
+
+use OuterIterator;
+use iterator;
+use Closure;
+
 /**
  * iHMS_Sysconf_Iterator_Callback class
  *
@@ -37,7 +43,7 @@
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Iterator_Callback implements OuterIterator
+class Callback implements OuterIterator
 {
     /**
      * @var Closure
@@ -87,7 +93,7 @@ class iHMS_Sysconf_Iterator_Callback implements OuterIterator
      * Return the key of the current element
      *
      * @link http://php.net/manual/en/iterator.key.php
-     * @return scalar scalar on success, or null on failure.
+     * @return mixed scalar on success, or null on failure.
      */
     public function key()
     {

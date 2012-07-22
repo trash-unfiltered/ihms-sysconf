@@ -34,6 +34,8 @@
  *  Test config module. This is a regression/stress test.
  */
 
+namespace iHMS\Sysconf\Client;
+
 // Include ConfModule client
 require_once dirname(__DIR__) . '/iHMS/Sysconf/Client/ConfModule.php';
 

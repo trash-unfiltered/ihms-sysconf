@@ -27,8 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Format_Interface */
-require_once 'iHMS/Sysconf/Format/Interface.php';
+namespace iHMS\Sysconf\Format;
 
 /**
  * iHMS_Sysconf_Format_822 class
@@ -42,7 +41,7 @@ require_once 'iHMS/Sysconf/Format/Interface.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Format_822 implements iHMS_Sysconf_Format_Interface
+class Format822 implements FormatInterface
 {
     /**
      * Read one record from the filehandle, parse it, and return a list with two elements

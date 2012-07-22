@@ -77,28 +77,15 @@
  * Display usage help.
  */
 
+namespace iHMS\Sysconf;
+
 // Include bootstrap
 require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
-
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
-
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
-
-/** @see iHMS_Sysconf_Config */
-require_once 'iHMS/Sysconf/Config.php';
-
-/** @see iHMS_Sysconf_AutoSelect */
-require_once 'iHMS/Sysconf/AutoSelect.php';
 
 putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
 
 // Load sysconf database
-iHMS_Sysconf_Db::load();
+Db::load();
 
 // Initialize --ihms option
 $ihms = false;
@@ -107,7 +94,7 @@ $ihms = false;
 $moduleScanner = null;
 
 // Add and parse options passed to this script - After process, $modules will hold only remaining arguments (module list)
-$modules = iHMS_Sysconf_Config::getInstance()->getopt(
+$modules = Config::getInstance()->getopt(
     _('Usage: sysconf-preconfigure [options] [modules]'),
     array(
         // This option can be reused by any modules management system that write module list to preconfigure on stdin
@@ -145,7 +132,7 @@ if (!is_null($moduleScanner)) {
 } elseif (is_executable('/usr/locale/bin/ihms-extracttemplates')) {
     $moduleScanner = 'ihms-extracttemplates';
 } else {
-    iHMS_Sysconf_Log::warn(
+    Log::warn(
         _("delaying module configuration, since a module scanner is not installed nor provided on the command line.")
     );
 
@@ -153,7 +140,7 @@ if (!is_null($moduleScanner)) {
 }
 
 // Make frontend
-$frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
+$frontend = AutoSelect::frontendFactory();
 
 // Use an external scanner to extract module information. It takes a list of modules and output to stdout a table with
 // these fields separated by spaces:
@@ -247,9 +234,9 @@ foreach ($buffer as $line) {
 
     if (isset($templates) && $templates != '') {
         try {
-            iHMS_Sysconf_Template::load($templates, $module);
+            Template::load($templates, $module);
             @unlink($templates);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             fwrite(STDERR, sprintf(_('%s template parse error: %s'), $module, $exception->getMessage()) . "\n");
             @unlink($config);
             continue;
@@ -263,7 +250,7 @@ foreach ($buffer as $line) {
 
     // Run config script if any
     if (isset($config) && $config != '' && file_exists($config)) {
-        iHMS_Sysconf_Log::debug('user', sprintf(_('preconfiguring %s (%s)'), $module, $version));
+        Log::debug('user', sprintf(_('preconfiguring %s (%s)'), $module, $version));
         if (!@chmod($config, 0755)) {
             fwrite(STDERR, sprintf(_("sysconf: can't chmod: %s"), join(' ', error_get_last())) . "\n");
             exit(1);
@@ -271,7 +258,7 @@ foreach ($buffer as $line) {
 
         $frontend->defaultTitle($module);
         $frontend->setInfo();
-        $confModule = iHMS_Sysconf_AutoSelect::confModuleFactory($config, 'configure', $version);
+        $confModule = AutoSelect::confModuleFactory($config, 'configure', $version);
 
         // Make sure any question created are owned by the correct module
         $confModule->setOwner($module);
@@ -292,6 +279,6 @@ foreach ($buffer as $line) {
 $frontend->shutdown();
 
 // Save sysconf database
-iHMS_Sysconf_Db::save();
+Db::save();
 
 exit(0);

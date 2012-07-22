@@ -27,9 +27,13 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+namespace iHMS\Sysconf\Client;
+
 /***********************************************************************************************************************
  * SYNOPSIS
- *
+ * #!usr/bin/php
+ * <?php
+ * namespace iHMS\Sysconf\Client;
  * require_once 'iHMS/Sysconf/Client/ConfModule.php';
  * version('1.0');
  * $capb = capb('backup');
@@ -40,12 +44,10 @@
  *     ...
  * }
  * ...
- */
-
-/***********************************************************************************************************************
+ *
  * DESCRIPTION
  *
- * This is a module to ease writing ConfModules for the Sysconf configuration management system. It can communicate with
+ * This is a module to ease writing confmodule for the Sysconf configuration management system. It can communicate with
  * a FrontEnd via the sysconf protocol.
  *
  * The design is that each command in the protocol is represented by one function in this module (with the name normalized).
@@ -57,7 +59,7 @@
 // be running. If not, one is started up automatically and stdin and out are connected to it. Note that this statement
 // is always run when the module is loaded in the usual way.
 if (getenv('SYSCONF_HAS_FRONTEND') === false) {
-    pcntl_exec(dirname(dirname(dirname(__DIR__))) . '/frontend', $argv); // TODO review path
+    pcntl_exec(dirname(dirname(dirname(__DIR__))) . '/frontend', $_SERVER['argv']); // TODO review path
 }
 
 /**
@@ -97,7 +99,7 @@ if (getenv('SYSCONF_HAS_FRONTEND') === false) {
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
-final class iHMS_Sysconf_Client_ConfModule
+final class ConfModule
 {
     /**
      * @var array List of valid commands
@@ -112,7 +114,7 @@ final class iHMS_Sysconf_Client_ConfModule
      * Run the given command
      *
      * @static
-     * @throws InvalidArgumentException in case Command is not supported
+     * @throws \InvalidArgumentException in case Command is not supported
      * @param string $command Command name to run
      * @param array $args Command arguments
      * @return array
@@ -123,7 +125,7 @@ final class iHMS_Sysconf_Client_ConfModule
         $command = strtoupper($command);
 
         if (!in_array($command, self::$_validCommands)) {
-            throw new InvalidArgumentException("Unsupported command `{$command}.\n");
+            throw new \InvalidArgumentException("Unsupported command `{$command}.\n");
         }
 
         $command = $command . ' ' . join(' ', $args);
@@ -165,7 +167,7 @@ final class iHMS_Sysconf_Client_ConfModule
  */
 function version($version = null)
 {
-    return iHMS_Sysconf_Client_ConfModule::version($version);
+    return ConfModule::version($version);
 }
 
 /**
@@ -178,7 +180,7 @@ function version($version = null)
  */
 function capb($capabilities)
 {
-    return iHMS_Sysconf_Client_ConfModule::capb($capabilities);
+    return ConfModule::capb($capabilities);
 }
 
 /**
@@ -189,7 +191,7 @@ function capb($capabilities)
  */
 function stop()
 {
-    return iHMS_Sysconf_Client_ConfModule::stop();
+    return ConfModule::stop();
 }
 
 /**
@@ -200,7 +202,7 @@ function stop()
  */
 function qreset($questionName)
 {
-    return iHMS_Sysconf_Client_ConfModule::qreset($questionName);
+    return confModule::qreset($questionName);
 }
 
 /**
@@ -211,7 +213,7 @@ function qreset($questionName)
  */
 function title($title)
 {
-    return iHMS_Sysconf_Client_ConfModule::title($title);
+    return ConfModule::title($title);
 }
 
 /**
@@ -224,7 +226,7 @@ function title($title)
  */
 function input($priority, $questionName)
 {
-    return iHMS_Sysconf_Client_ConfModule::input($priority, $questionName);
+    return ConfModule::input($priority, $questionName);
 }
 
 /**
@@ -234,7 +236,7 @@ function input($priority, $questionName)
  */
 function beginBlock()
 {
-    return iHMS_Sysconf_Client_ConfModule::beginBlock();
+    return ConfModule::beginBlock();
 }
 
 /**
@@ -244,7 +246,7 @@ function beginBlock()
  */
 function endBlock()
 {
-    return iHMS_Sysconf_Client_ConfModule::endBlock();
+    return ConfModule::endBlock();
 }
 
 /**
@@ -258,7 +260,7 @@ function endBlock()
  */
 function go()
 {
-    return iHMS_Sysconf_Client_ConfModule::go();
+    return ConfModule::go();
 }
 
 /**
@@ -270,7 +272,7 @@ function go()
  */
 function set($questionName, $value)
 {
-    return iHMS_Sysconf_Client_ConfModule::set($questionName, $value);
+    return ConfModule::set($questionName, $value);
 }
 
 /**
@@ -284,7 +286,7 @@ function set($questionName, $value)
  */
 function get($questionName)
 {
-    return iHMS_Sysconf_Client_ConfModule::get($questionName);
+    return ConfModule::get($questionName);
 }
 
 /**
@@ -298,7 +300,7 @@ function get($questionName)
  */
 function subst($questionName, $key, $value)
 {
-    return iHMS_Sysconf_Client_ConfModule::subst($questionName, $key, $value);
+    return ConfModule::subst($questionName, $key, $value);
 }
 
 /**
@@ -310,7 +312,7 @@ function subst($questionName, $key, $value)
  */
 function register($templateName, $questionName)
 {
-    return iHMS_Sysconf_Client_ConfModule::register($templateName, $questionName);
+    return ConfModule::register($templateName, $questionName);
 }
 
 /**
@@ -322,7 +324,7 @@ function register($templateName, $questionName)
  */
 function unregister($questionName)
 {
-    return iHMS_Sysconf_Client_ConfModule::unregister($questionName);
+    return ConfModule::unregister($questionName);
 }
 
 /**
@@ -332,7 +334,7 @@ function unregister($questionName)
  */
 function clear()
 {
-    return iHMS_Sysconf_Client_ConfModule::clear();
+    return ConfModule::clear();
 }
 
 /**
@@ -346,7 +348,7 @@ function clear()
  */
 function fset($questionName, $flagName, $value)
 {
-    return iHMS_Sysconf_Client_ConfModule::fset($questionName, $flagName, $value);
+    return ConfModule::fset($questionName, $flagName, $value);
 }
 
 /**
@@ -358,7 +360,7 @@ function fset($questionName, $flagName, $value)
  */
 function fget($questionName, $flagName)
 {
-    return iHMS_Sysconf_Client_ConfModule::fget($questionName, $flagName);
+    return ConfModule::fget($questionName, $flagName);
 }
 
 /**
@@ -368,7 +370,7 @@ function fget($questionName, $flagName)
  */
 function purge()
 {
-    return iHMS_Sysconf_Client_ConfModule::purge();
+    return ConfModule::purge();
 }
 
 /**
@@ -382,7 +384,7 @@ function purge()
  */
 function metaget($questionName, $fieldName)
 {
-    return iHMS_Sysconf_Client_ConfModule::metaget($questionName, $fieldName);
+    return ConfModule::metaget($questionName, $fieldName);
 }
 
 /**
@@ -393,7 +395,7 @@ function metaget($questionName, $fieldName)
  */
 function setTitle($questionName)
 {
-    return iHMS_Sysconf_Client_ConfModule::setTitle($questionName);
+    return ConfModule::setTitle($questionName);
 }
 
 /**
@@ -408,7 +410,7 @@ function setTitle($questionName)
  */
 function info($questionName)
 {
-    return iHMS_Sysconf_Client_ConfModule::info($questionName);
+    return ConfModule::info($questionName);
 }
 
 /**
@@ -437,7 +439,7 @@ function info($questionName)
  */
 function progress()
 {
-    return call_user_func_array('iHMS_Sysconf_Client_ConfModule::progress', func_get_args());
+    return call_user_func_array(__NAMESPACE__ . '\ConfModule::progress', func_get_args());
 }
 
 /**
@@ -450,7 +452,7 @@ function progress()
  */
 function data($template, $item, $value)
 {
-    return iHMS_Sysconf_Client_ConfModule::data($template, $item, $value);
+    return ConfModule::data($template, $item, $value);
 }
 
 /**
@@ -462,5 +464,5 @@ function data($template, $item, $value)
  */
 function xLoadTemplateFile($file, $owner = null)
 {
-    return iHMS_Sysconf_Client_ConfModule::xloadTemplateFile($file, $owner);
+    return ConfModule::xloadTemplateFile($file, $owner);
 }

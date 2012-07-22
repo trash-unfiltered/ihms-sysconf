@@ -27,6 +27,8 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+namespace iHMS\Sysconf;
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
@@ -61,11 +63,11 @@ if (stream_resolve_include_path('Zend/Version.php') === false) {
 
 /** @see Zend_Version */
 require_once 'Zend/Version.php';
-if (version_compare(Zend_Version::VERSION, '1.11') == -1) {
+if (version_compare(\Zend_Version::VERSION, '1.11') == -1) {
     fwrite(STDERR,
         sprintf(
             _('Your Zend Framework version is %s. Sysconf require Zend Framework 1.11.x or newer.'),
-            Zend_Version::VERSION
+            \Zend_Version::VERSION
         ) . "\n"
     );
     exit(1);
@@ -75,11 +77,18 @@ if (version_compare(Zend_Version::VERSION, '1.11') == -1) {
 set_include_path(dirname(dirname(__DIR__)) . PATH_SEPARATOR . get_include_path());
 
 // Register classes loader
+// TODO Review
 spl_autoload_register(
     function($className)
     {
         $classPath = str_replace('_', '/', $className);
-        require_once "$classPath.php";
+
+        if (stream_resolve_include_path($classPath . '.php')) {
+            require_once "$classPath.php";
+        } else {
+            $classPath = str_replace('\\', '/', $className);
+            require_once "$classPath.php";
+        }
     }
 );
 
@@ -87,7 +96,7 @@ spl_autoload_register(
 set_exception_handler(
     function($exception)
     {
-        /** @var $exception Exception */
+        /** @var $exception \Exception */
         fwrite(STDERR, $exception->getMessage());
     }
 );

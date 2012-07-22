@@ -27,48 +27,71 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element */
-require_once 'iHMS/Sysconf/Element.php';
+namespace iHMS\Sysconf\Element;
+
+use iHMS\Sysconf\Element;
+use iHMS\Sysconf\Question;
 
 /**
- * iHMS_Sysconf_Element_Noninteractive abstract class
+ * iHMS_Sysconf_Element_ProgressInterface abstract class
  *
- * Base class for noninteractive dummy input element. When told to display itself, it does nothing
+ * Base class for progress element.
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
- * @subpackage  Element_Noninteractive
+ * @subpackage  Element
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_Element_Noninteractive extends iHMS_Sysconf_Element
+abstract class AbstractProgress extends Element
 {
     /**
-     * Is visible element?
-     *
-     * This type of element is not visible.
-     *
-     * @return bool TRUE if element is visible, FALSE otherwise
+     * @var int Minimum value
      */
-    public function isVisible()
-    {
-        return false;
-    }
+    public $progressMin;
 
     /**
-     * Set the value to the default, or blank if no default is available
+     * @var int Max value
+     */
+    public $progressMax;
+
+    /**
+     * @var int Current value
+     */
+    public $progressCur;
+
+    /**
+     * Start progress bar
      *
+     * @abstract
      * @return void
      */
-    public function show()
-    {
-        $default = '';
+    abstract public function start();
 
-        if (!is_null($value = $this->question->getValue())) {
-            $default = $value;
-        }
+    /**
+     * Set progress bar value
+     *
+     * @abstract
+     * @param int $value Value
+     * @return bool
+     */
+    abstract public function set($value);
 
-        $this->_value = $default;
-    }
+    /**
+     * Set informational message to be displayed along with the progress bar
+     *
+     * @abstract
+     * @param Question $question Question
+     * @return bool
+     */
+    abstract public function info(Question $question);
+
+    /**
+     * Stop progress bar
+     *
+     * @abstract
+     * @return void
+     */
+    abstract public function stop();
 }

@@ -27,6 +27,8 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+namespace iHMS\Sysconf\Format;
+
 /**
  * iHMS_Sysconf_Format class
  *
@@ -39,7 +41,7 @@
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-interface iHMS_Sysconf_Format_Interface
+interface FormatInterface
 {
     /**
      * Read one record from the filehandle, parse it, and return a list with two elements.

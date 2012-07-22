@@ -27,8 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_AutoSelect class
@@ -43,7 +42,7 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_AutoSelect
+class AutoSelect
 {
     /**
      * @var array Map for prefered frontend to their fallback
@@ -56,7 +55,7 @@ class iHMS_Sysconf_AutoSelect
     );
 
     /**
-     * @var iHMS_Sysconf_Frontend
+     * @var Frontend
      */
     static public $frontend = null;
 
@@ -72,8 +71,8 @@ class iHMS_Sysconf_AutoSelect
      * other types, all the way to a Noninteractive frontend if all else fails.
      *
      * @static
-     * @throws ErrorException in case frontend cannot be started
-     * @return iHMS_Sysconf_Frontend
+     * @throws \ErrorException in case frontend cannot be started
+     * @return Frontend
      */
     public static function frontendFactory()
     {
@@ -82,10 +81,10 @@ class iHMS_Sysconf_AutoSelect
         }
 
         if (!isset($starttype) || $starttype == '') {
-            $starttype = iHMS_Sysconf_Config::getInstance()->frontend;
+            $starttype = Config::getInstance()->frontend;
 
             if (preg_match('/^[A-Z]/', $starttype)) {
-                iHMS_Sysconf_Log::warn(_('Please do not capitalize the first letter of the sysconf frontend.'));
+                Log::warn(_('Please do not capitalize the first letter of the sysconf frontend.'));
             }
 
             $starttype = ucfirst($starttype);
@@ -103,28 +102,25 @@ class iHMS_Sysconf_AutoSelect
 
         foreach ($frontendTypes as $type) {
             if (!$showfallback) {
-                iHMS_Sysconf_Log::debug('user', 'Trying frontend ' . $type);
+                Log::debug('user', 'Trying frontend ' . $type);
             } else {
-                iHMS_Sysconf_Log::warn(sprintf(_('Falling back to frontend %s'), $type));
+                Log::warn(sprintf(_('Falling back to frontend %s'), $type));
             }
 
             try {
-                $frontend = 'iHMS_Sysconf_Frontend_' . $type;
-
-                /** @see Zend_Loader */
-                require_once 'Zend/Loader.php';
-                @Zend_Loader::loadClass($frontend);
+                $frontend = '\\iHMS\\Sysconf\\Frontend\\' . $type;
+                @\Zend_Loader::loadClass($frontend);
                 return self::$frontend = new $frontend();
-            } catch (Zend_Exception $e) {
-                iHMS_Sysconf_Log::warn(sprintf(_('Unable to initialize frontend %s'), $type));
-                iHMS_Sysconf_Log::warn($e->getMessage());
+            } catch (\Zend_Exception $e) {
+                Log::warn(sprintf(_('Unable to initialize frontend %s'), $type));
+                Log::warn($e->getMessage());
             }
 
             $showfallback = true;
         }
 
-        /** @var $e Zend_Exception */
-        throw new ErrorException(sprintf(_('Unable to start a frontend %s') . $e->getMessage()) . "\n");
+        /** @var $e \Zend_Exception */
+        throw new \ErrorException(sprintf(_('Unable to start a frontend %s') . $e->getMessage()) . "\n");
     }
 
     /**
@@ -135,11 +131,11 @@ class iHMS_Sysconf_AutoSelect
      *
      * @static
      * @param mixed $parameters,... OPTIONAL Arguments to pass to the confmodule
-     * @return iHMS_Sysconf_ConfModule
+     * @return ConfModule
      */
     public static function confModuleFactory($parameters = null)
     {
-        $confmodule = new iHMS_Sysconf_ConfModule(array('frontend' => self::$frontend));
+        $confmodule = new ConfModule(array('frontend' => self::$frontend));
 
         if (!is_null($parameters)) {
             if (is_array($parameters)) {

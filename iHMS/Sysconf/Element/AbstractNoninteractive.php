@@ -27,69 +27,49 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element */
-require_once 'iHMS/Sysconf/Element.php';
+namespace iHMS\Sysconf\Element;
+
+use iHMS\Sysconf\Element;
 
 /**
- * iHMS_Sysconf_Element_ProgressInterface abstract class
+ * iHMS_Sysconf_Element_Noninteractive abstract class
  *
- * Base class for progress element.
+ * Base class for noninteractive dummy input element. When told to display itself, it does nothing
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
- * @subpackage  Element
+ * @subpackage  Element_Noninteractive
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_Element_Progress extends iHMS_Sysconf_Element
+abstract class AbstractNoninteractive extends Element
 {
     /**
-     * @var int Minimum value
-     */
-    public $progressMin;
-
-    /**
-     * @var int Max value
-     */
-    public $progressMax;
-
-    /**
-     * @var int Current value
-     */
-    public $progressCur;
-
-    /**
-     * Start progress bar
+     * Is visible element?
      *
-     * @abstract
+     * This type of element is not visible.
+     *
+     * @return bool TRUE if element is visible, FALSE otherwise
+     */
+    public function isVisible()
+    {
+        return false;
+    }
+
+    /**
+     * Set the value to the default, or blank if no default is available
+     *
      * @return void
      */
-    abstract public function start();
+    public function show()
+    {
+        $default = '';
 
-    /**
-     * Set progress bar value
-     *
-     * @abstract
-     * @param int $value Value
-     * @return bool
-     */
-    abstract public function set($value);
+        if (!is_null($value = $this->question->getValue())) {
+            $default = $value;
+        }
 
-    /**
-     * Set informational message to be displayed along with the progress bar
-     *
-     * @abstract
-     * @param iHMS_Sysconf_Question $question Question
-     * @return bool
-     */
-    abstract public function info(iHMS_Sysconf_Question $question);
-
-    /**
-     * Stop progress bar
-     *
-     * @abstract
-     * @return void
-     */
-    abstract public function stop();
+        $this->_value = $default;
+    }
 }

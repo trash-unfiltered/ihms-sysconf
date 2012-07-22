@@ -27,6 +27,12 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
+namespace iHMS\Sysconf\Iterator;
+
+use FilterIterator;
+use iterator;
+use Closure;
+
 /**
  * iHMS_Sysconf_Iterator_CallbackFilter class
  *
@@ -37,7 +43,7 @@
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Iterator_CallbackFilter extends FilterIterator
+class CallbackFilter extends FilterIterator
 {
     /**
      * @var Closure

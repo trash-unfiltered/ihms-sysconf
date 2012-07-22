@@ -27,11 +27,13 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_DbDriver_Copy */
-require_once 'iHMS/Sysconf/DbDriver/Copy.php';
+namespace iHMS\Sysconf\DbDriver;
 
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+use iHMS\Sysconf\DbDriver;
+use Iterator;
+use AppendIterator;
+use iHMS\Sysconf\Iterator\CallbackFilter;
+use iHMS\Sysconf\Log;
 
 /**
  * iHMS_Sysconf_DbDriver_Stack class
@@ -50,11 +52,11 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
+class Stack extends Copy
 {
     /**
      * Either a string representing a configuration stanza for stack or an array of DbDriver objects
-     * @var string|iHMS_Sysconf_DbDriver[]
+     * @var string|DbDriver[]
      */
     protected $_stack = null;
 
@@ -93,7 +95,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     /**
      * Return full stack of drivers
      *
-     * @return iHMS_Sysconf_DbDriver[]
+     * @return DbDriver[]
      */
     public function getStack()
     {
@@ -112,7 +114,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     {
         $iterator = new AppendIterator();
 
-        /** @var $_ iHMS_Sysconf_DbDriver  */
+        /** @var $_ DbDriver  */
         array_map(
             function($_) use($iterator)
             {
@@ -122,10 +124,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
             array_reverse($this->_stack)
         );
 
-        /** @see iHMS_Sysconf_Iterator_CallbackFilter */
-        require_once 'iHMS/Sysconf/Iterator/CallbackFilter.php';
-
-        return new iHMS_Sysconf_Iterator_CallbackFilter(
+        return new CallbackFilter(
             $iterator,
             function($item)
             {
@@ -194,19 +193,19 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
     {
         $params = array_slice(func_get_args(), 1);
 
-        iHMS_Sysconf_Log::debug("db {$this->_name}", "trying to {$command}(" . join(', ', $params) . ') ..');
+        Log::debug("db {$this->_name}", "trying to {$command}(" . join(', ', $params) . ') ..');
 
         foreach ($this->_stack as $driver) {
             $ret = call_user_func_array(array($driver, $command), $params);
 
             if (is_array($ret)) {
                 if (!empty($ret)) {
-                    iHMS_Sysconf_Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
+                    Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
                     return $ret;
                 }
             } else {
                 if (!is_null($ret)) {
-                    iHMS_Sysconf_Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
+                    Log::debug("db {$this->_name}", "{$command} done by {$driver->_name}");
                     return $ret;
                 }
             }
@@ -229,7 +228,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         $command = array_shift($args);
         $itemName = array_shift($args);
 
-        iHMS_Sysconf_Log::debug("db {$this->_name}", "trying to {$command}({$itemName}, " . join(', ', $args) . ') ..');
+        Log::debug("db {$this->_name}", "trying to {$command}({$itemName}, " . join(', ', $args) . ') ..');
 
         // Check to see if we can just write to some driver in the stack.
         foreach ($this->_stack as $driver) {
@@ -238,7 +237,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
                     break;
                 }
 
-                iHMS_Sysconf_Log::debug("db {$this->_name}", "passing to {$driver->_name} ..");
+                Log::debug("db {$this->_name}", "passing to {$driver->_name} ..");
 
                 array_unshift($args, $itemName);
                 return call_user_func_array(array($driver, $command), $args);
@@ -255,7 +254,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
                 $ret = $this->_noChange($driver, $command, $itemName, $args);
 
                 if (!is_null($ret)) {
-                    iHMS_Sysconf_Log::debug("db {$this->_name}", "skipped {$command}({$itemName}) as it would have not effect");
+                    Log::debug("db {$this->_name}", "skipped {$command}({$itemName}) as it would have not effect");
                     return $ret;
                 }
 
@@ -290,7 +289,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         }
 
         if (!$writer) {
-            iHMS_Sysconf_Log::debug("db {$this->_name}", "FAILED {$command}");
+            Log::debug("db {$this->_name}", "FAILED {$command}");
             return null;
         }
 
@@ -300,7 +299,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
         }
 
         // Finally, do the write
-        iHMS_Sysconf_Log::debug("db {$this->_name}", "passing to {$writer->_name} ..");
+        Log::debug("db {$this->_name}", "passing to {$writer->_name} ..");
         array_unshift($args, $itemName);
 
         return call_user_func_array(array($writer, $command), $args);
@@ -313,7 +312,7 @@ class iHMS_Sysconf_DbDriver_Stack extends iHMS_Sysconf_DbDriver_Copy
      * bothered to add a shitload of extra intelligence, to detect such null writes, and do nothing but return whatever
      * the current value is. Gar gar gar!
      *
-     * @param iHMS_Sysconf_DbDriver $driver
+     * @param DbDriver $driver
      * @param string $command Command name
      * @param string $itemName Item name
      * @param array $args Arguments

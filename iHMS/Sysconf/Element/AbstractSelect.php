@@ -27,11 +27,10 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element */
-require_once 'iHMS/Sysconf/Element.php';
+namespace iHMS\Sysconf\Element;
 
-/** @see iHMS_Sysconf_Encoding */
-require_once 'iHMS/Sysconf/Encoding.php';
+use iHMS\Sysconf\Element;
+use iHMS\Sysconf\Log;
 
 /**
  * iHMS_Sysconf_Element_Select abstract class
@@ -45,7 +44,7 @@ require_once 'iHMS/Sysconf/Encoding.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
+abstract class AbstractSelect extends Element
 {
     /**
      * Is visible element?
@@ -62,7 +61,7 @@ abstract class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
             return true;
         } else {
             $countChoices = sizeof($choices);
-            iHMS_Sysconf_Log::debug(
+            Log::debug(
                 'developer',
                 'Not displaying select list ' . $this->question->getName() . ' with ' . ($countChoices) . ' choice' .
                     (($countChoices == 0) ? 's' : '')
@@ -123,7 +122,7 @@ abstract class iHMS_Sysconf_Element_Select extends iHMS_Sysconf_Element
             }
         }
 
-        iHMS_Sysconf_Log::debug(
+        Log::debug(
             'developer',
             sprintf("Input value \"%s\" not found in C choices! This should never happend. Perhap the template were incorrectly localized.", $value)
         );

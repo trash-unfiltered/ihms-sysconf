@@ -27,11 +27,12 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Frontend_ScreenSize */
-require_once 'iHMS/Sysconf/Frontend/ScreenSize.php';
+namespace iHMS\Sysconf\Frontend;
 
-/** @see iHMS_Sysconf_Enconding */
-require_once 'iHMS/Sysconf/Encoding.php';
+use iHMS\Sysconf\Encoding;
+use iHMS\Sysconf\Log;
+use iHMS\Sysconf\Question;
+use iHMS\Sysconf\TmpFile;
 
 /**
  * iHMS_Sysconf_Frontend_Dialog class
@@ -46,7 +47,7 @@ require_once 'iHMS/Sysconf/Encoding.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
+class Dialog extends ScreenSize
 {
     /**
      * @var string Dialog program to use
@@ -119,8 +120,8 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * Checks to see if whiptail, or dialog are available, in that order. To make it use dialog, set
      * SYSCONF_FORCE_DIALOG in the environment.
      *
-     * @throws DomainException In case running terminal is not supported
-     * @throws Exception in case no dialog program is found or screen properties doesn't fit with minimum requirements
+     * @throws \DomainException In case running terminal is not supported
+     * @throws \Exception in case no dialog program is found or screen properties doesn't fit with minimum requirements
      * @return void
      */
     protected function _init()
@@ -134,11 +135,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
 
         // Detect all the ways people have managed to screw up their terminals (so far...)
         if (!isset($_SERVER['TERM']) || $_SERVER['TERM'] == '') {
-            throw new DomainException(_('TERM is not set, so dialog frontend is not usable.') . "\n");
+            throw new \DomainException(_('TERM is not set, so dialog frontend is not usable.') . "\n");
         } elseif (preg_match('/emacs/i', $_SERVER['TERM'])) {
-            throw new DomainException(_('Dialog frontend is incompatible with emacs shell buffers.') . "\n");
+            throw new \DomainException(_('Dialog frontend is incompatible with emacs shell buffers.') . "\n");
         } elseif ($_SERVER['TERM'] == 'dumb' || $_SERVER['TERM'] == 'unknown') {
-            throw new DomainException(
+            throw new \DomainException(
                 _('Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal.') . "\n"
             );
         }
@@ -163,7 +164,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
             $this->_columnSpacer = 2;
             $this->_selectSpacer = 0;
         } else {
-            throw new Exception(
+            throw new \Exception(
                 _('No usable dialog-like program is installed, so the dialog based frontend cannot be used') . "\n"
             );
         }
@@ -171,7 +172,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         // Whiptail and dialog can't deal with very small screens. Detect this and fail, forcing use of some other
         // frontend. The numbers were arrived at by experimentation.
         if ($this->_screenHeight < 13 || $this->_screenWidth < 31) {
-            throw new Exception(_('Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.') . "\n");
+            throw new \Exception(_('Dialog frontend requires a screen at least 13 lines tall and 31 columns wide.') . "\n");
         }
     } // end-init()
 
@@ -277,7 +278,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         //}
 
         // TODO support for CJK characters
-        $text = iHMS_Sysconf_Encoding::wordWrap($text, $columns, "\n", true, 'UTF-8');
+        $text = Encoding::wordWrap($text, $columns, "\n", true, 'UTF-8');
 
         $lines = explode("\n", $text);
 
@@ -318,11 +319,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * Pass this some text and it will display the text to the user in a dialog. If the text is too long to fit in one
      * dialog, it will use a scrollable dialog.
      *
-     * @param iHMS_Sysconf_Question $question $question Question
+     * @param Question $question $question Question
      * @param string $inText
      * @return void
      */
-    public function showText(iHMS_Sysconf_Question $question, $inText)
+    public function showText(Question $question, $inText)
     {
         $lines = $this->_screenHeight;
 
@@ -340,12 +341,12 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
                 array_push($args, '--scrolltext');
             } else {
                 // Dialog has to use temporary file
-                /** @see iHMS_Sysconf_TmpFile */
-                require_once 'iHMS/Sysconf/TmpFile.php';
-                $fh = iHMS_Sysconf_TmpFile::open();
+                /** @see TmpFile */
+                //require_once 'iHMS/Sysconf/TmpFile.php';
+                $fh = TmpFile::open();
                 fwrite($fh, join("\n", array_map(array($this, 'hideEscape'), $linesArray)));
                 fclose($fh);
-                $args = array('--textbox', iHMS_Sysconf_TmpFile::getFilename());
+                $args = array('--textbox', TmpFile::getFilename());
             }
         } else {
             $num = sizeof($linesArray);
@@ -357,7 +358,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         $this->showDialog($question, $args);
 
         if ($args[0] == '--textbox') {
-            iHMS_Sysconf_TmpFile::cleanup();
+            TmpFile::cleanup();
         }
     }
 
@@ -375,11 +376,11 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      *
      * The return value is identical to the return value of sizetext() run on the generated prompt
      *
-     * @param iHMS_Sysconf_Question $question Question
+     * @param Question $question Question
      * @param int $freeLines Free lines
      * @return array An array that holds the formated text, the height and width for the dialog
      */
-    public function makePrompt(iHMS_Sysconf_Question $question, $freeLines = 0)
+    public function makePrompt(Question $question, $freeLines = 0)
     {
         $freeLines = $this->_screenHeight - $this->_borderHeight + 1 + $freeLines;
 
@@ -398,16 +399,16 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     /**
      * Start dialog
      *
-     * @throws RuntimeException in case dialog process cannot be opened
-     * @param iHMS_Sysconf_Question $question Question
+     * @throws \RuntimeException in case dialog process cannot be opened
+     * @param Question $question Question
      * @param bool $wantInputFd
      * @param array $args Arguments
      * @return void
      * @TODO remove $question parameter?
      */
-    public function startDialog(iHMS_Sysconf_Question $question, $wantInputFd, $args)
+    public function startDialog(Question $question, $wantInputFd, $args)
     {
-        iHMS_Sysconf_Log::debug('debug', "preparing to run dialog. Params are: {$this->_program}, " . join(' ', $args));
+        Log::debug('debug', "preparing to run dialog. Params are: {$this->_program}, " . join(' ', $args));
 
         // Do not add cancel button either if backup is not available or --defaultno is set
         if (!$this->_capbBackup or in_array('--defaultno', $args)) {
@@ -455,7 +456,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         );
 
         if (!is_resource($this->_dialogProcess)) {
-            throw new RuntimeException(join(' ', error_get_last()) . "\n");
+            throw new \RuntimeException(join(' ', error_get_last()) . "\n");
         }
 
         if ($wantInputFd) {
@@ -469,7 +470,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
     /**
      * Wait dialog
      *
-     * @throws RuntimeException in case Dialog program give an error
+     * @throws \RuntimeException in case Dialog program give an error
      * @param array $args Arguments that have been passed to dialog
      * @return array
      */
@@ -493,7 +494,7 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
         }
 
         if ($errors) {
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 sprintf(_('sysconf: %s output the above errors, giving up!'), $this->_program) . "\n"
             );
         }
@@ -537,12 +538,12 @@ class iHMS_Sysconf_Frontend_Dialog extends iHMS_Sysconf_Frontend_ScreenSize
      * Note that the return code of dialog is examined, and if the user hit escape or cancel, this frontend will assume
      * they wanted to back up. In that case, this method will return null
      *
-     * @param iHMS_Sysconf_Question $question Question
+     * @param Question $question Question
      * @param array $args Dialog arguments
      * @return array|null Array that hold dialog return code and the output if any or NULL in case the user hit escape
      *                    or cancel
      */
-    public function showDialog(iHMS_Sysconf_Question $question, array $args)
+    public function showDialog(Question $question, array $args)
     {
         $args = array_map(array($this, 'hideEscape'), $args);
 

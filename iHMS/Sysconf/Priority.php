@@ -27,8 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Config */
-require_once 'iHMS/Sysconf/Config.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_Priority class
@@ -42,7 +41,7 @@ require_once 'iHMS/Sysconf/Config.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Priority
+class Priority
 {
     /**
      * @var array List of known priority levels
@@ -68,7 +67,7 @@ class iHMS_Sysconf_Priority
             return true; // any unknown priority is assumed to be higher
         }
 
-        return (self::$_priorities[$priority] >= self::$_priorities[iHMS_Sysconf_Config::getInstance()->priority]);
+        return (self::$_priorities[$priority] >= self::$_priorities[Config::getInstance()->priority]);
     }
 
     /**

@@ -27,13 +27,16 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element_Progress */
-require_once 'iHMS/Sysconf/Element/Progress.php';
+namespace iHMS\Sysconf\Element\Dialog;
+
+use iHMS\Sysconf\Frontend\Dialog;
+use iHMS\Sysconf\Element\AbstractProgress;
+use iHMS\Sysconf\Question;
 
 /**
  * iHMS_Sysconf_Element_Dialog_Progress class
  *
- * @property iHMS_Sysconf_Frontend_Dialog $frontend
+ * @property Dialog $frontend
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -43,10 +46,10 @@ require_once 'iHMS/Sysconf/Element/Progress.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
+class Progress extends AbstractProgress
 {
     /**
-     * @var iHMS_Sysconf_Question
+     * @var Question
      */
     protected $_info = null;
 
@@ -113,10 +116,10 @@ class iHMS_Sysconf_Element_Dialog_Progress extends iHMS_Sysconf_Element_Progress
     /**
      * Set informational message to be displayed along with the progress bar
      *
-     * @param iHMS_Sysconf_Question $question
+     * @param Question $question
      * @return bool
      */
-    public function info(iHMS_Sysconf_Question $question)
+    public function info(Question $question)
     {
         $this->_info = $question;
         list($text, $lines, $columns) = $this->frontend->sizeText($question->getDescription());

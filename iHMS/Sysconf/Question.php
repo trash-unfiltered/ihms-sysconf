@@ -27,11 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
+namespace iHMS\Sysconf;
 
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
+use iHMS\Sysconf\Iterator\Callback;
 
 /**
  * iHMS_Sysconf_Question class
@@ -54,10 +52,10 @@ require_once 'iHMS/Sysconf/Template.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Question
+class Question
 {
     /**
-     * @var iHMS_Sysconf_Question[]
+     * @var Question[]
      */
     protected static $_questions = array();
 
@@ -77,16 +75,16 @@ class iHMS_Sysconf_Question
      * New questions default to having their seen flag set to false
      *
      * @static
-     * @throws InvalidArgumentException in case Question already exits
+     * @throws \InvalidArgumentException in case Question already exits
      * @param string $name Question name
      * @param string $owner Question owner
      * @param string $type Question type
-     * @return iHMS_Sysconf_Question|null
+     * @return Question|null
      */
     public static function factory($name, $owner, $type)
     {
         if (in_array($name, self::$_questions)) {
-            throw new InvalidArgumentException("A question named \"$name\" already exists.\n");
+            throw new \InvalidArgumentException("A question named \"$name\" already exists.\n");
         }
 
         $self = new self();
@@ -107,7 +105,7 @@ class iHMS_Sysconf_Question
      *
      * @static
      * @param string $name Question name
-     * @return iHMS_Sysconf_Question|null
+     * @return Question|null
      */
     public static function get($name)
     {
@@ -115,7 +113,7 @@ class iHMS_Sysconf_Question
             return self::$_questions[$name];
         }
 
-        if (iHMS_Sysconf_Db::getConfig()->exists($name)) {
+        if (Db::getConfig()->exists($name)) {
             $self = new self();
             $self->_name = $name;
 
@@ -130,18 +128,18 @@ class iHMS_Sysconf_Question
      * time it is called
      *
      * @static
-     * @return iHMS_Sysconf_Iterator_Callback
+     * @return Callback
      */
     public static function getIterator()
     {
         /** @see iHMS_Sysconf_Iterator_Callback */
-        require_once 'iHMS/Sysconf/Iterator/Callback.php';
+        //require_once 'iHMS/Sysconf/Iterator/Callback.php';
 
-        return new iHMS_Sysconf_Iterator_Callback(
-            iHMS_Sysconf_Db::getConfig()->getIterator(),
+        return new Callback(
+            Db::getConfig()->getIterator(),
             function($name)
             {
-                return iHMS_Sysconf_Question::get($name);
+                return Question::get($name);
             }
         );
     }
@@ -224,7 +222,7 @@ class iHMS_Sysconf_Question
      */
     public function getVariable($variable)
     {
-        return iHMS_Sysconf_Db::getConfig()->getVariable($this->_name, $variable);
+        return Db::getConfig()->getVariable($this->_name, $variable);
     }
 
     /**
@@ -236,7 +234,7 @@ class iHMS_Sysconf_Question
      */
     public function setVariable($variable, $value)
     {
-        return iHMS_Sysconf_Db::getConfig()->setVariable($this->_name, $variable, $value);
+        return Db::getConfig()->setVariable($this->_name, $variable, $value);
     }
 
     /**
@@ -249,7 +247,7 @@ class iHMS_Sysconf_Question
      */
     public function getFlag($flag)
     {
-        return iHMS_Sysconf_Db::getConfig()->getFlag($this->_name, $flag);
+        return Db::getConfig()->getFlag($this->_name, $flag);
     }
 
     /**
@@ -263,7 +261,7 @@ class iHMS_Sysconf_Question
      */
     public function setFlag($flag, $value)
     {
-        return iHMS_Sysconf_Db::getConfig()->setFlag($this->_name, $flag, $value);
+        return Db::getConfig()->setFlag($this->_name, $flag, $value);
     }
 
     /**
@@ -275,7 +273,7 @@ class iHMS_Sysconf_Question
      */
     public function getValue()
     {
-        if (!is_null($ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'value'))) {
+        if (!is_null($ret = Db::getConfig()->getField($this->_name, 'value'))) {
             return $ret;
         }
 
@@ -294,7 +292,7 @@ class iHMS_Sysconf_Question
      */
     public function setValue($value)
     {
-        return iHMS_Sysconf_Db::getConfig()->setField($this->_name, 'value', $value);
+        return Db::getConfig()->setField($this->_name, 'value', $value);
     }
 
     /**
@@ -339,7 +337,7 @@ class iHMS_Sysconf_Question
      */
     public function addOwner($owner, $type)
     {
-        return iHMS_Sysconf_Db::getConfig()->addOwner($this->_name, $owner, $type);
+        return Db::getConfig()->addOwner($this->_name, $owner, $type);
     }
 
     /**
@@ -350,16 +348,16 @@ class iHMS_Sysconf_Question
      */
     public function removeOwner($owner)
     {
-        $template = iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'template');
+        $template = Db::getConfig()->getField($this->_name, 'template');
 
-        if (is_null(iHMS_Sysconf_Db::getConfig()->removeOwner($this->_name, $owner))) {
+        if (is_null(Db::getConfig()->removeOwner($this->_name, $owner))) {
             return null;
         }
 
         // If that made the question go away, the question no longer owns the template, and remove this object from the
         // class's cache.
-        if (!is_null($template) && !iHMS_Sysconf_Db::getConfig()->exists($this->_name)) {
-            iHMS_Sysconf_Db::getTemplates()->removeOwner($template, $this->_name);
+        if (!is_null($template) && !Db::getConfig()->exists($this->_name)) {
+            Db::getTemplates()->removeOwner($template, $this->_name);
             unset(self::$_questions[$this->_name]);
         }
 
@@ -374,8 +372,8 @@ class iHMS_Sysconf_Question
      */
     public function getOwners()
     {
-        if (!is_null($owners = iHMS_Sysconf_Db::getConfig()->getOwners($this->_name))) {
-            $owners = iHMS_Sysconf_Db::getConfig()->getOwners($this->_name);
+        if (!is_null($owners = Db::getConfig()->getOwners($this->_name))) {
+            $owners = Db::getConfig()->getOwners($this->_name);
             sort($owners);
 
             return join(', ', $owners);
@@ -387,11 +385,11 @@ class iHMS_Sysconf_Question
     /**
      * Returns the template associated to this object or NULL in case template is not found
      *
-     * @return iHMS_Sysconf_Template|null
+     * @return Template|null
      */
     public function getTemplate()
     {
-        return iHMS_Sysconf_Template::get(iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'template'));
+        return Template::get(Db::getConfig()->getField($this->_name, 'template'));
     }
 
     /**
@@ -399,30 +397,30 @@ class iHMS_Sysconf_Question
      *
      *
      * @param string $templateName Template name
-     * @return iHMS_Sysconf_Template The template object
+     * @return Template The template object
      */
     public function setTemplate($templateName)
     {
         // If the template is not changed from the current one, do nothing. This avoids deleting the template entirely
         // by removing its last owner
-        $oldTemplate = iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'template');
+        $oldTemplate = Db::getConfig()->getField($this->_name, 'template');
         $newTemplate = $templateName;
 
         if (is_null($oldTemplate) || $oldTemplate != $newTemplate) {
             // This question no longer owns the template it used to, if any
             if (!is_null($oldTemplate)) {
-                iHMS_Sysconf_Db::getTemplates()->removeOwner($oldTemplate, $this->_name);
+                Db::getTemplates()->removeOwner($oldTemplate, $this->_name);
             }
 
-            iHMS_Sysconf_Db::getConfig()->setField($this->_name, 'template', $newTemplate);
+            Db::getConfig()->setField($this->_name, 'template', $newTemplate);
 
             // Register this question as an owner of the template
-            iHMS_Sysconf_Db::getTemplates()->addOwner(
-                $newTemplate, $this->_name, iHMS_Sysconf_Db::getTemplates()->getField($newTemplate, 'type')
+            Db::getTemplates()->addOwner(
+                $newTemplate, $this->_name, Db::getTemplates()->getField($newTemplate, 'type')
             );
         }
 
-        return iHMS_Sysconf_Template::get(iHMS_Sysconf_Db::getConfig()->getField($this->_name, 'template'));
+        return Template::get(Db::getConfig()->getField($this->_name, 'template'));
     }
 
     /**
@@ -482,7 +480,7 @@ class iHMS_Sysconf_Question
             return $this->{$method}();
         }
 
-        if (is_null($ret = iHMS_Sysconf_Db::getConfig()->getField($this->_name, $field))) {
+        if (is_null($ret = Db::getConfig()->getField($this->_name, $field))) {
             // Fall back to template values
             if (!is_null($template = $this->getTemplate())) {
                 $ret = $template->{$field};
@@ -513,7 +511,7 @@ class iHMS_Sysconf_Question
             return $this->{'set' . $field}($value);
         }
 
-        return iHMS_Sysconf_Db::getConfig()->setField($this->_name, $field, $value);
+        return Db::getConfig()->setField($this->_name, $field, $value);
     }
 
     /**
@@ -545,7 +543,7 @@ class iHMS_Sysconf_Question
                 // escaped variable is not changed, though the escape is removed
                 $result .= "\${{$variable}}";
             } else {
-                if (($varval = iHMS_Sysconf_Db::getConfig()->getVariable($this->_name, $variable)) !== null) {
+                if (($varval = Db::getConfig()->getVariable($this->_name, $variable)) !== null) {
                     $result .= $varval; // expand the variable
                 }
             }

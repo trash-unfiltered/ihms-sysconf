@@ -27,8 +27,9 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+namespace iHMS\Sysconf;
+
+use iHMS\Sysconf\Frontend\Noninteractive;
 
 /**
  * iHMS_Sysconf_ConfModule class
@@ -51,10 +52,10 @@ require_once 'iHMS/Sysconf/Log.php';
  * @version     0.0.1
  * TODO In any method that receive parameter from confmodule, check number of arguments and don't let PHP raise any error
  */
-class iHMS_Sysconf_ConfModule
+class ConfModule
 {
     /**
-     * @var iHMS_Sysconf_Frontend The frontend object that is used to interact with the user
+     * @var Frontend The frontend object that is used to interact with the user
      */
     protected $_frontend = null;
 
@@ -213,7 +214,7 @@ class iHMS_Sysconf_ConfModule
      * alternative is to launch a confmodule manually, and use both {@link setReadHandle()} and {@link setWriteHandle()}
      * to connect this object to it.
      *
-     * @throws Exception in case confmodule cannot be started
+     * @throws \Exception in case confmodule cannot be started
      * @param string $confmodule confmodule
      * @internal mixed $params,... Parameters to pass to the confmodule
      */
@@ -226,7 +227,7 @@ class iHMS_Sysconf_ConfModule
         $this->_confmodule = $confmodule;
         $args = func_get_args();
 
-        iHMS_Sysconf_Log::debug('developer', 'starting ' . join(' ', $args));
+        Log::debug('developer', 'starting ' . join(' ', $args));
 
         $this->_process = @proc_open(
             '/usr/bin/env php ' . join(' ', $args),
@@ -238,7 +239,7 @@ class iHMS_Sysconf_ConfModule
         );
 
         if (!is_resource($this->_process)) {
-            throw new Exception(join(' ', error_get_last()) . "\n");
+            throw new \Exception(join(' ', error_get_last()) . "\n");
         }
 
         $this->_writeHandle = $pipes[0];
@@ -285,7 +286,7 @@ class iHMS_Sysconf_ConfModule
      */
     public function processCommand($rawCommand)
     {
-        iHMS_Sysconf_Log::debug('developer', "<-- {$rawCommand}");
+        Log::debug('developer', "<-- {$rawCommand}");
 
         if (preg_match('/^\s*#/', $rawCommand)) { // Skip blank lines, comments.
             return 1;
@@ -318,10 +319,10 @@ class iHMS_Sysconf_ConfModule
 
         $ret = join(' ', call_user_func_array(array($this, $command), $params));
 
-        iHMS_Sysconf_Log::debug('developer', "--> {$ret}");
+        Log::debug('developer', "--> {$ret}");
 
         if (preg_match("/\n/", $ret)) { // TODO (PO) strpos()
-            iHMS_Sysconf_Log::debug(
+            Log::debug(
                 'developer',
                 "Warning: return value is multiline, and would break the sysconf protocol. Truncating to first line."
             );
@@ -371,10 +372,10 @@ class iHMS_Sysconf_ConfModule
             });
         }
 
-        /** @var $question iHMS_Sysconf_Question */
+        /** @var $question Question */
         foreach ($this->_seen as $question) {
             // Try to get the question again, because it's possible it was show, and then unregistered.
-            if (!is_null(iHMS_Sysconf_Question::get($question->getName()))) {
+            if (!is_null(Question::get($question->getName()))) {
                 $question->setFlag('seen', 'true');
             }
         }
@@ -470,11 +471,11 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandInput($priority, $questionName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"{$questionName}\" doesn't exist");
         }
 
-        if (!iHMS_Sysconf_Priority::isValidPriority($priority)) {
+        if (!Priority::isValidPriority($priority)) {
             return array($this->_codes['syntaxerror'], "\"$priority\" is not a valid priority");
         }
 
@@ -486,12 +487,12 @@ class iHMS_Sysconf_ConfModule
         // Error questions are always shown even if they're asked at a low priority or have already been seen.
         if ($question->type != 'error') {
             // Don't show items that are unimportant
-            if (!iHMS_Sysconf_Priority::highEnough($priority)) {
+            if (!Priority::highEnough($priority)) {
                 $visible = false;
             }
 
             // Don't re-show already seen questions, unless reconfiguring
-            if (iHMS_Sysconf_Config::getInstance()->reShow == '' && $question->getFlag('seen') == 'true') {
+            if (Config::getInstance()->reShow == '' && $question->getFlag('seen') == 'true') {
                 $visible = false;
             }
         }
@@ -503,7 +504,7 @@ class iHMS_Sysconf_ConfModule
         if ($visible && !$this->_frontend->isInteractive()) {
             $visible = false;
 
-            if (iHMS_Sysconf_Config::getInstance()->nonInteractiveSeen != 'true') {
+            if (Config::getInstance()->nonInteractiveSeen != 'true') {
                 $markseen = false;
             }
         }
@@ -528,7 +529,7 @@ class iHMS_Sysconf_ConfModule
 
         if (!$visible) {
             // Create a noninteractive element. Suppress debug messages because they generate FAQ's and are harmless.
-            $element = iHMS_Sysconf_Frontend_Noninteractive::makeElement($question, true);
+            $element = Noninteractive::makeElement($question, true);
 
             // If that failed, the question is just not visible
             if (!$element) {
@@ -629,7 +630,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandSetTitle($questionName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "\"$questionName\" doesn't exist");
         }
 
@@ -676,7 +677,7 @@ class iHMS_Sysconf_ConfModule
         // to back up. This causes invisible elements to be skipped over in multi-stage backups.
         if ($ret && (!$this->_backedUp or array_filter($this->_frontend->getElements(), function($_)
             {
-                /** @var $_ iHMS_Sysconf_Element */
+                /** @var $_ Element */
                 return $_->isVisible();
             }
         ))
@@ -714,7 +715,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandGet($questionName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -740,7 +741,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandSet($questionName, $value)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -759,7 +760,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandQreset($questionName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -780,7 +781,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandSubst($questionName, $key, $value)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -804,14 +805,14 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandRegister($templateName, $questionName)
     {
-        $tempObj = iHMS_Sysconf_Question::get($templateName);
+        $tempObj = Question::get($templateName);
 
         if (is_null($tempObj)) {
             return array($this->_codes['badparams'], "No such template, \" {$templateName}\"");
         }
 
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
-            $question = iHMS_Sysconf_Question::factory($questionName, $this->_owner, $tempObj->type);
+        if (is_null($question = Question::get($questionName))) {
+            $question = Question::factory($questionName, $this->_owner, $tempObj->type);
         }
 
         if (is_null($question)) {
@@ -834,7 +835,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandUnregister($questionName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -854,9 +855,9 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandPurge()
     {
-        $iterator = iHMS_Sysconf_Question::getIterator();
+        $iterator = Question::getIterator();
 
-        /** @var $question iHMS_Sysconf_Question */
+        /** @var $question Question */
         foreach ($iterator as $question) {
             $question->removeOwner($this->_owner);
         }
@@ -875,7 +876,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandMetaget($questionName, $fieldName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -902,7 +903,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandFget($questionName, $flagName)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -920,7 +921,7 @@ class iHMS_Sysconf_ConfModule
      */
     protected function _commandFset($questionName, $flagName, $value)
     {
-        if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+        if (is_null($question = Question::get($questionName))) {
             return array($this->_codes['badparams'], "{$questionName} doesn't exist");
         }
 
@@ -954,7 +955,7 @@ class iHMS_Sysconf_ConfModule
         if (is_null($questionName)) {
             $this->_frontend->setInfo(); // Set to null
         } else {
-            if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+            if (is_null($question = Question::get($questionName))) {
                 return array($this->_codes['badparams'], "\"$questionName\" doesn't exist");
             }
 
@@ -1005,7 +1006,7 @@ class iHMS_Sysconf_ConfModule
                 return array($this->_codes['syntaxerror'], "min ($min) > max ($max)");
             }
 
-            if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+            if (is_null($question = Question::get($questionName))) {
                 return array($this->_codes['badparams'], "{$questionName} doesn't exist");
             }
 
@@ -1032,7 +1033,7 @@ class iHMS_Sysconf_ConfModule
 
             $questionName = func_get_arg(1);
 
-            if (is_null($question = iHMS_Sysconf_Question::get($questionName))) {
+            if (is_null($question = Question::get($questionName))) {
                 return array($this->_codes['badparams'], "{$questionName} doesn't exist");
             }
 
@@ -1069,13 +1070,13 @@ class iHMS_Sysconf_ConfModule
         $value = join(' ', array_slice(func_get_args(), 2));
         $value = preg_replace('/\\\\([n"\\\\])/e', '"$1" == "n" ? "\n" : "$1"', $value);
 
-        $tempObj = iHMS_Sysconf_Template::get($templateName);
+        $tempObj = Template::get($templateName);
 
         if (!$tempObj) {
             if ($item != 'type') {
                 return array($this->_codes['badparams'], "Template data field '{$item}' received before type field");
             }
-            $tempObj = iHMS_Sysconf_Template::factory($templateName, $this->_owner, $value);
+            $tempObj = Template::factory($templateName, $this->_owner, $value);
 
             if (!$tempObj) {
                 return array($this->_codes['internalerror'], 'Internal error making template');
@@ -1084,9 +1085,8 @@ class iHMS_Sysconf_ConfModule
             if ($item == 'type') {
                 return array($this->_codes['badparams'], 'Template type already set');
             }
-            /** @see iHMS_Sysconf_Encoding */
-            require_once 'iHMS/Sysconf/Encoding.php';
-            $tempObj->{$item} = iHMS_Sysconf_Encoding::convert('UTF-8', $value);
+
+            $tempObj->{$item} = Encoding::convert('UTF-8', $value);
         }
 
         return array($this->_codes['success']);
@@ -1111,13 +1111,12 @@ class iHMS_Sysconf_ConfModule
         }
 
         try {
-            iHMS_Sysconf_Template::load($fh, $owner);
-        } catch (Exception $e) {
+            Template::load($fh, $owner);
+        } catch (\Exception $e) {
             $_ = preg_replace("\n", '\\n', $e->getMessage());
             return array($this->_codes['internalerror'], $_);
         }
 
         return array($this->_codes['success']);
-
     }
 }

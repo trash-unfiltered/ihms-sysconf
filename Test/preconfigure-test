@@ -31,13 +31,13 @@
  *
  * Test ihms-preconfigure script. This is a regression/stress test.
  *
- * Important: We do this test in non-interactive mode to avoid the user to press enter again and again (by default, 150
+ * Important: We do this test in noninteractive mode to avoid the user to press enter again and again (by default, 150
  * confmodules are created and run...). If you want run this test with other FrontEnd such dialog,  you can set a lower
  * value for number of confmodules to create and set the SYSCONF_FRONTEND environement variable. for instance:
  *
  * SYSCONF_FRONTEND=dialog php preconfigure-test 2
  *
- * Will create 2 confmodule (rather than 150) and use Dialog FronTend during test.
+ * will create 2 confmodule (rather than 150) and use Dialog FronTend.
  */
 
 $sysconfPreconfigure = dirname(__DIR__) . '/ihms-preconfigure';

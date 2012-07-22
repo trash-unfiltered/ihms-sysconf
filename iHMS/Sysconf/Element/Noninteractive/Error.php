@@ -27,11 +27,12 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element_Noninteractive */
-require_once 'iHMS/Sysconf/Element/Noninteractive.php';
+namespace iHMS\Sysconf\Element\Noninteractive;
 
-/** @see iHMS_Sysconf_Encoding */
-require_once 'iHMS/Sysconf/Encoding.php';
+use iHMS\Sysconf\Element\AbstractNoninteractive;
+use iHMS\Sysconf\Encoding;
+use iHMS\Sysconf\Config;
+use iHMS\Sysconf\Log;
 
 /**
  * iHMS_Sysconf_Element_Noninteractive_Error class
@@ -46,7 +47,7 @@ require_once 'iHMS/Sysconf/Encoding.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Noninteractive
+class Error extends AbstractNoninteractive
 {
     /**
      * Calls sendmail to mail the error, if the error has not been seen before
@@ -73,8 +74,8 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
      */
     protected function sendmail($footer = '')
     {
-        if (($adminEmail = iHMS_Sysconf_Config::getInstance()->adminEmail) && is_executable('/usr/bin/mail')) {
-            iHMS_Sysconf_Log::debug('user', 'mailing a note');
+        if (($adminEmail = Config::getInstance()->adminEmail) && is_executable('/usr/bin/mail')) {
+            Log::debug('user', 'mailing a note');
 
             $title = 'Sysconf: ' . $this->frontend->getTitle() . ' -- ' . $this->question->getDescription();
 
@@ -83,10 +84,10 @@ class iHMS_Sysconf_Element_Noninteractive_Error extends iHMS_Sysconf_Element_Non
             }
 
             if (($extendedDescription = $this->question->getExtendedDescription()) != '') {
-                fwrite($mailer, iHMS_Sysconf_Encoding::wordWrap($extendedDescription, 75, "\n", true, 'UTF-8'));
+                fwrite($mailer, Encoding::wordWrap($extendedDescription, 75, "\n", true, 'UTF-8'));
             } else {
                 // Evil note!
-                fwrite($mailer, iHMS_Sysconf_Encoding::wordWrap($this->question->getDescription(), 75, "\n", true, 'UTF-8'));
+                fwrite($mailer, Encoding::wordWrap($this->question->getDescription(), 75, "\n", true, 'UTF-8'));
             }
 
             fwrite($mailer, "\n\n");

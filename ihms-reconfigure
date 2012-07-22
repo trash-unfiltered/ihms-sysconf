@@ -93,23 +93,10 @@
  * TODO Reusability
  */
 
+namespace iHMS\Sysconf;
+
 // Include bootstrap
 require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
-
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
-
-/** @see iHMS_Sysconf_Config */
-require_once 'iHMS/Sysconf/Config.php';
-
-/** @see iHMS_Sysconf_AutoSelect */
-require_once 'iHMS/Sysconf/AutoSelect.php';
-
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
 
 /***********************************************************************************************************************
  * Functions

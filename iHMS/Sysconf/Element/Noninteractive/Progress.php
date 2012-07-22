@@ -27,11 +27,10 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element_Noninteractive */
-require_once 'iHMS/Sysconf/Element/Noninteractive.php';
+namespace iHMS\Sysconf\Element\Noninteractive;
 
-/** @see iHMS_Sysconf_Element_Progress */
-require_once 'iHMS/Sysconf/Element/Progress.php';
+use iHMS\Sysconf\Element\AbstractProgress;
+use iHMS\Sysconf\Question;
 
 /**
  * iHMS_Sysconf_Element_Noninteractive_Progress class
@@ -45,7 +44,7 @@ require_once 'iHMS/Sysconf/Element/Progress.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Noninteractive_Progress extends iHMS_Sysconf_Element_Progress
+class Progress extends AbstractProgress
 {
     /**
      * Is visible element?
@@ -93,10 +92,10 @@ class iHMS_Sysconf_Element_Noninteractive_Progress extends iHMS_Sysconf_Element_
     /**
      * Show info about progress bar
      *
-     * @param iHMS_Sysconf_Question $question
+     * @param Question $question
      * @return bool
      */
-    public function info(iHMS_Sysconf_Question $question)
+    public function info(Question $question)
     {
         return true;
     }

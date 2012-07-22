@@ -27,13 +27,15 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_Element */
-require_once 'iHMS/Sysconf/Element.php';
+namespace iHMS\Sysconf\Element\Dialog;
+
+use iHMS\Sysconf\Frontend\Dialog;
+use iHMS\Sysconf\Element;
 
 /**
  * iHMS_Sysconf_Element_Dialog_Password class
  *
- * @property iHMS_Sysconf_Frontend_Dialog $frontend
+ * @property Dialog $frontend
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -43,7 +45,7 @@ require_once 'iHMS/Sysconf/Element.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Element_Dialog_Password extends iHMS_Sysconf_Element
+class Password extends Element
 {
     /**
      * Show a password input element

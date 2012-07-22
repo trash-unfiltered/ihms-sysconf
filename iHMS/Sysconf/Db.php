@@ -27,11 +27,7 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-/** @see iHMS_Sysconf_DbDriver */
-require_once 'iHMS/Sysconf/DbDriver.php';
-
-/** @see iHMS_Sysconf_Log */
-require_once 'iHMS/Sysconf/Log.php';
+namespace iHMS\Sysconf;
 
 /**
  * iHMS_Sysconf_Db class
@@ -49,15 +45,15 @@ require_once 'iHMS/Sysconf/Log.php';
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class iHMS_Sysconf_Db
+class Db
 {
     /**
-     * @var iHMS_Sysconf_DbDriver
+     * @var DbDriver
      */
     protected static $_config = null;
 
     /**
-     * @var iHMS_Sysconf_DbDriver
+     * @var DbDriver
      */
     protected static $_templates = null;
 
@@ -68,20 +64,20 @@ class iHMS_Sysconf_Db
      * that is loaded up. Practically, setting (readonly => "true") is the only use of this.
      *
      * @static
-     * @throws LogicException in case a database was not initialized
+     * @throws \LogicException in case a database was not initialized
      * @param array $parameters OPTIONAL Array of named parameters
      * @return void
      */
     public static function load(array $parameters = array())
     {
-        $config = iHMS_Sysconf_Config::getInstance()->load('', $parameters); // Load default config file
+        $config = Config::getInstance()->load('', $parameters); // Load default config file
 
-        if (!self::$_config = iHMS_Sysconf_DbDriver::getDriver($config->config)) {
-            throw new LogicException(sprintf(_('Configuration database %s was not initialized'), $config->config) . "\n");
+        if (!self::$_config = DbDriver::getDriver($config->config)) {
+            throw new \LogicException(sprintf(_('Configuration database %s was not initialized'), $config->config) . "\n");
         }
 
-        if (!self::$_templates = iHMS_Sysconf_DbDriver::getDriver($config->templates)) {
-            throw new LogicException(sprintf(_('Templates database %s was not initialized'), $config->templates) . "\n");
+        if (!self::$_templates = DbDriver::getDriver($config->templates)) {
+            throw new \LogicException(sprintf(_('Templates database %s was not initialized'), $config->templates) . "\n");
         }
     }
 
@@ -92,30 +88,29 @@ class iHMS_Sysconf_Db
      * to make.
      *
      * @static
-     * @throws DomainException in case Driver type is not specified
-     * @throws InvalidArgumentException in case Driver of type is not found
+     * @throws \DomainException in case Driver type is not specified
+     * @throws \InvalidArgumentException in case Driver of type is not found
      * @param array $config Array that holds driver configuration
-     * @return iHMS_Sysconf_DbDriver
+     * @return DbDriver
      */
     public static function makeDriver($config)
     {
         if (!isset($config['driver'])) {
-            throw new DomainException(_('Driver type not specified') . "\n");
+            throw new \DomainException(_('Driver type not specified') . "\n");
         } else {
             $type = $config['driver'];
         }
 
         // Ensure class is loaded
         try {
-            require_once 'Zend/Loader.php';
-            @Zend_Loader::loadClass($className = "iHMS_Sysconf_DbDriver_{$type}");
-        } catch (Zend_Exception $e) {
-            throw new InvalidArgumentException(sprintf(_('Driver %s not found: %s'), $type, $e->getMessage()) . "\n");
+            @\Zend_Loader::loadClass($className = "\\iHMS\\Sysconf\\DbDriver\\{$type}");
+        } catch (\Zend_Exception $e) {
+            throw new \InvalidArgumentException(sprintf(_('Driver %s not found: %s'), $type, $e->getMessage()) . "\n");
         }
 
         unset($config['driver']); // not a field for the object
 
-        iHMS_Sysconf_Log::debug('db', "making DbDriver of type {$type}");
+        Log::debug('db', "making DbDriver of type {$type}");
 
         return new $className($config);
     }
@@ -124,7 +119,7 @@ class iHMS_Sysconf_Db
      * Returns config database driver
      *
      * @static
-     * @return iHMS_Sysconf_DbDriver|null
+     * @return DbDriver|null
      */
     public static function getConfig()
     {
@@ -135,10 +130,10 @@ class iHMS_Sysconf_Db
      * Set config database driver
      *
      * @static
-     * @param iHMS_Sysconf_DbDriver $config Config database driver
+     * @param DbDriver $config Config database driver
      * @return void
      */
-    public static function setConfig(iHMS_Sysconf_DbDriver $config)
+    public static function setConfig(DbDriver $config)
     {
         self::$_config = $config;
     }
@@ -147,7 +142,7 @@ class iHMS_Sysconf_Db
      * Returns templates database driver
      *
      * @static
-     * @return iHMS_Sysconf_DbDriver|null
+     * @return DbDriver|null
      */
     public static function getTemplates()
     {

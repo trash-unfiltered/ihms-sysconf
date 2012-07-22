@@ -63,20 +63,12 @@
  * Lists all available databases.
  */
 
+namespace iHMS\Sysconf;
+
+use iHMS\Sysconf\DbDriver\Stack;
+
 // Include bootstrap
 require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
-
-/** @see iHMS_Sysconf_Db */
-require_once 'iHMS/Sysconf/Db.php';
-
-/** @see iHMS_Sysconf_Template */
-require_once 'iHMS/Sysconf/Template.php';
-
-/** @see iHMS_Sysconf_Question */
-require_once 'iHMS/Sysconf/Question.php';
-
-/** @see iHMS_Sysconf_Config */
-require_once 'iHMS/Sysconf/Config.php';
 
 /***********************************************************************************************************************
  * Functions
@@ -108,20 +100,20 @@ EOF
  */
 function showConfigTree($node, $string = '')
 {
-    $driver = iHMS_Sysconf_DbDriver::getDriver($node);
+    $driver = DbDriver::getDriver($node);
     $name = $driver->getName();
 
     $string = $string . $name;
     print $string . "\n";
 
     // If the node is a stack, call showConfigTree() again to get subtree
-    if ($driver instanceof iHMS_Sysconf_DbDriver_Stack) {
-        /** @var $driver iHMS_Sysconf_DbDriver_Stack */
+    if ($driver instanceof Stack) {
+        /** @var $driver Stack */
         $string = $string . '/';
         array_map(
             function($_) use($string)
             {
-                /** @var $_ iHMS_Sysconf_DbDriver */
+                /** @var $_ DbDriver */
                 showConfigTree($_->getName(), $string);
             },
             $driver->getStack()
@@ -141,7 +133,7 @@ $listOwners = false;
 $listDbs = false;
 
 // Add and parse options passed to this script - After process, $modules will hold only remaining arguments (module list)
-$modules = iHMS_Sysconf_Config::getInstance()->getopt(
+$modules = Config::getInstance()->getopt(
     'usage',
     array(
         'db=s' => array(&$db),
@@ -158,10 +150,10 @@ if (!$listOwners && !$listDbs) {
     }
 }
 
-iHMS_Sysconf_Db::load(array('readonly' => 'true'));
+Db::load(array('readonly' => 'true'));
 
-$drivers = iHMS_Sysconf_DbDriver::getDrivers();
-$conf = iHMS_Sysconf_Config::getInstance()->config;
+$drivers = DbDriver::getDrivers();
+$conf = Config::getInstance()->config;
 
 // If a specific database is given (with --db), redefine the global config database to use it
 if ($db) {
@@ -172,16 +164,16 @@ if ($db) {
         exit(1);
     }
 
-    iHMS_Sysconf_Db::setConfig($driver);
+    Db::setConfig($driver);
 }
 
-$questionIterator = iHMS_Sysconf_Question::getIterator();
+$questionIterator = Question::getIterator();
 
 if ($listDbs) {
     // Display the config tree
     showConfigTree($conf);
 } elseif (!empty($modules)) {
-    /** @var $question iHMS_Sysconf_Question */
+    /** @var $question Question */
     foreach ($questionIterator as $question) {
         // Show the question of a module
         foreach ($modules as $module) {
@@ -208,7 +200,7 @@ if ($listDbs) {
     // Show all the owners in the databse
     $seen = array();
 
-    /** @var $question iHMS_Sysconf_Question */
+    /** @var $question Question */
     foreach ($questionIterator as $question) {
         foreach (explode(', ', $question->getOwners()) as $owner) {
             if (!in_array($owner, $seen)) {
