@@ -60,7 +60,8 @@
  * will be ignored and their default answers will be used..
  *
  * --terse
- *  Enables terse output mode. This affects only some frontends.
+ *
+ * Enables terse output mode. This affects only some frontends.
  *
  * --ihms
  *
@@ -72,7 +73,8 @@
  * ihms.installer.preinstall = "ihms-preconfigure --ihms --priority=low"
  *
  * -h, --help
- *  Display usage help.
+ *
+ * Display usage help.
  */
 
 // Include bootstrap

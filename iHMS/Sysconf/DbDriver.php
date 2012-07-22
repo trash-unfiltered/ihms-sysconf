@@ -431,7 +431,7 @@ abstract class iHMS_Sysconf_DbDriver
     /**
      * Set the given flag to the given value
      *
-     * will be one of 'true' or 'false'), and return the value. Or return NULL if setting failed
+     * will be one of 'true' or 'false', and return the value. Or return NULL if setting failed
      *
      * @abstract
      * @param string $itemName Item name

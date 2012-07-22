@@ -255,7 +255,7 @@ class iHMS_Sysconf_Question
     /**
      * Sets value of the given flag
      *
-     * Flag value can be either "true" or false"
+     * Flag value can be either "true" or "false"
      *
      * @param string $flag Flag name
      * @param string $value Flag value

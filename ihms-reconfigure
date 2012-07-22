@@ -63,7 +63,8 @@
  *  Use whatever the default priority of question is, instead of forcing the priority to low
  *
  * -a, --all
- *  Reconfigure all installed modules that use sysconf. Warning: this may take a long time
+ *
+ * Reconfigure all installed modules that use sysconf. Warning: this may take a long time
  *
  * -u, --unseen-only
  *
@@ -71,7 +72,8 @@
  * questions that have not yet been seen will be asked
  *
  * --terse
- *  Enables terse output mode. This affects only some frontends.
+ *
+ * Enables terse output mode. This affects only some frontends.
  *
  * --force
  *
