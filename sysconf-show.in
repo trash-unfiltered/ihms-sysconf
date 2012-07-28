@@ -63,12 +63,14 @@
  * Lists all available databases.
  */
 
-namespace iHMS\Sysconf;
-
-use iHMS\Sysconf\DbDriver\Stack;
-
 // Include bootstrap
-require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
+
+use iHMS\Sysconf\Config;
+use iHMS\Sysconf\Db;
+use iHMS\Sysconf\DbDriver;
+use iHMS\Sysconf\DbDriver\Stack;
+use iHMS\Sysconf\Question;
 
 /***********************************************************************************************************************
  * Functions
@@ -124,8 +126,6 @@ function showConfigTree($node, $string = '')
 /***********************************************************************************************************************
  * Main
  */
-
-putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
 
 // Initialize options
 $db = '';

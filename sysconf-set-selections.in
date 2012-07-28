@@ -87,10 +87,13 @@
  * Only check the input file format, do not save changes to database
  */
 
-namespace iHMS\Sysconf;
-
 // Include bootstrap
-require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
+
+use iHMS\Sysconf\Db;
+use iHMS\Sysconf\Config;
+use iHMS\Sysconf\Question;
+use iHMS\Sysconf\Template;
 
 /***********************************************************************************************************************
  * Functions

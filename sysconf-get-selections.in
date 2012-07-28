@@ -26,37 +26,58 @@
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
+
 /***********************************************************************************************************************
+ *
+ * NAME
+ *
+ * sysconf-get-selections - output contents of sysconf database
+ *
+ * SYNOPSIS
+ *
+ * sysconf-get-selections
+ *
  * DESCRIPTION
  *
- * Test ihms-preconfigure script. This is a regression/stress test.
- *
- * Important: We do this test in noninteractive mode to avoid the user to press enter again and again (by default, 150
- * confmodules are created and run...). If you want run this test with other FrontEnd such dialog,  you can set a lower
- * value for number of confmodules to create and set the SYSCONF_FRONTEND environement variable. for instance:
- *
- * SYSCONF_FRONTEND=dialog php preconfigure-test 2
- *
- * will create 2 confmodule (rather than 150) and use Dialog FronTend.
+ * Output the current sysconf database in a format understandable by sysconf-set-selections.
  */
 
-$sysconfPreconfigure = dirname(__DIR__) . '/ihms-preconfigure';
-$scannerTest = __DIR__ . '/Preconfigure/scanner';
+// Include bootstrap
+require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
 
-// Show user information if we are in noninteractive mode
-if (getenv('SYSCONF_FRONTEND') === false) {
-    putenv('SYSCONF_DEBUG=user');
+use iHMS\Sysconf\Db;
+use iHMS\Sysconf\Question;
+
+// Load sysconf database
+Db::load(array('readonly' => 'true'));
+
+$defaultOwner = 'unknown';
+
+/** @var $question Question */
+foreach (Question::getIterator() as $question) {
+    $name = $question->getName();
+    $type = $question->type;
+    $value = $question->getValue();
+
+    if (!strlen($type) || $type == 'text' || $type == 'title') {
+        continue;
+    }
+
+    print '# ' . $question->getDescription() . "\n";
+
+    if ($type == 'select' || $type == 'multiselect') {
+        print '# Choices: ' . $question->getChoices() . "\n";
+    }
+
+    $owners = $question->getOwners();
+
+    if ($owners != '') {
+        foreach (explode(', ', $owners) as $owner) {
+            print "$owner\t$name\t$type\t$value\n";
+        }
+    } else {
+        print "$defaultOwner\t$name\t$type\t$value\n";
+    }
 }
-
-$fp = popen("{$sysconfPreconfigure} --ihms -s {$scannerTest} -f noninteractive", 'w');
-
-$itemNb = (isset($argv[1]) && preg_match('/^\d+$/', $argv[1])) ? $argv[1] : 150;
-
-for ($x = 0; $x < $itemNb; $x++) {
-    fwrite($fp, "module{$x}\n");
-}
-
-pclose($fp);
-@rmdir('/tmp/sysconf');
 
 exit(0);

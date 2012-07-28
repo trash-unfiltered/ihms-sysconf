@@ -38,17 +38,13 @@
  * parameters for it.
  */
 
-namespace iHMS\Sysconf;
-
-use iHMS\Sysconf\Db;
-use iHMS\Sysconf\Template;
-use iHMS\Sysconf\AutoSelect;
-use iHMS\Sysconf\Log;
-
 // Include bootstrap
-require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+require_once  'bootstrap.php';
 
-putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO review
+use iHMS\Sysconf\AutoSelect;
+use iHMS\Sysconf\Db;
+use iHMS\Sysconf\Log;
+use iHMS\Sysconf\Template;
 
 // Load sysconf database
 Db::load();
@@ -71,7 +67,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
     $module = $env;
 } elseif (preg_match('!^.*/(.*?)\.(?:postinst|postrm|prerm)!', $argv[0], $m)) {
     $module = $m[1];
-} elseif (file_exists('/usr/local/var/lib/ihms/tmp.ci/control')) { // TODO review for better reusability - /tmp ???
+} elseif (file_exists('/usr/local/var/lib/ihms/tmp.ci/control')) { // TODO make this configurable
     // The preinst is running, presumably. Now, it gets really ugly, because we have to parse the control file
     $fh = @fopen('/usr/local/var/lib/ihms/tmp.ci/control', 'r');
 
@@ -88,7 +84,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
 
     fclose($fh);
 } else {
-    // Being run some other way, not via an iHMS script
+    // Being run some other way, not via an iHMS installer script
     $module = '';
 
     Log::debug('developer', 'Trying to find a templates file..');
@@ -114,7 +110,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
             // Finally, look in sysconf lib directory for the base filename with .templates appended
             if (
                 !(preg_match('!^(?:.*/)?(.*)!', $argv[0], $m) &&
-                    $tryTemplate("/usr/local/share/sysconf/templates/{$m[1]}.templates"))
+                    $tryTemplate("@prefix@/share/ihms/sysconf/templates/{$m[1]}.templates"))
             ) {
                 Log::debug('developer', "Couldn't find a templates file.");
             }

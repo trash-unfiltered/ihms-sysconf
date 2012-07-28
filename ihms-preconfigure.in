@@ -67,7 +67,7 @@
  *
  * Run in ihms mode. It will expect to read a set of module filenames from stdin, rather than getting them as parameters.
  * Typically this is used to make apt run ihms-preconfigure on all modules before they are installed.
- * To do this, add something like this to /usr/local/etc/ihms/ihms.conf:
+ * To do this, add something like this to /usr/local/etc/ihms/installer.ini:
  *
  * // Pre-configure all modules before they are installed.
  * ihms.installer.preinstall = "ihms-preconfigure --ihms --priority=low"
@@ -77,12 +77,14 @@
  * Display usage help.
  */
 
-namespace iHMS\Sysconf;
-
 // Include bootstrap
-require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
 
-putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
+use iHMS\Sysconf\AutoSelect;
+use iHMS\Sysconf\Config;
+use iHMS\Sysconf\Db;
+use iHMS\Sysconf\Log;
+use iHMS\Sysconf\Template;
 
 // Load sysconf database
 Db::load();
@@ -132,10 +134,7 @@ if (!is_null($moduleScanner)) {
 } elseif (is_executable('/usr/locale/bin/ihms-extracttemplates')) {
     $moduleScanner = 'ihms-extracttemplates';
 } else {
-    Log::warn(
-        _("delaying module configuration, since a module scanner is not installed nor provided on the command line.")
-    );
-
+    Log::warn(_("delaying module configuration, since a module scanner is not installed nor provided on the command line."));
     exit(0);
 }
 

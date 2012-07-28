@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf;
 
 /**
- * _Log class
+ * Log class
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
@@ -71,7 +71,7 @@ class Log
 
         if ($log && preg_match("/{$log}/", $type)) {
             if (!self::$sysLogWriter) {
-                self::$sysLogWriter = new \Zend_Log_Writer_Syslog(array('application' => 'iHMS'));
+                self::$sysLogWriter = new \Zend_Log_Writer_Syslog(array('application' => 'iHMS-Sysconf'));
             }
 
             self::$sysLogWriter->write(array('priority' => LOG_DEBUG, 'message' => "({$type}) {$message}"));

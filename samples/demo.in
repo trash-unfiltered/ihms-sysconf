@@ -20,7 +20,7 @@
  *
  * @category    iHMS
  * @package     iHMS_Sysconf
- * @subpackage  Test
+ * @subpackage  samples
  * @copyright   2012 by iHMS Team
  * @author      Laurent Declercq <l.declercq@nuxwin.com>
  * @version     0.0.1
@@ -31,19 +31,23 @@
 /***********************************************************************************************************************
  * DESCRIPTION
  *
- *  Test config module. This is a regression/stress test.
+ *  Demo config module. This is more a regression/stress test.
  */
 
-namespace iHMS\Sysconf\Client;
-
-// Include ConfModule client
-require_once dirname(__DIR__) . '/iHMS/Sysconf/Client/ConfModule.php';
+# Note this stanza is only here to make this script work in an uninstalled
+# sysconf source tree, and is not needed in production code.
+chdir(dirname(__DIR__));
+if(file_exists('confmodule')) {
+    require_once 'confmodule';
+} else {
+    require_once '@prefix@/share/ihms/sysconf/confmodule';
+}
 
 version('1.0');
 capb('backup');
 capb('escape');
 
-settitle('test/title');
+settitle('demo/title');
 
 // This implements a simple state machine so the back (cancel) button can be handled (backup capability)
 
@@ -51,36 +55,36 @@ $state = 1;
 while ($state != 0 && $state != 10) {
     switch ($state) {
         case 1:
-            input('high', 'test/boolean');
+            input('high', 'demo/boolean');
             break;
         case 2:
-            input('high', 'test/multiselect');
+            input('high', 'demo/multiselect');
             break;
         case 3:
-            info('test/info');
-            input('critical', 'test/string');
-            input('low', 'test/password');
-            input('low', 'test/text');
-            subst('test/select', 'colors', 'red, Yellow, green');
-            input('high', 'test/select');
+            info('demo/info');
+            input('critical', 'demo/string');
+            input('low', 'demo/password');
+            input('low', 'demo/text');
+            subst('demo/select', 'colors', 'red, Yellow, green');
+            input('high', 'demo/select');
             break;
         case 4:
             beginBlock();
-            input('low', 'test/boolean');
-            input('low', 'test/boolean');
+            input('low', 'demo/boolean');
+            input('low', 'demo/boolean');
             endBlock();
-            input('low', 'test/note');
+            input('low', 'demo/note');
             break;
         case 5:
             // Will be displayed again
-            input('high', 'test/password');
+            input('high', 'demo/password');
             break;
         case 6:
-            progress('START', 0, 10, 'test/progress/title');
+            progress('START', 0, 10, 'demo/progress/title');
             sleep(1);
             progress('SET', 2);
             sleep(1);
-            progress('INFO', 'test/progress/info');
+            progress('INFO', 'demo/progress/info');
             progress('STEP', 3);
             sleep(1);
             progress('STEP', 1);
@@ -88,18 +92,18 @@ while ($state != 0 && $state != 10) {
             progress('STOP');
             break;
         case 7:
-            subst('test/subst', 'user', 'joe user\nanother user');
-            $ret = metaget('test/subst', 'extended_description');
-            fwrite(STDERR, "test/subst extended_description: {$ret[1]}\n");
-            input('high', 'test/subst');
+            subst('demo/subst', 'user', 'joe user\nanother user');
+            $ret = metaget('demo/subst', 'extended_description');
+            fwrite(STDERR, "demo/subst extended_description: {$ret[1]}\n");
+            input('high', 'demo/subst');
             break;
         case 8:
             // This question should be show regardless of priority
-            input('high', 'test/error');
+            input('high', 'demo/error');
             break;
         case 9:
             // This question should be show regardless of priority
-            input('low', 'test/error');
+            input('low', 'demo/error');
             break;
     }
 
@@ -107,17 +111,17 @@ while ($state != 0 && $state != 10) {
     ($ret[0] == 30) ? $state-- : $state++;
 }
 
-$ret = get('test/select');
-fwrite(STDERR, "Value for test/select is: '{$ret[1]}'\n");
+$ret = get('demo/select');
+fwrite(STDERR, "Value for demo/select is: '{$ret[1]}'\n");
 
-$ret = get('test/string');
-fwrite(STDERR, "Value for test/string is: '{$ret[1]}'\n");
+$ret = get('demo/string');
+fwrite(STDERR, "Value for demo/string is: '{$ret[1]}'\n");
 
-$ret = get('test/boolean');
-fwrite(STDERR, "Value for test/boolean is: '{$ret[1]}'\n");
+$ret = get('demo/boolean');
+fwrite(STDERR, "Value for demo/boolean is: '{$ret[1]}'\n");
 
-$ret = get('test/multiselect');
-fwrite(STDERR, "Value for test/multiselect is: '{$ret[1]}'\n");
+$ret = get('demo/multiselect');
+fwrite(STDERR, "Value for demo/multiselect is: '{$ret[1]}'\n");
 
 // Tell sysconf we're done talking to it.
 // Note: Just for testing purpose since sysconf can detect termination of this program automatically

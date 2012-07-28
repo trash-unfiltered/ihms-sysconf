@@ -93,10 +93,15 @@
  * TODO Reusability
  */
 
-namespace iHMS\Sysconf;
-
 // Include bootstrap
-require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
+
+use iHMS\Sysconf\AutoSelect;
+use iHMS\Sysconf\Config;
+use iHMS\Sysconf\Db;
+use iHMS\Sysconf\Priority;
+use iHMS\Sysconf\Question;
+use iHMS\Sysconf\Template;
 
 /***********************************************************************************************************************
  * Functions
@@ -137,13 +142,11 @@ function getAllModules()
  * Main
  */
 
-putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
-
 // Set up default modules management system info directory path (can be overridden in sysconf.conf)
-iHMS_Sysconf_Config::getInstance()->infoDirectory = '/usr/local/var/lib/ihms';
+Config::getInstance()->infoDirectory = '/usr/local/var/lib/ihms';
 
 // Use low priority unless an option below overrides
-iHMS_Sysconf_Config::getInstance()->priority('low');
+Config::getInstance()->priority('low');
 
 // Initialize options
 $unseenOnly = false;
@@ -153,7 +156,7 @@ $defaultPriority = false;
 $reload = true;
 
 // Add and parse options passed to this script - After process, $modules will hold only remaining arguments (module list)
-$modules = iHMS_Sysconf_Config::getInstance()->getopt(
+$modules = Config::getInstance()->getopt(
     _('Usage: sysconf-reconfigure [options] modules'),
     array(
         'all|a' => array(&$all, _('Reconfigure all modules.')),
@@ -170,27 +173,26 @@ if ((posix_geteuid()) != 0) {
 }
 
 // Load sysconf database
-iHMS_Sysconf_Db::load();
+Db::load();
 
 if ($defaultPriority) {
-    iHMS_Sysconf_Config::getInstance()->priority = iHMS_Sysconf_Question::get('sysconf/priority')->getValue();
+    Config::getInstance()->priority = Question::get('sysconf/priority')->getValue();
 }
 
 // If the frontend is noninteractive, change it temporarily to dialog.
 if (
-    strtolower(iHMS_Sysconf_Config::getInstance()->frontend) == 'noninteractive' &&
-    !iHMS_Sysconf_Config::getInstance()->frontendForced
+    strtolower(Config::getInstance()->frontend) == 'noninteractive' && !Config::getInstance()->frontendForced
 ) {
-    iHMS_Sysconf_Config::getInstance()->frontend = 'dialog';
+    Config::getInstance()->frontend = 'dialog';
 }
 
 // Make frontend
-$frontend = iHMS_Sysconf_AutoSelect::frontendFactory();
+$frontend = AutoSelect::frontendFactory();
 
 if (!$unseenOnly) {
     // Make the frontend show questions even if the user has already seen them. Since this is a reconfigure program,
     // they may want to change their choices.
-    iHMS_Sysconf_Config::getInstance()->reShow = true;
+    Config::getInstance()->reShow = true;
 }
 
 if ($all) {
@@ -209,7 +211,7 @@ if ($all) {
 putenv('SYSCONF_RECONFIGURE=1');
 
 // Get info directory path
-$infoDir = iHMS_Sysconf_Config::getInstance()->infoDirectory;
+$infoDir = Config::getInstance()->infoDirectory;
 
 foreach ($modules as $module) {
     // Set default title
@@ -236,7 +238,7 @@ foreach ($modules as $module) {
     if ($reload) {
         // Load up templates just in case they aren't already.
         if (file_exists($infoDir . "/{$module}.templates")) {
-            iHMS_Sysconf_Template::load($infoDir . "/{$module}.templates", $module);
+            Template::load($infoDir . "/{$module}.templates", $module);
         }
     }
 
@@ -273,7 +275,7 @@ foreach ($modules as $module) {
 
         if ($script == 'config' || $isConfModule) {
             // Start up the confmodule
-            $confModule = iHMS_Sysconf_AutoSelect::confModuleFactory("{$infoDir}/{$module}.{$script}", $info[1], $info[2]);
+            $confModule = AutoSelect::confModuleFactory("{$infoDir}/{$module}.{$script}", $info[1], $info[2]);
 
             // Make sure any questions the confmodule registers are oned by this module
             $confModule->setOwner($module);
@@ -288,7 +290,7 @@ foreach ($modules as $module) {
             // Not a confmodule, so run it as a normal script. Since it might run other programs that do use sysconf
             // checkpoint the current database state and re-initialize it when the script finishes.
 
-            iHMS_Sysconf_Db::save();
+            Db::save();
             putenv('SYSCONF_HAS_FRONTEND');
 
             exec("{$infoDir}/{$module}.{$script} {$info[1]} {$info[2]}", $out, $ret);
@@ -297,7 +299,7 @@ foreach ($modules as $module) {
             }
 
             putenv('SYSCONF_HAS_FRONTEND=1');
-            iHMS_Sysconf_Db::load();
+            Db::load();
         }
     }
 }
@@ -306,4 +308,4 @@ foreach ($modules as $module) {
 $frontend->shutdown();
 
 // Save sysconf databse
-iHMS_Sysconf_Db::save();
+Db::save();

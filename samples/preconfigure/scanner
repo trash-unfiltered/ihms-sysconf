@@ -30,18 +30,19 @@
 /***********************************************************************************************************************
  * DESCRIPTION
  *
- * Module scanner script. This is only intented to test the sysconf-preconfigure script.
+ * Module scanner script. This is only intented for the preconfigure-demo script.
  *
- * A real scanner will parse a module archive to extract both template and config files into a temporary directory and
- * will print the following information on STDOUT:
+ * A real scanner will parse a module archive/directory to extract both template and config files into a temporary
+ * directory and will print the following information on STDOUT:
  *
  * module: Module name
  * version: Installed version if any
  * templates: path to extracted templates file
  * config: path to extracted config file
  *
- * Beacause this scanner is only for tests, it's will extract nothing but simply mimic a scanner behavior by writing
- * some config files and their associated template files into a temporary directory, and print the needed info on STDOUT
+ * Beacause this scanner is only for demo, it's will extract nothing but simply mimic a scanner behavior by writing
+ * some config files and their associated template files into a temporary directory, and finally, print the related info
+ * on STDOUT
  */
 
 $tmpDir = '/tmp/sysconf';
@@ -51,8 +52,8 @@ if (!file_exists($tmpDir) && !@mkdir($tmpDir, 0755, true)) {
     exit(1);
 }
 
-// Find confModulePath
-$confModulePath = dirname(dirname(__DIR__)) . '/iHMS/Sysconf/Client/ConfModule.php';
+// confModulePath
+$confModulePath = '@prefix@/share/ihms/sysconf/confmodule';
 
 array_shift($argv);
 

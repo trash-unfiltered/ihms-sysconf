@@ -27,25 +27,23 @@
  * @license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
  */
 
-namespace iHMS\Sysconf;
-
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 // Initialize localization
 setlocale(LC_MESSAGES, ''); // sets the locale according to the user's environment variables
 textdomain('sysconf');
-bindtextdomain('sysconf', '/usr/local/share/locale');
+bindtextdomain('sysconf', realpath('../locale'));
 
 // Check for PHP version
-if (version_compare(phpversion(), '5.3.3') == -1) {
-    fwrite(STDERR, sprintf(_('Your PHP version is %s. Sysconf require PHP %s or newer.'), phpversion(), '5.3.3') . "\n");
+if (version_compare(PHP_VERSION, '5.3.3') == -1) {
+    fwrite(STDERR, sprintf(_('Your PHP version is %s. Sysconf require PHP %s or newer.'), PHP_VERSION, '5.3.3') . "\n");
     exit(1);
 }
 
 // Check for PHP SAPI
 if (PHP_SAPI != 'cli') {
-    fwrite(STDERR, _('Sysconf is a CLI program.') . "\n");
+    fwrite(STDERR, _('Sysconf can be run in CLI mode only.') . "\n");
     exit(1);
 }
 
@@ -57,9 +55,10 @@ if (!extension_loaded('iconv')) {
 
 // Check for Zend Framework library availability and version
 if (stream_resolve_include_path('Zend/Version.php') === false) {
-    fwrite(STDERR, _('Sysconf require Zend Framework 1.11.x or newer.') . "\n");
+    fwrite(STDERR, _('Sysconf require Zend Framework 1.11.x or newer with PHP include_path correctly set for it.') . "\n");
     exit(1);
 }
+
 
 /** @see Zend_Version */
 require_once 'Zend/Version.php';
@@ -74,21 +73,15 @@ if (version_compare(\Zend_Version::VERSION, '1.11') == -1) {
 }
 
 // Add sysconf library directory to the PHP include_path
-set_include_path(dirname(dirname(__DIR__)) . PATH_SEPARATOR . get_include_path());
+set_include_path(__DIR__ . '/library' . PATH_SEPARATOR . get_include_path());
 
 // Register classes loader
-// TODO Review
+// TODO Replace by classes map
 spl_autoload_register(
     function($className)
     {
-        $classPath = str_replace('_', '/', $className);
-
-        if (stream_resolve_include_path($classPath . '.php')) {
-            require_once "$classPath.php";
-        } else {
-            $classPath = str_replace('\\', '/', $className);
-            require_once "$classPath.php";
-        }
+        $classPath = str_replace(array('\\', '_'), '/', $className);
+        require_once "$classPath.php";
     }
 );
 

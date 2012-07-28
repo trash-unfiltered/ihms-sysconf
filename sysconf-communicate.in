@@ -64,12 +64,12 @@
  * in debugging.
  */
 
-namespace iHMS\Sysconf;
-
 // Include bootstrap
-require_once  __DIR__ . '/iHMS/Sysconf/Bootstrap.php'; // TODO review
+require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
 
-putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
+use iHMS\Sysconf\AutoSelect;
+use iHMS\Sysconf\Config;
+use iHMS\Sysconf\Db;
 
 // Load sysconf database
 Db::load();
