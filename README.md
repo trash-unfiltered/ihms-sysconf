@@ -21,7 +21,8 @@ Sysconf is only GNU/Linux OS compatible.
 
 ### USAGE
 
-See and run the [Test/confmodule](https://github.com/i-HMS/sysconf/blob/master/Test/confmodule "confmodule") script and also, see the [iHMS/Sysconf/Client/ConfModule.php](https://github.com/i-HMS/sysconf/blob/master/iHMS/Sysconf/Client/ConfModule.php "Client ConfModule") file. A better documentation will
+Build and run the [Test/confmodule](https://github.com/i-HMS/sysconf/blob/master/samples/demo.in "demo confmodule") script
+and also, see the [iHMS/Sysconf/Client/ConfModule.php](https://github.com/i-HMS/sysconf/blob/master/confmodule "library") file. A better documentation will
 come soon.
 
 Don't forget that for now, Sysconf is still in prototype state.
