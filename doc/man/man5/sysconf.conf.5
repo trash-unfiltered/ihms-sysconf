@@ -1,0 +1,308 @@
+.TH SYSCONF.CONF 5
+.SH NAME
+sysconf.conf \- sysconf configuration file
+.SH DESCRIPTION
+Sysconf is a configuration system for PHP application modules. /etc/sysconf.conf and ~/.sysconfrc are configuration
+files sysconf uses to determine which databases it should use. These databases are used for storing two types of
+information; dynamic config data the user enters into it, and static template data. Sysconf offers a flexible,
+extensible database backend. New drivers can be created with a minimum of effort, and sets of drivers can be combined in
+various ways.
+.SH SYNOPSIS
+  # This is a sample config file that is
+  # sufficient to use sysconf.
+  Config: configdb
+  Templates: templatedb
+
+  Name: configdb
+  Driver: File
+  Filename: /usr/local/var/cache/ihms/sysconf/config.dat
+
+  Name: templatedb
+  Driver: File
+  Mode: 644
+  Filename: /usr/local/var/cache/ihms/sysconf/templates.dat
+.SH "FILE FORMAT"
+The format of this file is a series of stanzas, each separated by at least
+one wholly blank line. Comment lines beginning with a "#" character are
+ignored.
+.P
+The first stanza of the file is special, is used to configure sysconf as a
+whole. Two fields are required to be in this first stanza:
+.RS
+.TP
+.B Config
+Specifies the name of the database from which to load config data.
+.TP
+.B Templates
+Specifies the name of the database to use for the template cache.
+.RE
+.P
+Additional fields that can be used include:
+.RS
+.TP
+.B Frontend
+The frontend Sysconf should use, overriding any frontend set in the sysconf
+database.
+.TP
+.B Priority
+The priority Sysconf should use, overriding any priority set in the sysconf
+database.
+.TP
+.B Admin-Email
+The email address Sysconf should send mail to if it needs to make sure that the admin has seen an important message.
+Defaults to "root", but can be set to any valid email address to send the mail there. If you prefer to never have
+sysconf send you mail, specify a blank address. This can be overridden on the fly with the SYSCONF_ADMIN_EMAIL
+environment variable.
+.TP
+.B Debug
+If set, this will cause sysconf to output debugging information to standard error. The value it is set to can be
+something like "user", "developer", "db", or a regular expression. Typically, rather than setting it permanently in a
+config file, you will only want to temporarily turn on debugging, and the SYSCONF_DEBUG environment variable can be set
+instead to accomplish that.
+.TP
+.B NoWarnings
+If set, this will make sysconf not display warnings about various things. This can be overridden on the fly with the
+SYSCONF_NOWARNINGS environment variable.
+.TP
+.B Log
+Makes sysconf log debugging information as it runs, to the syslog. The value it is set to controls that is logged. See
+Debug, above for an explanation of the values that can be set to control what is logged.
+.TP
+.B Terse
+If set to "true", makes some sysconf frontends use a special terse display mode that outputs as little as possible.
+Defaults to false. Terse mode may be temporarily set via the SYSCONF_TERSE environment variable.
+.RE
+.P
+For example, the first stanza of a file might look like this:
+  Config: configdb
+  Templates: templatedb
+.P
+Each remaining stanza in the file sets up a database. A database stanza begins by naming the database:
+  Name: configdb
+.P
+Then it indicates what database driver should be used for this database. See DRIVERS, below, for information about what
+drivers are available.
+  Driver: File
+.P
+You can indicate that the database is not essential to the proper functioning of sysconf by saying it is not required.
+This will make sysconf muddle on if the database fails for some reason.
+  Required: false
+.P
+You can mark any database as readonly and sysconf will not write anything to it.
+  Readonly: true
+.P
+You can also limit what types of data can go into the database with Accept- and Reject- lines; see ACCESS CONTROLS,
+below.
+.P
+The remainder of each database stanza is used to provide configuration specific to that driver. For example, the Text
+driver needs to know a directory to put the database in, so you might say:
+  Filename: /usr/local/var/cache/ihms/sysconf/config.dat
+.SH DRIVERS
+A number of drivers are available, and more can be written with little difficulty. Drivers come in two general types.
+First there are real drivers -- drivers that actually access and store data in some kind of database, which might be on
+the local filesystem, or on a remote system. Then there are meta-drivers that combine other drivers together to form
+more interesting systems. Let's start with the former.
+.TP
+.TP
+.B File
+.RS
+This database driver allows sysconf to store a whole database in a single flat text file. This makes it easy to archive,
+transfer between machines, and edit. It is one of the more compact database formats in terms of disk space used. It is
+also one of the slowest.
+.P
+On the downside, the entire file has to be read in each time sysconf starts up, and saving it is also slow.
+.P
+The following things are configurable for this driver.
+.RS
+.TP
+.B Filename
+The file to use as the database. This is a required field.
+.TP
+.B Mode
+The permissions to create the file with if it does not exist. Defaults to 600, since the file could contain passwords in
+some circumstances.
+.TP
+.B Format
+The format of the file. See FORMATS below. Defaults to using a rfc-822 like format.
+.TP
+.B Backup
+Whether a backup should be made of the old file before changing it.
+Defaults to true.
+.RE
+.P
+As example stanza setting up a database using this driver:
+.P
+  Name: mydb
+  Driver: File
+  Filename: /usr/local/var/cache/ihms/sysconf/mydb.dat
+.RE
+.TP
+.B Pipe
+.RS
+This special-purpose database driver reads and writes the database from standard input/output. It may be useful for
+people with special needs.
+.P
+The following things are configurable for this driver.
+.RS
+.TP
+.B Format
+The format to read and write. See FORMATS below. Defaults to using a rfc-822 like format.
+.TP
+.B Infd
+File descriptor number to read from. Defaults to reading from stdin. If set to "none", the database will not read any
+data on startup.
+.TP
+.B Outfd
+File descriptor number to write to. Defaults to writing to stdout. If set to "none", the database will be thrown away on
+shutdown.
+.RE
+.RE
+.P
+That's all of the real drivers, now moving on to meta-drivers..
+.TP
+.B Stack
+.RS
+This driver stacks up a number of other databases (of any type), and allows them to be accessed as one. When sysconf
+asks for a value, the first database on the stack that contains the value returns it. If sysconf writes something to the
+database, the write normally goes to the first driver on the stack that has the item sysconf is modifying, and if none
+do, the new item is added to the first writable database on the stack.
+.P
+Things become more interesting if one of the databases on the stack is readonly. Consider a stack of the databases foo,
+bar, and baz, where foo and baz are both readonly. Sysconf wants to change an item, and this item is only present in
+baz, which is readonly. The stack driver is smart enough to realize that won't work, and it will copy the item from baz
+to bar, and the write will take place in bar. Now the item in baz is shadowed by the item in bar, and it will not longer
+be visible to sysconf.
+.P
+This kind of thing is particularly useful if you want to point many systems at a central, readonly database, while still
+allowing things to be overridden on each system. When access controls are added to the picture, stacks allow you to do
+many other interesting things, like redirect all passwords to one database while a database underneath it handles
+everything else.
+.P
+Only one piece of configuration is needed to set up a stack:
+.P
+.RS
+.TP
+.B Stack
+This is where you specify a list of other databases, by name, to tell it what makes up the stack.
+.RE
+.P
+For example:
+.P
+  Name: megadb
+  Driver: stack
+  Stack: passworddb, configdb, companydb
+.P
+.RE
+.P
+.B Backup
+.RS
+This driver passes all requests on to another database driver. But it also copies all write requests to a backup
+database driver.
+.P
+You must specify the following fields to set up this driver:
+.P
+.RS
+.TP
+.B Db
+The database to read from and write to.
+.TP
+.B Backupdb
+The name of the database to send copies of writes to.
+.RE
+.P
+For example:
+.P
+  Name: backup
+  Driver: Backup
+  Db: mydb
+  Backupdb: mybackupdb
+.RE
+.P
+.B Debug
+.RS
+This driver passes all requests on to another database driver, outputting verbose debugging output about the request and
+the result.
+.P
+You must specify the following fields to set up this driver:
+.P
+.RS
+.TP
+.B Db
+The database to read from and write to.
+.RE
+.P
+.SH "ACCESS CONTROLS"
+When you set up a database, you can also use some fields to specify access controls. You can specify that a database
+only accepts passwords, for example, or make a database only accept things with "foo" in their name.
+.TP
+.B Readonly
+As was mentioned earlier, this access control, if set to "true", makes a database readonly. Sysconf will read values
+from it, but will never write
+anything to it.
+.TP
+.B Accept-Name
+The text in this field is a perl-compatible regular expression that is matched against the names of items as they are
+requested from the database. Only if an items name matches the regular expression, will the database allow sysconf to
+access or modify it.
+.TP
+.B Reject-Name
+Like Accept-Name, except any item name matching this regular expression will be rejected.
+.TP
+.B Accept-Type
+Another regular expression, this matches against the type of the item that is being accessed. Only if the type matches
+the regex will access be granted.
+.TP
+.B Reject-Type
+Like Accept-Type, except any type matching this regular expression will be rejected.
+.SH FORMATS
+Some of the database drivers use format interface to control the actual format in which the database is stored on disk.
+These formats are currently supported:
+.TP
+.B Format822
+This is a file format loosely based upon the rfc-822 format for email message headers.
+.SH EXAMPLE
+Here is an example of a sysconf.conf file.
+.P
+  # This stanza is used for general sysconf setup.
+  Config: stack
+  Templates: templates
+  Log: developer
+  Debug: developer
+
+  # I use this database to hold
+  # passwords safe and secure.
+  Name: passwords
+  Driver: File
+  Filename: /usr/local/etc/ihms/sysconf/passwords
+  Mode: 600
+  Accept-Type: password
+
+  # Let's put them all together
+  # in a database stack.
+  Name: stack
+  Driver: Stack
+  Stack: passwords, X, mydb, company
+
+  # A database is also used to hold templates. We
+  # don't need to make this as fancy.
+  Name: templates
+  Driver: File
+  Mode: 644
+  Format: 822
+  Filename: /usr/local/var/cache/ihms/sysconf/templates
+.SH NOTES
+If you use something like ${HOME} in this file, it will be replaced with the value of the named environment variable.
+.P
+Environment variables can also be used to override the databases on the fly,
+see
+.BR sysconf (7)
+.P
+The field names (the part of the line before the colon) is case-insensitive. The values, though, are case sensitive.
+.SH FILES
+/usr/local/etc/ihms/sysconf.conf
+.P
+~/.sysconfrc
+.SH SEE ALSO
+.BR sysconf (7)
+.SH AUTHOR
+Laurent Declercq <l.declercq@nuxwin.com>

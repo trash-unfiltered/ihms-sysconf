@@ -1,0 +1,94 @@
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp .5v
+.if n .sp
+..
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
+.tr \(*W-
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.ie n \{\
+.    ds -- \(*W-
+.    ds PI pi
+.    if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.    if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\"  diablo 12 pitch
+.    ds L" ""
+.    ds R" ""
+.    ds C` ""
+.    ds C' ""
+'br\}
+.el\{\
+.    ds -- \|\(em\|
+.    ds PI \(*p
+.    ds L" ``
+.    ds R" ''
+'br\}
+.\"
+.\" Escape single quotes in literal strings from groff's Unicode transform.
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ie \nF \{\
+.    de IX
+.    tm Index:\\$1\t\\n%\t"\\$2"
+..
+.    nr % 0
+.    rr F
+.\}
+.el \{\
+.    de IX
+..
+.\}
+.IX Title "IHMS-PRECONFIGURE 8"
+.TH IHMS-PRECONFIGURE 8 "2012-07-28" "" "Sysconf"
+.if n .ad l
+.nh
+.SH "NAME"
+ihms\-preconfigure \- let modules ask questions prior to their installation
+.SH "SYNOPSIS"
+.IX Header "SYNOPSIS"
+.Vb 1
+\& ihms\-preconfigure [options] modulename
+\&
+\& ihms\-preconfigure \-\-ihms
+.Ve
+.SH "DESCRIPTION"
+.IX Header "DESCRIPTION"
+\&\fBihms-preconfigure\fR lets modules ask questions before they are installed. It operates on a set of modules, and all
+modules that use sysconf will have their config script run so they can examine the system and ask questions.
+.SH "OPTIONS"
+.IX Header "OPTIONS"
+.IP "\fB\-f\fR\fItype\fR, \fB\-\-frontend=\fR\fItype\fR" 4
+.IX Item "-ftype, --frontend=type"
+Select the frontend to use.
+.IP "\fB\-p\fR\fIvalue\fR, \fB\-\-priority=\fR\fIvalue\fR" 4
+.IX Item "-pvalue, --priority=value"
+Set the lowest priority of questions you are interested in. Any questions with a priority below the selected priority
+will be ignored and their default answers will be used.
+.IP "\fB\-\-terse\fR" 4
+.IX Item "--terse"
+Enables terse output mode. This affects only some frontends.
+.IP "\fB\-\-ihms\fR" 4
+.IX Item "--ihms"
+Run in ihms installer mode. It will expect to read a set of module filenames from stdin, rather than getting them as
+parameters. Typically this is used to make ihms installer run ihms-preconfigure on all modules before they are
+installed. To do this, add something like this to /usr/local/etc/ihms/installer.ini:
+.Sp
+.Vb 5
+\& // Pre\-configure all modules before they are installed.
+\& ihms.installer.preinstall = "ihms\-preconfigure \-\-ihms \-\-priority=low"
+.Ve
+.IP "\fB\-h\fR, \fB\-\-help\fR" 4
+.IX Item "-h, --help"
+Display usage help.
+.SH "SEE ALSO"
+.IX Header "SEE ALSO"
+\&\fIsysconf\fR\|(7)
+.SH "AUTHOR"
+.IX Header "AUTHOR"
+Laurent Declercq <l.declercq@nuxwin.com>

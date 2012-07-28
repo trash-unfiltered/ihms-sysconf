@@ -1,0 +1,62 @@
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp .5v
+.if n .sp
+..
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
+.tr \(*W-
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.ie n \{\
+.    ds -- \(*W-
+.    ds PI pi
+.    if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.    if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\"  diablo 12 pitch
+.    ds L" ""
+.    ds R" ""
+.    ds C` ""
+.    ds C' ""
+'br\}
+.el\{\
+.    ds -- \|\(em\|
+.    ds PI \(*p
+.    ds L" ``
+.    ds R" ''
+'br\}
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ie \nF \{\
+.    de IX
+.    tm Index:\\$1\t\\n%\t"\\$2"
+..
+.    nr % 0
+.    rr F
+.\}
+.el \{\
+.    de IX
+..
+.\}
+.IX Title "SYSCONF-GET-SELECTIONS 1"
+.TH SYSCONF-GET-SELECTIONS 1 "2012-07-28" "" "Sysconf"
+.if n .ad l
+.nh
+.SH "NAME"
+sysconf\-get\-selections \- output contents of sysconf database
+.SH "SYNOPSIS"
+.IX Header "SYNOPSIS"
+sysconf-get-selections
+.SH "DESCRIPTION"
+.IX Header "DESCRIPTION"
+Output the current sysconf database in a format understandable by sysconf-set-selections.
+.SH "SEE ALSO"
+.IX Header "SEE ALSO"
+\&\fIsysconf\-set-selections\fR\|(1)
+.SH "AUTHOR"
+.IX Header "AUTHOR"
+Laurent Declercq <l.declercq@nuxwin.com>

@@ -1,0 +1,124 @@
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp .5v
+.if n .sp
+..
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
+.tr \(*W-
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.ie n \{\
+.    ds -- \(*W-
+.    ds PI pi
+.    if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.    if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\"  diablo 12 pitch
+.    ds L" ""
+.    ds R" ""
+.    ds C` ""
+.    ds C' ""
+'br\}
+.el\{\
+.    ds -- \|\(em\|
+.    ds PI \(*p
+.    ds L" ``
+.    ds R" ''
+'br\}
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ie \nF \{\
+.    de IX
+.    tm Index:\\$1\t\\n%\t"\\$2"
+..
+.    nr % 0
+.    rr F
+.\}
+.el \{\
+.    de IX
+..
+.\}
+.IX Title "SYSCONF-COPYDB 1"
+.TH SYSCONF-COPYDB 1 "2012-07-28" "" "Sysconf"
+.if n .ad l
+.nh
+.SH "NAME"
+sysconf\-copydb \- copy a sysconf database
+.SH "SYNOPSIS"
+.IX Header "SYNOPSIS"
+.Vb 1
+\& sysconf\-copydb sourcedb destdb [\-\-pattern=pattern] [\-\-owner\-pattern=pattern] [\-\-config=Foo:bar]
+.Ve
+.SH "DESCRIPTION"
+.IX Header "DESCRIPTION"
+\&\fBsysconf-copydb\fR copies items from an existing sysconf database into another, possibly new database. The two
+databases may have different formats; if so a conversion will automatically be done.
+.SH "OPTIONS"
+.IX Header "OPTIONS"
+.IP "\fIsourcedb\fR" 4
+.IX Item "sourcedb"
+The name of the source database. Typically it will be defined in your sysconf.conf (or .sysconfrc) file.
+.IP "\fIdestdb\fR" 4
+.IX Item "destdb"
+The name of the destination database. It may be defined in sysconf.conf or .sysconfrc, or you might define it on the
+command line (see below).
+.IP "\fB\-p\fR \fIpattern\fR, \fB\-\-pattern\fR \fIpattern\fR" 4
+.IX Item "-p pattern, --pattern pattern"
+If this is specified, only items in \fIsourcedb\fR whose names match the pattern will be copied.
+.IP "\fB\-\-owner\-pattern\fR \fIpattern\fR" 4
+.IX Item "--owner-pattern pattern"
+If this is specified, only items in \fIsourcedb\fR whose owners match the pattern
+will be copied.
+.IP "\fB\-c\fR \fIfoo:bar\fR, \fB\-\-config\fR \fIFoo:bar\fR" 4
+.IX Item "-c foo:bar, --config Foo:bar"
+Set option Foo to bar. This is similar to writing:
+.Sp
+.Vb 1
+\&  Foo: bar
+.Ve
+.Sp
+In sysconf.conf, except you probably want to leave off the space on the command line (or quote it: \*(L"Foo: bar\*(R").
+Generally must be used multiple times, to build up a full configuration stanza. While blank lines are used to separate
+stanzas in sysconf.conf, this program will assume that \&\*(L"Name:dbname\*(R" denotes the beginning of a new stanza.
+.SH "EXAMPLES"
+.IX Header "EXAMPLES"
+.Vb 1
+\&  sysconf\-copydb configdb backup
+.Ve
+.PP
+Copy all of configdb to backup, assuming you already have the backup database defined in sysconf.conf.
+.PP
+.Vb 3
+\&  sysconf\-copydb configdb newdb \-\-pattern=\*(Aq^slrn/\*(Aq \e
+\&        \-\-config=Name:newdb \-\-config=Driver:File \e
+\&        \-\-config=Filename:newdb.dat
+.Ve
+.PP
+Copy slrn's data out of configdb, and into newdb. newdb is not defined in
+the rc file, so the \-\-config switches set up the database on the fly.
+.PP
+.Vb 2
+\&  sysconf\-copydb configdb stdout \-c Name:stdout \-c Driver:Pipe \e
+\&        \-c InFd:none \-\-pattern=\*(Aq^foo/\*(Aq
+.Ve
+.PP
+Spit out all the items in the sysconf database related to module foo.
+.PP
+.Vb 4
+\&  sysconf\-copydb configdb pipe \-\-config=Name:pipe \e
+\&                \-\-config=Driver:Pipe \-\-config=InFd:none | \e
+\&        ssh remotehost sysconf\-copydb pipe configdb \e
+\&                \-\-config=Name:pipe \-\-config=Driver:Pipe
+.Ve
+.PP
+This uses the special purpose pipe driver to copy a database to a remote system.
+.SH "SEE ALSO"
+.IX Header "SEE ALSO"
+\&\fIsysconf.conf\fR\|(5)
+.SH "AUTHOR"
+.IX Header "AUTHOR"
+Laurent Declercq <l.declercq@nuxwin.com>

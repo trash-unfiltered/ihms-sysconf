@@ -1,0 +1,104 @@
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp .5v
+.if n .sp
+..
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
+.tr \(*W-
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.ie n \{\
+.    ds -- \(*W-
+.    ds PI pi
+.    if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.    if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\"  diablo 12 pitch
+.    ds L" ""
+.    ds R" ""
+.    ds C` ""
+.    ds C' ""
+'br\}
+.el\{\
+.    ds -- \|\(em\|
+.    ds PI \(*p
+.    ds L" ``
+.    ds R" ''
+'br\}
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ie \nF \{\
+.    de IX
+.    tm Index:\\$1\t\\n%\t"\\$2"
+..
+.    nr % 0
+.    rr F
+.\}
+.el \{\
+.    de IX
+..
+.\}
+.IX Title "SYSCONF-SET-SELECTIONS 1"
+.TH SYSCONF-SET-SELECTIONS 1 "2012-07-28" "" "Sysconf"
+.if n .ad l
+.nh
+.SH "NAME"
+sysconf\-set\-selections \- insert new default values into the sysconf database
+.SH "SYNOPSIS"
+.IX Header "SYNOPSIS"
+.Vb 2
+\& sysconf\-set\-selections file
+\& sysconf\-get\-selections | ssh newhost sysconf\-set\-selections
+.Ve
+.SH "DESCRIPTION"
+.IX Header "DESCRIPTION"
+\&\fBsysconf-set-selections\fR can be used to pre-seed the sysconf database with answers, or to change answers in the
+database. Each question will be marked as seen to prevent sysconf from asking the question interactively.
+.PP
+Reads from a file if a filename is given, otherwise from stdin.
+.SH "WARNING"
+.IX Header "WARNING"
+Only use this command to seed sysconf values for modules that will be or are installed. Otherwise you can end up with
+values in the database for uninstalled modules that will not go away, or with worse problems involving shared values. It
+is recommended that this only be used to seed the database if the originating machine has an identical install.
+.SH "DATA FORMAT"
+.IX Header "DATA FORMAT"
+The data is a series of lines. Lines beginning with a # character are comments. Blank lines are ignored. All other lines
+set the value of one question, and should contain four values, each separated by one character of whitespace. The first
+value is the name of the module that owns the question. The second is the name of the question, the third value is the
+type of this question, and the fourth value (through the end of the line) is the value to use for the answer of the
+question.
+.PP
+Alternatively, the third value can be \*(L"seen\*(R"; then the preseed line only controls whether the question is marked
+as seen in sysconf's database. Note that preseeding a question's value defaults to marking that question as seen, so to
+override the default value without marking a question seen, you need two lines.
+.PP
+Lines can be continued to the next line by ending them with a \*(L"\e\*(R" character.
+.SH "EXAMPLES"
+.IX Header "EXAMPLES"
+.Vb 2
+\& # Force sysconf priority to critical.
+\& sysconf sysconf/priority select critical
+\&
+\& # Override default frontend to readline, but allow user to select.
+\& sysconf sysconf/frontend select readline
+\& sysconf sysconf/frontend seen false
+.Ve
+.SH "OPTIONS"
+.IX Header "OPTIONS"
+.IP "\fB\-\-verbose\fR, \fB\-v\fR" 4
+.IX Item "--verbose, -v"
+verbose output
+.IP "\fB\-\-checkonly\fR, \fB\-c\fR" 4
+.IX Item "--checkonly, -c"
+only check the input file format, do not save changes to database
+.SH "SEE ALSO"
+.IX Header "SEE ALSO"
+\&\fIsysconf\-get\-selections\fR\|(1)
+.SH "AUTHOR"
+.IX Header "AUTHOR"
+Laurent Declercq <l.declercq@nuxwin.com>

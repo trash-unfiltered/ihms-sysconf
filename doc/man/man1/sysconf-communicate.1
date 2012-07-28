@@ -1,0 +1,82 @@
+.de Sp \" Vertical space (when we can't use .PP)
+.if t .sp .5v
+.if n .sp
+..
+.de Vb \" Begin verbatim text
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve \" End verbatim text
+.ft R
+.fi
+..
+.tr \(*W-
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.ie n \{\
+.    ds -- \(*W-
+.    ds PI pi
+.    if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.    if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\"  diablo 12 pitch
+.    ds L" ""
+.    ds R" ""
+.    ds C` ""
+.    ds C' ""
+'br\}
+.el\{\
+.    ds -- \|\(em\|
+.    ds PI \(*p
+.    ds L" ``
+.    ds R" ''
+'br\}
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ie \nF \{\
+.    de IX
+.    tm Index:\\$1\t\\n%\t"\\$2"
+..
+.    nr % 0
+.    rr F
+.\}
+.el \{\
+.    de IX
+..
+.\}
+.IX Title "SYSCONF-COMMUNICATE 1"
+.TH SYSCONF-COMMUNICATE 1 "2012-07-28" "" "Sysconf"
+.if n .ad l
+.nh
+.SH "NAME"
+sysconf\-communicate \- communicate with sysconf
+.SH "SYNOPSIS"
+.IX Header "SYNOPSIS"
+.Vb 1
+\& echo commands | sysconf\-communicate [options] [module]
+.Ve
+.SH "DESCRIPTION"
+.IX Header "DESCRIPTION"
+\&\fBsysconf-communicate\fR allows you to communicate with sysconf on the fly, from the command line. The module
+argument is the name of the module which you are pretending to be as you communicate with sysconf, and it may be omitted
+if you are lazy. It reads commands in the form used by the sysconf protocol from stdin. For documentation on the
+available commands and their usage, see the sysconf specification.
+.PP
+The commands are executed in sequence. The textual return code of each is printed out to standard output.
+.PP
+The return value of this program is the numeric return code of the last executed command.
+.SH "EXAMPLE"
+.IX Header "EXAMPLE"
+.Vb 1
+\& echo get sysconf/frontend | sysconf\-communicate
+.Ve
+.PP
+Print out the value of the sysconf/frontend question.
+.SH "WARNING"
+.IX Header "WARNING"
+This program should never be used from a maintainer script of a module that uses sysconf! It may however, be useful in
+debugging.
+.SH "SEE ALSO"
+.IX Header "SEE ALSO"
+\&\fIsysconf\-loadtemplate\fR\|(1)
+.SH "AUTHOR"
+.IX Header "AUTHOR"
+Laurent Declercq <l.declercq@nuxwin.com>
