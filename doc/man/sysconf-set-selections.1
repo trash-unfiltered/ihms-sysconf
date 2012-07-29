@@ -62,9 +62,10 @@ database. Each question will be marked as seen to prevent sysconf from asking th
 Reads from a file if a filename is given, otherwise from stdin.
 .SH "WARNING"
 .IX Header "WARNING"
-Only use this command to seed sysconf values for modules that will be or are installed. Otherwise you can end up with
-values in the database for uninstalled modules that will not go away, or with worse problems involving shared values. It
-is recommended that this only be used to seed the database if the originating machine has an identical install.
+Only use this command to seed sysconf values for PHP application modules that will be or are installed. Otherwise you
+can end up with values in the database for uninstalled modules that will not go away, or with worse problems involving
+shared values. It is recommended that this only be used to seed the database if the originating machine has an identical
+install.
 .SH "DATA FORMAT"
 .IX Header "DATA FORMAT"
 The data is a series of lines. Lines beginning with a # character are comments. Blank lines are ignored. All other lines

@@ -1,8 +1,8 @@
-## Sysconf -  Interactive configuration system for PHP applications
+## Sysconf -  Interactive configuration system for PHP application modules
 
 ### INTRODUCTION
 
-Sysconf is a CLI interactive configuration system written in PHP that allows to configure application modules. It provides
+Sysconf is an interactive configuration system written in PHP, allowing to configure PHP application modules. It provides
 a consistent approach for configuring modules and gives the user a choice of interfaces. It can configure modules before
 they are installed, allowing installations and major upgrades to request all necessary information in advance, and let
 you do what you want while modules are installed. Sysconf lets you, if hurry, to skip the less important questions when
@@ -25,10 +25,10 @@ Sysconf is only GNU/Linux OS compatible.
 See the [confmodule library](https://github.com/i-HMS/sysconf/blob/master/confmodule "confmodule") file. A better documentation will
 come soon.
 
-### Installation and demo script
+### Installation
 
-In any case, before running demo script or installing sysconf on your system, you must ensure that you respect all
-requirements as mentionned in the **REQUIREMENT** section. For ***Debian*** and ***Ubuntu*** this could be done like this:
+Before installing sysconf, you must ensure that you respect all requirements as mentionned in the **REQUIREMENT** section.
+For ***Debian*** and ***Ubuntu*** this can be done like this:
 
 **Debian**
 
@@ -40,25 +40,22 @@ requirements as mentionned in the **REQUIREMENT** section. For ***Debian*** and 
 
 **Note:** In both cases, you still need to add Zend Framework library in your PHP include_path.
 
-##### Running the demo script without installing sysconf
-
-To run the demo script without installing sysconf, just type:
-
-	$ make prefix=/tmp/ihms demo
-
-This command will build and run the demo script. **/tmp** will be used as directory to create the sysconf database. Do
-not forget to run **make clean** at end to reset the source tree.
-
-##### Installing sysconf
+#### Installing sysconf on your system
 
  To install sysconf, just type as root user:
 
- 	# make clean
  	# make prefix=YOUR_PREFIX_PATH install
 
 **Note:** Default value for prefix is **/usr/local**.
 
-Sysconf is still in prototype state.
+### demo script
+
+To run the demo script without installing sysconf, just type:
+
+	$ make prefix=/tmp demo
+
+This command will build and run the demo script. The **/tmp** directory will be used to store the sysconf database. Do
+not forget to run **make clean** at end to reset the source tree.
 
 ### LICENSE
 

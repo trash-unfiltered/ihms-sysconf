@@ -56,9 +56,9 @@ sysconf\-communicate \- communicate with sysconf
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
 \&\fBsysconf-communicate\fR allows you to communicate with sysconf on the fly, from the command line. The module
-argument is the name of the module which you are pretending to be as you communicate with sysconf, and it may be omitted
-if you are lazy. It reads commands in the form used by the sysconf protocol from stdin. For documentation on the
-available commands and their usage, see the sysconf specification.
+argument is the name of the PHP application module which you are pretending to be as you communicate with sysconf, and
+it may be omitted if you are lazy. It reads commands in the form used by the sysconf protocol from stdin. For
+documentation on the available commands and their usage, see the sysconf specification.
 .PP
 The commands are executed in sequence. The textual return code of each is printed out to standard output.
 .PP
@@ -72,8 +72,8 @@ The return value of this program is the numeric return code of the last executed
 Print out the value of the sysconf/frontend question.
 .SH "WARNING"
 .IX Header "WARNING"
-This program should never be used from a maintainer script of a module that uses sysconf! It may however, be useful in
-debugging.
+This program should never be used from a maintainer script of a PHP application module that uses sysconf! It may however,
+be useful in debugging.
 .SH "SEE ALSO"
 .IX Header "SEE ALSO"
 \&\fIsysconf\-loadtemplate\fR\|(1)

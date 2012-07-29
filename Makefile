@@ -33,9 +33,7 @@ all: $(LIB) $(PROG) confmodule frontend samples/demo sysconf.conf
 	$(MAKE) -C po
 	$(MAKE) -C doc
 
-# Does not attempt to install documentation, as that can be fairly system
-# specific.
-install: install-utils install-rest
+install: install-utils install-rest install-i18n install-doc
 
 # Anything that goes in the ihms-sysconf-utils package.
 install-utils: $(PROG)
@@ -47,16 +45,19 @@ install-utils: $(PROG)
 install-i18n:
 	$(MAKE) -C po install
 
+install-doc:
+	$(MAKE) -C doc install
+
 # Install all else
 install-rest: $(LIB) $(PROG) confmodule frontend sysconf.conf
 	install -d \
-		$(DESTDIR)$(prefix)/etc/ihms/sysconf \
+		$(DESTDIR)$(prefix)/etc/ihms/ \
 		$(DESTDIR)$(prefix)/share/ihms/sysconf \
 		$(DESTDIR)$(prefix)/var/cache/ihms/sysconf \
 		$(DESTDIR)$(prefix)/bin \
 		$(DESTDIR)$(prefix)/sbin
 	# Install sysconf configuration file
-	install -m 0644 sysconf.conf $(DESTDIR)$(prefix)/etc/ihms/sysconf
+	install -m 0644 sysconf.conf $(DESTDIR)$(prefix)/etc/ihms
 	# This one is the ultimate backup copy
 	grep -v '^#' sysconf.conf > $(DESTDIR)$(prefix)/share/ihms/sysconf/sysconf.conf
 	# Install sysconf library
@@ -83,6 +84,16 @@ demo: $(LIB) sysconf.conf frontend samples/demo
 sysconf.conf:
 	# Build sysconf configuration file
 	sed -e "s|@prefix@|$(prefix)|g" < sysconf.in > sysconf.conf;
+
+uninstall:
+	$(MAKE) -C po uninstall
+	$(MAKE) -C doc uninstall
+	$(RM) $(DESTDIR)$(prefix)/etc/ihms/sysconf.conf
+	$(RM) -R $(DESTDIR)$(prefix)/share/ihms/library/iHMS/Sysconf $(DESTDIR)$(prefix)/share/ihms/sysconf
+	$(RM) $(DESTDIR)$(prefix)/sbin/ihms-* $(DESTDIR)$(prefix)/bin/sysconf-*
+	$(RM) -r $(DESTDIR)$(prefix)/var/cache/ihms/sysconf
+	find $(DESTDIR)$(prefix)/share/ihms -depth -type d -empty | xargs -i rm -R {}
+
 
 distclean: clean
 clean:

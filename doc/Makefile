@@ -21,21 +21,26 @@
 # link        https://github.com/i-HMS/sysconf Sysconf Home Site
 # license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
 
-MAN = $(sort $(shell find man -type f))
-MANGS = $(MAN:=.gz)
+MANPAGES = $(sort $(shell find man -type f ! -name \*.gz))
+MANPAGES_GZ = $(MANPAGES:=.gz)
 
-all: $(MANGS)
+all: $(MANPAGES_GZ)
 
-install: $(MANGS)
-	install -d $(DESTDIR)$(prefix)/share
-	# Create man directories
-	find man -type d | xargs -i install -d $(DESTDIR)$(prefix)/share/{}
-	# install man pages
-	find man -type f -name \*.gz | xargs -i install -m 0644 {} $(DESTDIR)$(prefix)/share/{}
+install: $(MANPAGES_GZ)
+	install -d $(DESTDIR)$(prefix)/share/man
+	# Install man pages
+	for num in 1 5 8; do \
+		install -d $(DESTDIR)$(prefix)/share/man/man$$num; \
+		find $^ -name "*.$$num.gz" | xargs -i install {} $(DESTDIR)$(prefix)/share/man/man$$num; \
+	done
 
 %.gz: %
-	gzip -9 < $< > $@
+	cat $< | sed -e "s|@prefix@|$(prefix)|g" | gzip -9 - > $@
+
+uninstall:
+	find $(DESTDIR)$(prefix)/share/man -type f -name ihms-preconfigure.8.gz -or -name ihms-reconfigure.8.gz -or \
+		-name sysconf\*.gz | xargs -i rm {}
 
 distclean: clean
 clean:
-	$(RM) man/*/ihms*.gz man/*/sysconf*.gz
+	$(RM) $(MANPAGES_GZ)
