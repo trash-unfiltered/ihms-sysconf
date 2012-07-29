@@ -43,7 +43,7 @@
  */
 
 // Include bootstrap
-require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
+require_once  '@datadir@/ihms/sysconf/bootstrap.php';
 
 use iHMS\Sysconf\Db;
 use iHMS\Sysconf\Question;

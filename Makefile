@@ -38,7 +38,7 @@ LIB=$(LIBMOD:.in=.php)
 PROGMOD=$(sort $(shell find . -maxdepth 1 -perm +100 -type f -name sysconf-\*.in -or -name ihms-\*.in))
 PROG=$(PROGMOD:.in=)
 
-all: $(LIB) $(PROG) confmodule frontend samples/demo sysconf.conf
+all: $(LIB) $(PROG) bootstrap.php confmodule frontend samples/demo sysconf.conf
 	$(MAKE) -C po
 	$(MAKE) -C doc
 
@@ -58,7 +58,7 @@ install-doc:
 	$(MAKE) -C doc install
 
 # Install all else
-install-rest: $(LIB) $(PROG) confmodule frontend sysconf.conf
+install-rest: $(LIB) $(PROG) bootstrap.php confmodule frontend sysconf.conf
 	install -d \
 		$(DESTDIR)$(sysconfdir)/ihms \
 		$(DESTDIR)$(datadir)/ihms/sysconf \
@@ -79,20 +79,20 @@ install-rest: $(LIB) $(PROG) confmodule frontend sysconf.conf
 	find $^ -maxdepth 1 -perm +100 -type f -name sysconf-show -or -name sysconf-copydb -or -name sysconf-communicate \
 		-or -name sysconf-set-selections | xargs -i install {} $(DESTDIR)$(bindir)
 
-demo: $(LIB) sysconf.conf frontend samples/demo
+demo: $(LIB) bootstrap.php frontend samples/demo sysconf.conf
 	SYSCONF_SYSTEMRC="$(shell pwd)/sysconf.conf" SYSCONF_FRONTEND=dialog ./frontend samples/demo
 
 %: %.in
-	sed -e "s|@prefix@|$(prefix)|g" < $< > $@
+	sed -e "s|@datadir@|$(datadir)|g" -e "s|@sysconfdir@|$(sysconfdir)|g" < $< > $@
 	chmod $(shell stat -c "0%a" $<) $@
 
 %.php: %.in
-	sed -e "s|@prefix@|$(prefix)|g" < $< > $@
+	sed -e "s|@sysconfdir@|$(sysconfdir)|g" -e "s|@datadir@|$(datadir)|g" -e "s|@localedir@|$(localedir)|g" < $< > $@
 	chmod $(shell stat -c "0%a" $<) $@
 
 sysconf.conf:
 	# Build sysconf configuration file
-	sed -e "s|@prefix@|$(prefix)|g" < sysconf.in > sysconf.conf;
+	sed -e "s|@localstatedir@|$(localstatedir)|g" < sysconf.in > sysconf.conf;
 
 uninstall:
 	$(MAKE) -C po uninstall
@@ -107,6 +107,6 @@ distclean: clean
 clean:
 	$(MAKE) -C po clean
 	$(MAKE) -C doc clean
-	$(RM) $(LIB) $(PROG) samples/demo frontend sysconf.conf
+	$(RM) $(LIB) $(PROG) bootstrap.php frontend samples/demo sysconf.conf
 
 PHONY: clean

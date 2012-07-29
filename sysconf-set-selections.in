@@ -88,7 +88,7 @@
  */
 
 // Include bootstrap
-require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
+require_once  '@datadir@/ihms/sysconf/bootstrap.php';
 
 use iHMS\Sysconf\Db;
 use iHMS\Sysconf\Config;
@@ -262,8 +262,6 @@ function mungeLine($line)
 /***********************************************************************************************************************
  * Main
  */
-
-putenv('SYSCONF_SYSTEMRC=' . __DIR__ . '/sysconf.conf'); // TODO remove before first release
 
 // Initialize options
 $debug = false;

@@ -33,7 +33,7 @@ error_reporting(E_ALL);
 // Initialize localization
 setlocale(LC_MESSAGES, ''); // sets the locale according to the user's environment variables
 textdomain('sysconf');
-bindtextdomain('sysconf', realpath('../locale'));
+bindtextdomain('sysconf', '@localedir@');
 
 // Check for PHP version
 if (version_compare(PHP_VERSION, '5.3.3') == -1) {

@@ -35,7 +35,7 @@ install: $(MANPAGES_GZ)
 	done
 
 %.gz: %
-	cat $< | sed -e "s|@prefix@|$(prefix)|g" | gzip -9 - > $@
+	cat $< | sed -e "s|@sysconfdir@|$(sysconfdir)|g" -e "s|@localstatedir@|$(localstatedir)|g" | gzip -9 - > $@
 
 uninstall:
 	find $(mandir) -type f -name ihms-preconfigure.8.gz -or -name ihms-reconfigure.8.gz -or \

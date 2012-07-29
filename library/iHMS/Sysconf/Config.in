@@ -68,8 +68,8 @@ class Config
      * @var array Holds sysconf config file paths
      */
     protected static $_configFiles = array(
-        '@prefix@/etc/ihms/sysconf.conf',
-        '@prefix@/share/ihms/sysconf/sysconf.conf'
+        '@sysconfdir@/ihms/sysconf.conf',
+        '@datadir@/share/ihms/sysconf/sysconf.conf'
     );
 
     /**

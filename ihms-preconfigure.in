@@ -78,7 +78,7 @@
  */
 
 // Include bootstrap
-require_once  '@prefix@/share/ihms/sysconf/bootstrap.php';
+require_once  '@datadir@/ihms/sysconf/bootstrap.php';
 
 use iHMS\Sysconf\AutoSelect;
 use iHMS\Sysconf\Config;
@@ -131,7 +131,7 @@ if (!is_null($moduleScanner)) {
         fwrite(STDERR, sprintf(_("sysconf: external scanner `%s' is not executable or doesn't exists."), $moduleScanner) . "\n");
         exit(1);
     }
-} elseif (is_executable('/usr/locale/bin/ihms-extracttemplates')) {
+} elseif (is_executable('/usr/locale/bin/ihms-extracttemplates')) { // TODO make this configurable
     $moduleScanner = 'ihms-extracttemplates';
 } else {
     Log::warn(_("delaying module configuration, since a module scanner is not installed nor provided on the command line."));

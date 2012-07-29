@@ -110,7 +110,7 @@ if (($env = getenv('SYSCONF_MODULE')) !== false) {
             // Finally, look in sysconf lib directory for the base filename with .templates appended
             if (
                 !(preg_match('!^(?:.*/)?(.*)!', $argv[0], $m) &&
-                    $tryTemplate("@prefix@/share/ihms/sysconf/templates/{$m[1]}.templates"))
+                    $tryTemplate("@datadir@/ihms/sysconf/templates/{$m[1]}.templates"))
             ) {
                 Log::debug('developer', "Couldn't find a templates file.");
             }

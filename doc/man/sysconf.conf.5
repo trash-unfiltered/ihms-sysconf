@@ -2,7 +2,7 @@
 .SH NAME
 sysconf.conf \- sysconf configuration file
 .SH DESCRIPTION
-Sysconf is a configuration system for PHP application modules. @prefix@/etc/ihms/sysconf.conf and ~/.sysconfrc are
+Sysconf is a configuration system for PHP application modules. @sysconfdir@/ihms/sysconf.conf and ~/.sysconfrc are
 configuration files sysconf uses to determine which databases it should use. These databases are used for storing two
 types of information; dynamic config data the user enters into it, and static template data. Sysconf offers a flexible,
 extensible database backend. New drivers can be created with a minimum of effort, and sets of drivers can be combined in
@@ -15,12 +15,12 @@ various ways.
 
   Name: configdb
   Driver: File
-  Filename: @prefix@/var/cache/ihms/sysconf/config.dat
+  Filename: @localstatedir@/cache/ihms/sysconf/config.dat
 
   Name: templatedb
   Driver: File
   Mode: 644
-  Filename: @prefix@/var/cache/ihms/sysconf/templates.dat
+  Filename: @localstatedir@/cache/ihms/sysconf/templates.dat
 .SH "FILE FORMAT"
 The format of this file is a series of stanzas, each separated by at least
 one wholly blank line. Comment lines beginning with a "#" character are
@@ -96,7 +96,7 @@ below.
 .P
 The remainder of each database stanza is used to provide configuration specific to that driver. For example, the Text
 driver needs to know a directory to put the database in, so you might say:
-  Filename: @prefix@/var/cache/ihms/sysconf/config.dat
+  Filename: @localstatedir@/cache/ihms/sysconf/config.dat
 .SH DRIVERS
 A number of drivers are available, and more can be written with little difficulty. Drivers come in two general types.
 First there are real drivers -- drivers that actually access and store data in some kind of database, which might be on
@@ -134,7 +134,7 @@ As example stanza setting up a database using this driver:
 .P
   Name: mydb
   Driver: File
-  Filename: @prefix@/var/cache/ihms/sysconf/mydb.dat
+  Filename: @localstatedir@/cache/ihms/sysconf/mydb.dat
 .RE
 .TP
 .B Pipe
@@ -273,7 +273,7 @@ Here is an example of a sysconf.conf file.
   # passwords safe and secure.
   Name: passwords
   Driver: File
-  Filename: @prefix@/etc/ihms/sysconf/passwords
+  Filename: @sysconfdir@/ihms/sysconf/passwords
   Mode: 600
   Accept-Type: password
 
@@ -289,7 +289,7 @@ Here is an example of a sysconf.conf file.
   Driver: File
   Mode: 644
   Format: Format822
-  Filename: @prefix@/var/cache/ihms/sysconf/templates
+  Filename: @localstatedir@/cache/ihms/sysconf/templates
 .SH NOTES
 If you use something like ${HOME} in this file, it will be replaced with the value of the named environment variable.
 .P
@@ -299,7 +299,7 @@ see
 .P
 The field names (the part of the line before the colon) is case-insensitive. The values, though, are case sensitive.
 .SH FILES
-@prefix@/etc/ihms/sysconf.conf
+@sysconfdir@/ihms/sysconf.conf
 .P
 ~/.sysconfrc
 .SH SEE ALSO

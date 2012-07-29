@@ -40,7 +40,7 @@ chdir(dirname(__DIR__));
 if(file_exists('confmodule')) {
     require_once 'confmodule';
 } else {
-    require_once '@prefix@/share/ihms/sysconf/confmodule';
+    require_once '@datadir@/ihms/sysconf/confmodule';
 }
 
 version('1.0');
