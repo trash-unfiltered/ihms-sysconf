@@ -32,8 +32,8 @@ all: sysconf.pot $(MOFILES)
 install: all
 	for file in $(MOFILES); do \
 		lang=`echo $$file | sed 's/\.mo//'`; \
-		install -d $(DESTDIR)$(prefix)/share/ihms/locale/$$lang/LC_MESSAGES/; \
-		install -m 0644 $$file $(DESTDIR)$(prefix)/share/ihms/locale/$$lang/LC_MESSAGES/sysconf.mo; \
+		install -d $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/; \
+		install -m 0644 $$file $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/sysconf.mo; \
 	done
 
 sysconf.pot: $(POTFILES)
@@ -66,4 +66,4 @@ check:
 	done
 
 uninstall:
-	find $(DESTDIR)$(prefix)/share/ihms/locale -type f -name sysconf.mo | xargs -i rm {}
+	find $(localedir) -type f -name sysconf.mo | xargs -i rm {}

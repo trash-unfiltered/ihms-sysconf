@@ -27,18 +27,18 @@ MANPAGES_GZ = $(MANPAGES:=.gz)
 all: $(MANPAGES_GZ)
 
 install: $(MANPAGES_GZ)
-	install -d $(DESTDIR)$(prefix)/share/man
+	install -d $(DESTDIR)$(mandir)
 	# Install man pages
 	for num in 1 5 8; do \
-		install -d $(DESTDIR)$(prefix)/share/man/man$$num; \
-		find $^ -name "*.$$num.gz" | xargs -i install {} $(DESTDIR)$(prefix)/share/man/man$$num; \
+		install -d $(DESTDIR)$(mandir)/man$$num; \
+		find $^ -name "*.$$num.gz" | xargs -i install {} $(DESTDIR)$(mandir)/man$$num; \
 	done
 
 %.gz: %
 	cat $< | sed -e "s|@prefix@|$(prefix)|g" | gzip -9 - > $@
 
 uninstall:
-	find $(DESTDIR)$(prefix)/share/man -type f -name ihms-preconfigure.8.gz -or -name ihms-reconfigure.8.gz -or \
+	find $(mandir) -type f -name ihms-preconfigure.8.gz -or -name ihms-reconfigure.8.gz -or \
 		-name sysconf\*.gz | xargs -i rm {}
 
 distclean: clean

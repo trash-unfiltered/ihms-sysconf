@@ -22,6 +22,15 @@
 # license     http://www.gnu.org/licenses/gpl-2.0.html GPL v2
 
 export prefix ?= /usr/local
+export bindir ?= $(prefix)/bin
+export sbindir ?= $(prefix)/sbin
+export sysconfdir ?= $(prefix)/etc
+export localstatedir ?= $(prefix)/var
+export datarootdir ?= $(prefix)/share
+export datadir ?= $(datarootdir)
+export localedir ?= $(datarootdir)/locale
+export mandir ?= $(datarootdir)/man
+export docdir ?= $(datarootdir)/doc/ihms-sysconf
 
 LIBMOD=$(sort $(shell find library -type f -name \*.in))
 LIB=$(LIBMOD:.in=.php)
@@ -37,9 +46,9 @@ install: install-utils install-rest install-i18n install-doc
 
 # Anything that goes in the ihms-sysconf-utils package.
 install-utils: $(PROG)
-	install -d $(DESTDIR)$(prefix)/bin
+	install -d $(DESTDIR)$(bindir)
 	find $^ -name sysconf-\* | grep -v frontend | grep -v sysconf-set-selections | grep -v sysconf-show | \
-		grep -v sysconf-copydb | grep -v sysconf-communicate | xargs -i install {} $(DESTDIR)$(prefix)/bin
+		grep -v sysconf-copydb | grep -v sysconf-communicate | xargs -i install {} $(DESTDIR)$(bindir)
 
 # Anything that goes in the ihms-sysconf-i18n package
 install-i18n:
@@ -51,24 +60,24 @@ install-doc:
 # Install all else
 install-rest: $(LIB) $(PROG) confmodule frontend sysconf.conf
 	install -d \
-		$(DESTDIR)$(prefix)/etc/ihms/ \
-		$(DESTDIR)$(prefix)/share/ihms/sysconf \
-		$(DESTDIR)$(prefix)/var/cache/ihms/sysconf \
-		$(DESTDIR)$(prefix)/bin \
-		$(DESTDIR)$(prefix)/sbin
+		$(DESTDIR)$(sysconfdir)/ihms \
+		$(DESTDIR)$(datadir)/ihms/sysconf \
+		$(DESTDIR)$(localstatedir)/cache/ihms/sysconf \
+		$(DESTDIR)$(bindir) \
+		$(DESTDIR)$(sbindir)
 	# Install sysconf configuration file
-	install -m 0644 sysconf.conf $(DESTDIR)$(prefix)/etc/ihms
+	install -m 0644 sysconf.conf $(DESTDIR)$(sysconfdir)/ihms
 	# This one is the ultimate backup copy
-	grep -v '^#' sysconf.conf > $(DESTDIR)$(prefix)/share/ihms/sysconf/sysconf.conf
+	grep -v '^#' sysconf.conf > $(DESTDIR)$(datadir)/ihms/sysconf/sysconf.conf
 	# Install sysconf library
-	find library -type d | xargs -i install -d $(DESTDIR)$(prefix)/share/ihms/{}
-	find library -type f -name \*.php | xargs -i install -m 0644 {} $(DESTDIR)$(prefix)/share/ihms/{}
+	find library -type d | xargs -i install -d $(DESTDIR)$(datadir)/ihms/{}
+	find library -type f -name \*.php | xargs -i install -m 0644 {} $(DESTDIR)$(datadir)/ihms/{}
 	# install bootstrap, frontend helper and ini file
-	install confmodule bootstrap.php frontend $(DESTDIR)$(prefix)/share/ihms/sysconf
+	install confmodule bootstrap.php frontend $(DESTDIR)$(datadir)/ihms/sysconf
 	# Install essential program
-	find $^ -maxdepth 1 -perm +100 -type f -name ihms-\* | xargs -i install {} $(DESTDIR)/$(prefix)/sbin
+	find $^ -maxdepth 1 -perm +100 -type f -name ihms-\* | xargs -i install {} $(DESTDIR)$(sbindir)
 	find $^ -maxdepth 1 -perm +100 -type f -name sysconf-show -or -name sysconf-copydb -or -name sysconf-communicate \
-		-or -name sysconf-set-selections | xargs -i install {} $(DESTDIR)$(prefix)/bin
+		-or -name sysconf-set-selections | xargs -i install {} $(DESTDIR)$(bindir)
 
 demo: $(LIB) sysconf.conf frontend samples/demo
 	SYSCONF_SYSTEMRC="$(shell pwd)/sysconf.conf" SYSCONF_FRONTEND=dialog ./frontend samples/demo
@@ -88,12 +97,11 @@ sysconf.conf:
 uninstall:
 	$(MAKE) -C po uninstall
 	$(MAKE) -C doc uninstall
-	$(RM) $(DESTDIR)$(prefix)/etc/ihms/sysconf.conf
-	$(RM) -R $(DESTDIR)$(prefix)/share/ihms/library/iHMS/Sysconf $(DESTDIR)$(prefix)/share/ihms/sysconf
-	$(RM) $(DESTDIR)$(prefix)/sbin/ihms-* $(DESTDIR)$(prefix)/bin/sysconf-*
-	$(RM) -r $(DESTDIR)$(prefix)/var/cache/ihms/sysconf
-	find $(DESTDIR)$(prefix)/share/ihms -depth -type d -empty | xargs -i rm -R {}
-
+	$(RM) $(sysconfdir)/ihms/sysconf.conf
+	$(RM) -R $(datadir)/ihms/library/iHMS/Sysconf $(DESTDIR)$(datadir)/ihms/sysconf
+	$(RM) $(bindir)/sysconf-* $(DESTDIR)$(sbindir)/ihms-*
+	$(RM) -r $(localstatedir)/cache/ihms/sysconf
+	find $(datadir)/share/ihms -depth -type d -empty | xargs -i rm -R {}
 
 distclean: clean
 clean:
