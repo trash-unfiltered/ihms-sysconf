@@ -73,7 +73,11 @@ if (version_compare(\Zend_Version::VERSION, '1.11') == -1) {
 }
 
 // Add sysconf library directory to the PHP include_path
-set_include_path(__DIR__ . '/library' . PATH_SEPARATOR . get_include_path());
+if(is_dir('library/iHMS')) {
+    set_include_path(__DIR__ . '/library' . PATH_SEPARATOR . get_include_path());
+} else {
+    set_include_path(dirname(__DIR__) . '/library' . PATH_SEPARATOR . get_include_path());
+}
 
 // Register classes loader
 // TODO Replace by classes map

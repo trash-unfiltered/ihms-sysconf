@@ -14,6 +14,7 @@ Sysconf is only GNU/Linux OS compatible.
 
 **Sysconf requires the following:**
 
+ * GNU make
  * PHP **5.3.3** or later; we recommend using the latest PHP version whenever possible
  * PHP Iconv extension
  * Zend Framework **1.11.x** (ZF library directory **must** be correctly set in your PHP include path)
@@ -21,11 +22,28 @@ Sysconf is only GNU/Linux OS compatible.
 
 ### USAGE
 
-Build and run the [demo](https://github.com/i-HMS/sysconf/blob/master/samples/demo.in "demo confmodule") script
-and also, see the [confmodule library](https://github.com/i-HMS/sysconf/blob/master/confmodule "confmodule") file. A better documentation will
+See the [confmodule library](https://github.com/i-HMS/sysconf/blob/master/confmodule "confmodule") file. A better documentation will
 come soon.
 
-Don't forget that for now, Sysconf is still in prototype state.
+#### Running demo script without installing
+
+To run the demo script without installing sysconf, just type:
+
+	$ make prefix=/tmp/ihms demo
+
+**Note:** The command above will build and run the demo script. **/tmp** will be used as directory to create sysconf database.
+Do not forget to run **make clean** at end to reset the source tree.
+
+#### Installing sysconf
+
+ To install sysconf, just type as root user:
+
+ 	# make clean
+ 	# make prefix=YOUR_PREFIX_PATH install
+
+**Note:** Default value for prefix is **/usr/local**.
+
+Sysconf is still in prototype state.
 
 ### LICENSE
 
