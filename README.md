@@ -44,9 +44,18 @@ For ***Debian*** and ***Ubuntu*** this can be done like this:
 
  To install sysconf, just type as root user:
 
- 	# make prefix=YOUR_PREFIX_PATH install
+ 	# make install
 
-**Note:** Default value for prefix is **/usr/local**.
+**Note:** By default, sysconf will be installed under /usr/local. You can override installation directories by using the
+following variables:
+
+	prefix, bindir, sbindir, datarootdir, datadir, sysconfdir, localstatedir, docdir, localedir and mandir.
+
+ For instance :
+
+	# make prefix=/usr sysconfdir=/etc localstatedir=/var install
+
+See this [document] (http://www.gnu.org/prep/standards/html_node/Directory-Variables.html#Directory-Variables "Directory-Variables") for more information about these variables
 
 ### demo script
 
