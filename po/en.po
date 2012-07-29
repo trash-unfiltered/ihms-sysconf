@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: i-HMS Sysconf 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-19 05:39+0200\n"
-"PO-Revision-Date: 2012-07-15 14:32+0100\n"
+"POT-Creation-Date: 2012-07-29 17:09+0200\n"
+"PO-Revision-Date: 2012-07-29 17:11+0100\n"
 "Last-Translator: Laurent Declercq <l.declercq@nuxwin.com>\n"
 "Language-Team: iHMS <l.declercq@nuxwin.com>\n"
 "Language: en\n"
@@ -20,307 +20,390 @@ msgstr ""
 "X-Poedit-Country: UNITED KINGDOM\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: ../iHMS/Sysconf/AutoSelect.php:87
+#: ../library/iHMS/Sysconf/AutoSelect.php:87
 msgid "Please do not capitalize the first letter of the sysconf frontend."
 msgstr "Please do not capitalize the first letter of the sysconf frontend."
 
-#: ../iHMS/Sysconf/AutoSelect.php:107
+#: ../library/iHMS/Sysconf/AutoSelect.php:107
 #, php-format
 msgid "Falling back to frontend %s"
 msgstr "Falling back to frontend %s"
 
-#: ../iHMS/Sysconf/AutoSelect.php:118
+#: ../library/iHMS/Sysconf/AutoSelect.php:115
 #, php-format
 msgid "Unable to initialize frontend %s"
 msgstr "Unable to initialize frontend %s"
 
-#: ../iHMS/Sysconf/AutoSelect.php:126
+#: ../library/iHMS/Sysconf/AutoSelect.php:123
 #, php-format
 msgid "Unable to start a frontend %s"
 msgstr "Unable to start a frontend %s"
 
-#: ../iHMS/Sysconf/Bootstrap.php:40
-#, php-format
-msgid "Your PHP version is %s. Sysconf require PHP %s or newer."
-msgstr "Your PHP version is %s. Sysconf require PHP %s or newer."
-
-#: ../iHMS/Sysconf/Bootstrap.php:46
-msgid "Sysconf is a CLI program."
-msgstr "Sysconf is a CLI program."
-
-#: ../iHMS/Sysconf/Bootstrap.php:52
-msgid "Sysconf require Iconv PHP extension."
-msgstr "Sysconf require Iconv PHP extension."
-
-#: ../iHMS/Sysconf/Bootstrap.php:58
-msgid "Sysconf require Zend Framework 1.11.x or newer."
-msgstr "Sysconf require Zend Framework 1.11.x or newer."
-
-#: ../iHMS/Sysconf/Bootstrap.php:67
-#, php-format
-msgid ""
-"Your Zend Framework version is %s. Sysconf require Zend Framework 1.11.x or "
-"newer."
-msgstr ""
-"Your Zend Framework version is %s. Sysconf require Zend Framework 1.11.x or "
-"newer."
-
-#: ../iHMS/Sysconf/Config.php:158
+#: ../library/iHMS/Sysconf/Config.php:160
 msgid "No configuration file found."
 msgstr "No configuration file found."
 
-#: ../iHMS/Sysconf/Config.php:178
+#: ../library/iHMS/Sysconf/Config.php:181
 msgid "sysconf: Config database not specified in config file."
 msgstr "sysconf: Config database not specified in config file."
 
-#: ../iHMS/Sysconf/Config.php:181
+#: ../library/iHMS/Sysconf/Config.php:184
 msgid "sysconf: Templates database not specified in config file."
 msgstr "sysconf: Templates database not specified in config file."
 
-#: ../iHMS/Sysconf/Config.php:198
+#: ../library/iHMS/Sysconf/Config.php:201
 #, php-format
-msgid ""
-"sysconf: Problem setting up the database defined by configuration stanza %d "
-"in %s : %s."
-msgstr ""
-"sysconf: Problem setting up the database defined by configuration stanza %d "
-"in %s : %s."
+msgid "sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s."
+msgstr "sysconf: Problem setting up the database defined by configuration stanza %d in %s : %s."
 
-#: ../iHMS/Sysconf/Config.php:308
+#: ../library/iHMS/Sysconf/Config.php:310
 msgid "Specify sysconf frontend to use."
 msgstr "Specify sysconf frontend to use."
 
-#: ../iHMS/Sysconf/Config.php:315
+#: ../library/iHMS/Sysconf/Config.php:317
 msgid "Specify minimum priority question to show."
 msgstr "Specify minimum priority question to show."
 
-#: ../iHMS/Sysconf/Config.php:324
-msgid "Show this help."
-msgstr "Show this help."
+#: ../library/iHMS/Sysconf/Config.php:326
+msgid "Display usage help."
+msgstr "Display usage help."
 
-#: ../iHMS/Sysconf/Config.php:435
+#: ../library/iHMS/Sysconf/Config.php:449
 #, php-format
 msgid "Ignoring invalid priority %s"
 msgstr "Ignoring invalid priority %s"
 
-#: ../iHMS/Sysconf/Config.php:437
+#: ../library/iHMS/Sysconf/Config.php:450
 #, php-format
 msgid "Valid priorities are \"%s\""
 msgstr "Valid priorities are \"%s\""
 
-#: ../iHMS/Sysconf/Config.php:596
+#: ../library/iHMS/Sysconf/Config.php:608
 #, php-format
 msgid "Attempt to access unknown property '%s' at %s line %s."
 msgstr "Attempt to access unknown property '%s' at %s line %s."
 
-#: ../iHMS/Sysconf/Config.php:659
+#: ../library/iHMS/Sysconf/Config.php:670
 msgid "Error while parsing configuration file."
 msgstr "Error while parsing configuration file."
 
-#: ../iHMS/Sysconf/Db.php:79
+#: ../library/iHMS/Sysconf/Db.php:76
 #, php-format
 msgid "Configuration database %s was not initialized"
 msgstr "Configuration database %s was not initialized"
 
-#: ../iHMS/Sysconf/Db.php:83
+#: ../library/iHMS/Sysconf/Db.php:80
 #, php-format
 msgid "Templates database %s was not initialized"
 msgstr "Templates database %s was not initialized"
 
-#: ../iHMS/Sysconf/Db.php:102
+#: ../library/iHMS/Sysconf/Db.php:99
 msgid "Driver type not specified"
 msgstr "Driver type not specified"
 
-#: ../iHMS/Sysconf/Db.php:112
+#: ../library/iHMS/Sysconf/Db.php:108
 #, php-format
 msgid "Driver %s not found: %s"
 msgstr "Driver %s not found: %s"
 
-#: ../iHMS/Sysconf/DbDriver.php:148
+#: ../library/iHMS/Sysconf/DbDriver.php:142
 #, php-format
 msgid "Wrong configuration value '%s' for %s field: %s"
 msgstr "Wrong configuration value '%s' for %s field: %s"
 
-#: ../iHMS/Sysconf/DbDriver.php:160
+#: ../library/iHMS/Sysconf/DbDriver.php:153
 msgid "(unknown)"
 msgstr "(unknown)"
 
-#: ../iHMS/Sysconf/DbDriver.php:161
+#: ../library/iHMS/Sysconf/DbDriver.php:154
 msgid "no name specified"
 msgstr "no name specified"
 
-#: ../iHMS/Sysconf/Element/Noninteractive/Error.php:58
-msgid ""
-"Sysconf was not configured to display this error message, so it mailed it to "
-"you"
-msgstr ""
-"Sysconf was not configured to display this error message, so it mailed it to "
-"you"
+#: ../library/iHMS/Sysconf/Element/Noninteractive/Error.php:60
+msgid "Sysconf was not configured to display this error message, so it mailed it to you"
+msgstr "Sysconf was not configured to display this error message, so it mailed it to you"
 
-#: ../iHMS/Sysconf/Element/Noninteractive/Error.php:94
+#: ../library/iHMS/Sysconf/Element/Noninteractive/Error.php:96
 msgid "unknown system"
 msgstr "unknown system"
 
-#: ../iHMS/Sysconf/Element/Noninteractive/Error.php:97
+#: ../library/iHMS/Sysconf/Element/Noninteractive/Error.php:99
 #, php-format
 msgid "Sysconf, running at %s"
 msgstr "Sysconf, running at %s"
 
-#: ../iHMS/Sysconf/Element/Teletype/Boolean.php:55
+#: ../library/iHMS/Sysconf/Element/Teletype/Boolean.php:57
 msgid "yes"
 msgstr "yes"
 
-#: ../iHMS/Sysconf/Element/Teletype/Boolean.php:56
+#: ../library/iHMS/Sysconf/Element/Teletype/Boolean.php:58
 msgid "no"
 msgstr "no"
 
-#: ../iHMS/Sysconf/Element/Teletype/Multiselect.php:56
+#: ../library/iHMS/Sysconf/Element/Teletype/Multiselect.php:59
 msgid "none of the above"
 msgstr "none of the above"
 
-#: ../iHMS/Sysconf/Element/Teletype/Multiselect.php:77
+#: ../library/iHMS/Sysconf/Element/Teletype/Multiselect.php:80
 msgid "Enter the items you want to select, separated by spaces."
 msgstr "Enter the items you want to select, separated by spaces."
 
-#: ../iHMS/Sysconf/Frontend.php:372
+#: ../library/iHMS/Sysconf/Frontend.php:375
 #, php-format
 msgid "Configuring %s"
 msgstr "Configuring %s"
 
-#: ../iHMS/Sysconf/Frontend.php:459
+#: ../library/iHMS/Sysconf/Frontend.php:460
 #, php-format
 msgid "Unable to load iHMS_Sysconf_Element_%s. Failed because %s"
 msgstr "Unable to load iHMS_Sysconf_Element_%s. Failed because %s"
 
-#: ../iHMS/Sysconf/Frontend/Dialog.php:136
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:138
 msgid "TERM is not set, so dialog frontend is not usable."
 msgstr "TERM is not set, so dialog frontend is not usable."
 
-#: ../iHMS/Sysconf/Frontend/Dialog.php:138
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:140
 msgid "Dialog frontend is incompatible with emacs shell buffers."
 msgstr "Dialog frontend is incompatible with emacs shell buffers."
 
-#: ../iHMS/Sysconf/Frontend/Dialog.php:141
-msgid ""
-"Dialog frontend will not work on a dumb terminal, an emacs shell buffer or "
-"without a controlling terminal."
-msgstr ""
-"Dialog frontend will not work on a dumb terminal, an emacs shell buffer or "
-"without a controlling terminal."
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:143
+msgid "Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal."
+msgstr "Dialog frontend will not work on a dumb terminal, an emacs shell buffer or without a controlling terminal."
 
-#: ../iHMS/Sysconf/Frontend/Dialog.php:166
-msgid ""
-"No usable dialog-like program is installed, so the dialog based frontend "
-"cannot be used"
-msgstr ""
-"No usable dialog-like program is installed, so the dialog based frontend "
-"cannot be used"
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:168
+msgid "No usable dialog-like program is installed, so the dialog based frontend cannot be used"
+msgstr "No usable dialog-like program is installed, so the dialog based frontend cannot be used"
 
-#: ../iHMS/Sysconf/Frontend/Dialog.php:173
-msgid ""
-"Dialog frontend requires a screen at least 13 lines tall and 31 columns wide."
-msgstr ""
-"Dialog frontend requires a screen at least 13 lines tall and 31 columns wide."
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:175
+msgid "Dialog frontend requires a screen at least 13 lines tall and 31 columns wide."
+msgstr "Dialog frontend requires a screen at least 13 lines tall and 31 columns wide."
 
-#: ../iHMS/Sysconf/Frontend/Dialog.php:426
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:428
 msgid "Module configuration"
 msgstr "Module configuration"
 
-#: ../iHMS/Sysconf/Frontend/Dialog.php:496
+#: ../library/iHMS/Sysconf/Frontend/Dialog.php:498
 #, php-format
 msgid "sysconf: %s output the above errors, giving up!"
 msgstr "sysconf: %s output the above errors, giving up!"
 
-#: ../iHMS/Sysconf/Frontend/Teletype.php:115
+#: ../library/iHMS/Sysconf/Frontend/Teletype.php:121
 msgid "More"
 msgstr "More"
 
-#: ../iHMS/Sysconf/Template.php:134
+#: ../library/iHMS/Sysconf/Template.php:122
 #, php-format
-msgid ""
-"warning: possible database corruption. Will attempt to repair by adding back "
-"missing question %s"
-msgstr ""
-"warning: possible database corruption. Will attempt to repair by adding back "
-"missing question %s"
+msgid "warning: possible database corruption. Will attempt to repair by adding back missing question %s"
+msgstr "warning: possible database corruption. Will attempt to repair by adding back missing question %s"
 
-#: ../iHMS/Sysconf/Template.php:256
+#: ../library/iHMS/Sysconf/Template.php:244
 #, php-format
-msgid ""
-"Template %s in %s has a duplicate field \"%s\" with new value \"%s\". "
-"Probably two templates are not properly separated by a one newline."
-msgstr ""
-"Template %s in %s has a duplicate field \"%s\" with new value \"%s\". "
-"Probably two templates are not properly separated by a one newline."
+msgid "Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a one newline."
+msgstr "Template %s in %s has a duplicate field \"%s\" with new value \"%s\". Probably two templates are not properly separated by a one newline."
 
-#: ../iHMS/Sysconf/Template.php:317
+#: ../library/iHMS/Sysconf/Template.php:305
 #, php-format
 msgid "Template parse error near `%s', in stanza %d of %s"
 msgstr "Template parse error near `%s', in stanza %d of %s"
 
-#: ../iHMS/Sysconf/Template.php:327
+#: ../library/iHMS/Sysconf/Template.php:315
 #, php-format
 msgid "Template %d in %s does not contain a 'Template:' line"
 msgstr "Template %d in %s does not contain a 'Template:' line"
 
-#: ../sysconf-preconfigure:95
-msgid "usage: sysconf-preconfigure [options] [modules]"
-msgstr ""
+#: ../ihms-preconfigure:100
+#: ../ihms-preconfigure.in:100
+msgid "Usage: sysconf-preconfigure [options] [modules]"
+msgstr "Usage: sysconf-preconfigure [options] [modules]"
 
-#: ../sysconf-preconfigure:98
+#: ../ihms-preconfigure:103
+#: ../ihms-preconfigure.in:103
 msgid "iHMS mode."
-msgstr ""
+msgstr "iHMS mode."
 
-#: ../sysconf-preconfigure:102
+#: ../ihms-preconfigure:107
+#: ../ihms-preconfigure.in:107
 msgid "Specify external module scanner to use."
-msgstr ""
+msgstr "Specify external module scanner to use."
 
-#: ../sysconf-preconfigure:120
+#: ../ihms-preconfigure:125
+#: ../ihms-preconfigure.in:125
 msgid "must specify some modules to preconfigure"
-msgstr ""
+msgstr "must specify some modules to preconfigure"
 
-#: ../sysconf-preconfigure:128
+#: ../ihms-preconfigure:131
+#: ../ihms-preconfigure.in:131
 #, php-format
 msgid "sysconf: external scanner `%s' is not executable or doesn't exists."
-msgstr ""
+msgstr "sysconf: external scanner `%s' is not executable or doesn't exists."
 
-#: ../sysconf-preconfigure:134
-msgid ""
-"delaying module configuration, since a module scanner is not installed nor "
-"provided on the command line."
-msgstr ""
+#: ../ihms-preconfigure:137
+#: ../ihms-preconfigure.in:137
+msgid "delaying module configuration, since a module scanner is not installed nor provided on the command line."
+msgstr "delaying module configuration, since a module scanner is not installed nor provided on the command line."
 
-#: ../sysconf-preconfigure:161 ../sysconf-preconfigure:168
+#: ../ihms-preconfigure:170
+#: ../ihms-preconfigure:177
+#: ../ihms-preconfigure.in:170
+#: ../ihms-preconfigure.in:177
 #, php-format
 msgid "%s failed: %s"
-msgstr ""
+msgstr "%s failed: %s"
 
-#: ../sysconf-preconfigure:189 ../sysconf-preconfigure:201
+#: ../ihms-preconfigure:191
+#: ../ihms-preconfigure:203
+#: ../ihms-preconfigure.in:191
+#: ../ihms-preconfigure.in:203
 #, php-format
 msgid "Extracting templates from modules: %d%%"
-msgstr ""
+msgstr "Extracting templates from modules: %d%%"
 
-#: ../sysconf-preconfigure:225
-#, fuzzy
+#: ../ihms-preconfigure:227
+#: ../ihms-preconfigure.in:227
 msgid "Preconfiguring modules ..."
-msgstr "Configuring %s"
+msgstr "Preconfiguring modules ..."
 
-#: ../sysconf-preconfigure:237
+#: ../ihms-preconfigure:239
+#: ../ihms-preconfigure.in:239
 #, php-format
 msgid "%s template parse error: %s"
-msgstr ""
+msgstr "%s template parse error: %s"
 
-#: ../sysconf-preconfigure:250
-#, fuzzy, php-format
+#: ../ihms-preconfigure:252
+#: ../ihms-preconfigure.in:252
+#, php-format
 msgid "preconfiguring %s (%s)"
-msgstr "Configuring %s"
+msgstr "preconfiguring %s (%s)"
 
-#: ../sysconf-preconfigure:252
+#: ../ihms-preconfigure:254
+#: ../ihms-preconfigure.in:254
 #, php-format
 msgid "sysconf: can't chmod: %s"
-msgstr ""
+msgstr "sysconf: can't chmod: %s"
 
-#: ../sysconf-preconfigure:268
+#: ../ihms-preconfigure:270
+#: ../ihms-preconfigure.in:270
 #, php-format
 msgid "%s failed to preconfigure, with exit status %d"
-msgstr ""
+msgstr "%s failed to preconfigure, with exit status %d"
+
+#: ../ihms-reconfigure:120
+#: ../ihms-reconfigure.in:120
+#, php-format
+msgid "Cannot read status file: %s"
+msgstr "Cannot read status file: %s"
+
+#: ../ihms-reconfigure:160
+#: ../ihms-reconfigure.in:160
+msgid "Usage: sysconf-reconfigure [options] modules"
+msgstr "Usage: sysconf-reconfigure [options] modules"
+
+#: ../ihms-reconfigure:162
+#: ../ihms-reconfigure.in:162
+msgid "Reconfigure all modules."
+msgstr "Reconfigure all modules."
+
+#: ../ihms-reconfigure:163
+#: ../ihms-reconfigure.in:163
+msgid "Show only not yet seen questions."
+msgstr "Show only not yet seen questions."
+
+#: ../ihms-reconfigure:164
+#: ../ihms-reconfigure.in:164
+msgid "Use default priority instead of low."
+msgstr "Use default priority instead of low."
+
+#: ../ihms-reconfigure:165
+#: ../ihms-reconfigure.in:165
+msgid "Force reconfiguration of broken modules."
+msgstr "Force reconfiguration of broken modules."
+
+#: ../ihms-reconfigure:166
+#: ../ihms-reconfigure.in:166
+msgid "Do not reload templates. (Use with caution.)"
+msgstr "Do not reload templates. (Use with caution.)"
+
+#: ../ihms-reconfigure:171
+#: ../ihms-reconfigure.in:171
+#, php-format
+msgid "%s must be run as root."
+msgstr "%s must be run as root."
+
+#: ../ihms-reconfigure:205
+#: ../ihms-reconfigure.in:205
+msgid "Please specify a module to reconfigure"
+msgstr "Please specify a module to reconfigure"
+
+#: ../ihms-reconfigure:228
+#: ../ihms-reconfigure.in:228
+#, php-format
+msgid "%s is not installed."
+msgstr "%s is not installed."
+
+#: ../ihms-reconfigure:233
+#: ../ihms-reconfigure.in:233
+#, php-format
+msgid "%s is broken or not fully installed."
+msgstr "%s is broken or not fully installed."
+
+#: ../sysconf-communicate:78
+#: ../sysconf-communicate.in:78
+msgid "Usage: sysconf-communicate [options] [module]"
+msgstr "Usage: sysconf-communicate [options] [module]"
+
+#: ../sysconf-set-selections:171
+#: ../sysconf-set-selections.in:171
+#, php-format
+msgid "Loading answer for '%s'"
+msgstr "Loading answer for '%s'"
+
+#: ../sysconf-set-selections:191
+#: ../sysconf-set-selections:219
+#: ../sysconf-set-selections.in:191
+#: ../sysconf-set-selections.in:219
+#, php-format
+msgid "Cannot find a question for %s"
+msgstr "Cannot find a question for %s"
+
+#: ../sysconf-set-selections:214
+#: ../sysconf-set-selections.in:214
+#, php-format
+msgid "Setting %s answer flag"
+msgstr "Setting %s answer flag"
+
+#: ../sysconf-set-selections:240
+#: ../sysconf-set-selections.in:240
+#, php-format
+msgid "parse error on line %d: '%s'"
+msgstr "parse error on line %d: '%s'"
+
+#: ../sysconf-set-selections:243
+#: ../sysconf-set-selections.in:243
+#, php-format
+msgid "Unknown type %s, skipping line %s"
+msgstr "Unknown type %s, skipping line %s"
+
+#: ../sysconf-set-selections:300
+#: ../sysconf-set-selections.in:300
+#, php-format
+msgid "Can't open %s: %s"
+msgstr "Can't open %s: %s"
+
+#: ../sysconf-set-selections:334
+#: ../sysconf-set-selections.in:334
+#, php-format
+msgid "Trying to set '%s' flag to '%s'"
+msgstr "Trying to set '%s' flag to '%s'"
+
+#: ../sysconf-set-selections:337
+#: ../sysconf-set-selections.in:337
+#, php-format
+msgid "Trying to set '%s' [%s] to '%s'"
+msgstr "Trying to set '%s' [%s] to '%s'"
+
+#: ../sysconf-show:163
+#: ../sysconf-show.in:163
+#, php-format
+msgid "%s: unknown database"
+msgstr "%s: unknown database"
+
