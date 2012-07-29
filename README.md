@@ -25,16 +25,31 @@ Sysconf is only GNU/Linux OS compatible.
 See the [confmodule library](https://github.com/i-HMS/sysconf/blob/master/confmodule "confmodule") file. A better documentation will
 come soon.
 
-#### Running demo script without installing
+### Installation and demo script
+
+In any case, before running demo script or installing sysconf on your system, you must ensure that you respect all
+requirements as mentionned in the **REQUIREMENT** section. For ***Debian*** and ***Ubuntu*** this could be done like this:
+
+**Debian**
+
+	# aptitude update && aptitude -R install make php5-cli zendframework
+
+**Ubuntu**
+
+	# aptitude update && aptitude -R install make php5-cli libzend-framework-php
+
+**Note:** In both cases, you still need to add Zend Framework library in your PHP include_path.
+
+##### Running the demo script without installing sysconf
 
 To run the demo script without installing sysconf, just type:
 
 	$ make prefix=/tmp/ihms demo
 
-**Note:** The command above will build and run the demo script. **/tmp** will be used as directory to create sysconf database.
-Do not forget to run **make clean** at end to reset the source tree.
+This command will build and run the demo script. **/tmp** will be used as directory to create the sysconf database. Do
+not forget to run **make clean** at end to reset the source tree.
 
-#### Installing sysconf
+##### Installing sysconf
 
  To install sysconf, just type as root user:
 

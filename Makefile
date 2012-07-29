@@ -31,7 +31,7 @@ PROG=$(PROGMOD:.in=)
 
 all: $(LIB) $(PROG) confmodule frontend samples/demo sysconf.conf
 	$(MAKE) -C po
-	#$(MAKE) -C doc
+	$(MAKE) -C doc
 
 # Does not attempt to install documentation, as that can be fairly system
 # specific.
