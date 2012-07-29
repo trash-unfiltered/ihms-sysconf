@@ -64,3 +64,6 @@ check:
 		printf "$$lang: "; \
 		msgfmt -o /dev/null -c -v --statistics $$lang.po;\
 	done
+
+uninstall:
+	find $(DESTDIR)$(prefix)/share/ihms/locale -type f -name sysconf.mo | xargs -i rm {}
