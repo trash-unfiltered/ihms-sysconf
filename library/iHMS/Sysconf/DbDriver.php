@@ -309,16 +309,6 @@ abstract class DbDriver implements IteratorAggregate
     }
 
     /**
-     * Create an iterator object that can be used to iterate over each item in the database, and return it.
-     *
-     * Each subclass must implement this method
-     *
-     * @abstract
-     * @return \Iterator
-     */
-    //abstract public function getIterator();
-
-    /**
      * Save the entire database state, and closes down the driver's access to the database
      *
      * @abstract
