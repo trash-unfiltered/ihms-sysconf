@@ -58,7 +58,7 @@ class Callback implements OuterIterator
     /**
      * Constructor
      *
-     * @param Iterator $iterator
+     * @param Iterator|\Traversable $iterator
      * @param Closure $callback
      */
     public function __construct(Iterator $iterator, Closure $callback)

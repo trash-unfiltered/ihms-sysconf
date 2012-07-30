@@ -30,7 +30,8 @@
 namespace iHMS\Sysconf\Iterator;
 
 use FilterIterator;
-use iterator;
+use Iterator;
+use Traversable;
 use Closure;
 
 /**
@@ -51,7 +52,7 @@ class CallbackFilter extends FilterIterator
     protected $_callback;
 
     /**
-     * @param Iterator $iterator
+     * @param Iterator|Traversable $iterator
      * @param Closure $callback
      */
     public function __construct(Iterator $iterator, Closure $callback)

@@ -17,7 +17,7 @@ Sysconf is only GNU/Linux OS compatible.
  * GNU make
  * PHP **5.3.3** or later; we recommend using the latest PHP version whenever possible
  * PHP Iconv extension
- * Zend Framework **1.11.x** (ZF library directory **must** be correctly set in your PHP include path)
+ * Zend Framework **1.10.x** (ZF library directory **must** be correctly set in your PHP include path)
  * whiptail and/or dialog program (OPTIONAL but still recommended for better visual experience)
 
 ### USAGE
@@ -32,13 +32,16 @@ For ***Debian*** and ***Ubuntu*** this can be done like this:
 
 **Debian**
 
-	# aptitude update && aptitude -R install make php5-cli zendframework
+	# aptitude update && aptitude -R install make php5-cli php5-cgi zendframework
+
+**Note:** Here, we install php-cgi package to avoid to install Apache2 && cie
 
 **Ubuntu**
 
 	# aptitude update && aptitude -R install make php5-cli libzend-framework-php
 
-**Note:** In both cases, you still need to add Zend Framework library in your PHP include_path.
+**Note:** For ubuntu, you still need to add Zend Framework library in your PHP include_path. You can do this by editing
+the /etc/php/conf.d/zend-framework.ini file (simply uncomment the second line).
 
 #### Installing sysconf on your system
 

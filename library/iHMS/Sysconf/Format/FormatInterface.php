@@ -30,7 +30,7 @@
 namespace iHMS\Sysconf\Format;
 
 /**
- * FormatInterface class
+ * FormatInterface interface
  *
  * This is the base of a class of objects that format database output in various ways, and can read in parse the result
  *

@@ -88,7 +88,7 @@ class Stack extends Copy
         }
 
         if (!$this->_stack) {
-            $this->error("stack is empty");
+            $this->error('stack is empty');
         }
     }
 
@@ -108,7 +108,7 @@ class Stack extends Copy
      * Iterates over all the items in all the drivers in the whole stack. However, only return each item once, even if
      * multiple drivers contain it
      *
-     * @return Iterator|void
+     * @return CallbackFilter|\Traversable
      */
     public function getIterator()
     {

@@ -29,6 +29,8 @@
 
 namespace iHMS\Sysconf;
 
+use IteratorAggregate;
+
 /**
  * DbDriver class
  *
@@ -42,7 +44,7 @@ namespace iHMS\Sysconf;
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class DbDriver
+abstract class DbDriver implements IteratorAggregate
 {
     /**
      * @var string The name of the database. This field is required
@@ -314,7 +316,7 @@ abstract class DbDriver
      * @abstract
      * @return \Iterator
      */
-    abstract public function getIterator();
+    //abstract public function getIterator();
 
     /**
      * Save the entire database state, and closes down the driver's access to the database

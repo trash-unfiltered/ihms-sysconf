@@ -54,7 +54,7 @@ use iHMS\Sysconf\Log;
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-abstract class Cache extends DbDriver implements IteratorAggregate
+abstract class Cache extends DbDriver
 {
     /**
      * An associative array that holds the data for each loaded item in the database. Each key is an item name;
@@ -137,7 +137,7 @@ abstract class Cache extends DbDriver implements IteratorAggregate
      * Derived classes *should* override this method and construct their own iterator. Then at the end return an
      * {@link AppendIterator} that holds both iterators (this one first)
      *
-     * @return Iterator|Traversable
+     * @return CallbackFilter|Traversable
      */
     public function getIterator()
     {
