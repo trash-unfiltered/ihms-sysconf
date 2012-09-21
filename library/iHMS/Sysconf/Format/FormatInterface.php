@@ -66,7 +66,7 @@ interface FormatInterface
     public function beginFile($filehandle);
 
     /**
-     * Format a record and and write it out to the filehandle. Should include an end-of-record marker of some sort that
+     * Format a record and write it out to the filehandle. Should include an end-of-record marker of some sort that
      * can be recognized by the parse function.
      *
      * $data is the same structure read should return.

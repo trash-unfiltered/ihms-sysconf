@@ -1,0 +1,20 @@
+This is the Sysconf Configuration Management system. To test it, these
+commands.
+
+First, you must build needed script as this:
+
+	$ make
+
+Once it's done, you can run the demo script with the following commands:
+
+1. Running the demo script by using the dialog frontend
+
+	$ SYSCONF_FRONTEND=dialog ./frontend sample/demo
+
+2. Running the demo script by using the teletype frontend
+
+	SYSCONF_FRONTEND=teletype ./frontend sample/demo
+
+3. Running the demo script by using the noninteractive frontend
+
+	SYSCONF_FRONTEND=noninteractive ./frontend sample/demo

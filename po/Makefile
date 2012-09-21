@@ -27,6 +27,8 @@ POTFILES=$(sort $(shell find ../library -type f -name \*.php)) ../ihms-* ../sysc
 POFILES=$(wildcard *.po)
 MOFILES=$(POFILES:.po=.mo)
 
+.PHONY: all install check uninstall distclean clean
+
 all: sysconf.pot $(MOFILES)
 
 install: all
@@ -39,9 +41,6 @@ install: all
 sysconf.pot: $(POTFILES)
 	@echo "Rebuilding the pot file"
 	xgettext $(POTFILES) -o sysconf.pot -Lphp
-
-clean:
-	rm -f $(MOFILES) messages messages.mo
 
 %.mo: %.po
 	msgfmt -o $@ $<
@@ -67,3 +66,7 @@ check:
 
 uninstall:
 	find $(localedir) -type f -name sysconf.mo | xargs -i rm {}
+
+distclean: clean
+clean:
+	rm -f $(MOFILES) messages messages.mo

@@ -52,7 +52,7 @@ use iHMS\Sysconf\Iterator\Callback;
  * @link        https://github.com/i-HMS/sysconf Sysconf Home Site
  * @version     0.0.1
  */
-class Question implements \IteratorAggregate
+class Question
 {
     /**
      * @var Question[]
@@ -127,9 +127,10 @@ class Question implements \IteratorAggregate
      * Returns an iterator object that will iterate over all existing questions, returning a new question object each
      * time it is called
      *
-     * @return Callback
+     * @static
+     * @return Callback Callback iterator object
      */
-    public function getIterator()
+    public static function getIterator()
     {
         return new Callback(
             Db::getConfig()->getIterator(),

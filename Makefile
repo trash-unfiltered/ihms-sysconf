@@ -38,6 +38,8 @@ LIB=$(LIBMOD:.in=.php)
 PROGMOD=$(sort $(shell find . -maxdepth 1 -perm +100 -type f -name sysconf-\*.in -or -name ihms-\*.in))
 PROG=$(PROGMOD:.in=)
 
+.PHONY: all install install-i18n install-doc install-rest demo uninstall distclean clean
+
 all: $(LIB) $(PROG) bootstrap.php confmodule frontend samples/demo sysconf.conf
 	$(MAKE) -C po
 	$(MAKE) -C doc
@@ -108,5 +110,3 @@ clean:
 	$(MAKE) -C po clean
 	$(MAKE) -C doc clean
 	$(RM) $(LIB) $(PROG) bootstrap.php frontend samples/demo sysconf.conf
-
-PHONY: clean

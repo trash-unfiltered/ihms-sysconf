@@ -24,6 +24,8 @@
 MANPAGES = $(sort $(shell find man -type f ! -name \*.gz))
 MANPAGES_GZ = $(MANPAGES:=.gz)
 
+.PHONY: all install uninstall distclean clean
+
 all: $(MANPAGES_GZ)
 
 install: $(MANPAGES_GZ)

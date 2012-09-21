@@ -2,3 +2,5 @@
 - FrontEnd (Readline)
 - FrontEnd (Web)
 - Remove ZF dependency
+- Remove make dependency
+- change module word to package since any iHMS component is now provided as composer package
