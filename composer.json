@@ -1,0 +1,40 @@
+{
+	"name":"ihms/ihms-sysconf",
+	"type":"ihms-make",
+	"description":"iHMS core library",
+	"authors":[
+		{
+			"name":"Laurent Declercq",
+			"email":"l.declercq@nuxwin.com",
+			"role":"project lead / developer"
+		}
+	],
+	"license":"GPL-2.0+",
+	"keywords":[
+		"ihms",
+		"admin"
+	],
+	"repositories":[
+		{
+			"packagist":false
+		},
+		{
+			"type":"composer",
+			"url":"http://packages.i-hms.net/"
+		}
+	],
+	"require":{
+		"PHP":">=5.3.3",
+		"ihms/ihms-installer":"dev-master"
+	},
+	"autoload":{
+		"psr-0":{
+			"iHMS\\":"library/"
+		}
+	},
+	"extra":{
+		"branch-alias":{
+			"dev-master":"0.0.1-dev"
+		}
+	}
+}
